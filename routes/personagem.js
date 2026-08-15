@@ -12,9 +12,6 @@ router.get('/', async (req, res) =>
     }
     catch (err)
     {
-        console.log("err: " + err);
-        console.log("err.errors: " + err.errors);
-        console.log("err.message: " + err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -28,9 +25,6 @@ router.get('/:id', async (req, res) =>
     }
     catch (err)
     {
-        console.log("err: " + err);
-        console.log("err.errors: " + err.errors);
-        console.log("err.message: " + err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -40,13 +34,11 @@ router.post("/", async (req, res) =>
 {
     try
     {
-        res.status(201).json(await service.save(req.body));
+        const resultado = await service.save(req.body);
+        res.status(resultado.status).json(resultado);
     }
     catch (err)
     {
-        console.log("err: " + err);
-        console.log("err.errors: " + err.errors);
-        console.log("err.message: " + err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -56,13 +48,11 @@ router.patch("/:id", async (req, res) =>
 {
     try
     {
-        res.status(201).json(await service.save(req.body));
+        const resultado = await service.save(req.body);
+        res.status(resultado.status).json(resultado);
     }
     catch (err)
     {
-        console.log("err: " + err);
-        console.log("err.errors: " + err.errors);
-        console.log("err.message: " + err.message);
         res.status(500).json({ message: err.message });
     }
 });
@@ -127,18 +117,16 @@ async function postPut(req, res, params_id)
 }*/
 
 // DELETE/:id
-router.delete('/:id', async (req, res) =>
+router.delete("/:id", async (req, res) =>
 {
     try
     {
-        res.json(await service.remove(req.params.id));
+        const resultado = await service.remove(req.params.id);
+        res.status(resultado.status).json(resultado);
     }
     catch (err)
     {
-        console.log("err: " + err);
-        console.log("err.errors: " + err.errors);
-        console.log("err.message: " + err.message);
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 

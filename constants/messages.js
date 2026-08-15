@@ -55,6 +55,7 @@ module.exports =
 
     NOVELA:
     {
-        TITLE_DUPLICATE: "Título já cadastrado."
+        TITLE_DUPLICATE: "Título já cadastrado.",
+        SYNOPSIS_DUPLICATE: "Sinopse Conceitual já cadastrada."
     }
 };
