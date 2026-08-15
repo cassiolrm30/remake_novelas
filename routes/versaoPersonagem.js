@@ -1,35 +1,13 @@
-const express          = require("express");
-const Personagem       = require("../models/Personagem");
-const VersaoNovela     = require("../models/VersaoNovela");
-const VersaoPersonagem = require("../models/VersaoPersonagem");
-const router           = express.Router();
-const mensagemNotFound = "Registro não encontrado.";
-const mensagemSuccess  = "Dados salvos com sucesso.";
+const express = require("express");
+const service = require("../services/personagemService");
+const router  = express.Router();
 
 // GET
 router.get('/', async (req, res) =>
 {
     try
     {
-        const registros = await VersaoPersonagem.find();
-        const resultado = registros.map(registro =>
-                          ({
-                            _id: registro._id,
-                            genero: registro.genero,
-                            etnia: registro.etnia,
-                            faixaEtaria: registro.faixaEtaria,
-                            faixaPeso: registro.faixaPeso,
-                            faixaEstatura: registro.faixaEstatura,
-                            generoObrig: registro.generoObrig,
-                            etniaObrig: registro.etniaObrig,
-                            faixaEtariaObrig: registro.faixaEtariaObrig,
-                            faixaPesoObrig: registro.faixaPesoObrig,
-                            faixaEstaturaObrig: registro.faixaEstaturaObrig,
-                            versaoNovelaOriginal: registro.versaoNovelaOriginal,
-                            personagemOriginal: registro.personagemOriginal
-                          }));
-
-        res.json(resultado);
+        res.json(await service.getAll());
     }
     catch (err)
     {
@@ -42,10 +20,7 @@ router.get('/:id', async (req, res) =>
 {
     try
     {
-        const resultado = await VersaoPersonagem.findById(req.params.id);
-        if (resultado == null)
-            return res.status(404).json({ message: mensagemNotFound });
-        res.json(resultado);
+        res.json(await service.get(req.params.id));
     }
     catch (err)
     {
@@ -56,18 +31,34 @@ router.get('/:id', async (req, res) =>
 // POST
 router.post('/', async (req, res) =>
 {
-    await postPut(req, res, null);
-    //const dadosImportacao = await doImport(registros, 1);
+    try
+    {
+        const resultado = await service.save(req.body);
+        res.status(resultado.status).json(resultado);
+        //const dadosImportacao = await doImport(registros, 1);
+    }
+    catch (err)
+    {
+        res.status(500).json({ message: err.message });
+    }
 });
 
 // PATCH (PUT)
 router.patch('/:id', async (req, res) =>
 {
-    await postPut(req, res, req.params.id);
-    //const dadosImportacao = await doImport(registros, 1);
+    try
+    {
+        const resultado = await service.save(req.body);
+        res.status(resultado.status).json(resultado);
+        //const dadosImportacao = await doImport(registros, 1);
+    }
+    catch (err)
+    {
+        res.status(500).json({ message: err.message });
+    }
 });
 
-async function postPut(req, res, params_id)
+/*async function postPut(req, res, params_id)
 {
     let resultado = new VersaoPersonagem();
     let mensagem = mensagemSuccess;
@@ -126,20 +117,19 @@ async function postPut(req, res, params_id)
     {
         res.status(400).json({ message: err.message });
     }
-}
+}*/
 
 // DELETE/:id
 router.delete('/:id', async (req, res) =>
 {
     try
     {
-        const resultado = await VersaoPersonagem.findByIdAndDelete({ _id: req.params.id });
-        //const dadosImportacao = await doImport(registros, 1);
-        res.json({ message: "Dados excluídos com sucesso.", resultado });
+        const resultado = await service.remove(req.params.id);
+        res.status(resultado.status).json(resultado);
     }
     catch (err)
     {
-        res.status(500).json({ message: err.message });
+        res.status(400).json({ message: err.message });
     }
 });
 

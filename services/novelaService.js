@@ -35,9 +35,9 @@ async function save(dados, session = null)
             
             // exclui os personagens antigos da novela, verificando antes se "session" existe
             novela.personagens = [];
-            const queryDeleteVersaoNovela = Personagem.deleteMany({ novelaOriginal: novela._id });
-            if (session) { queryDeleteVersaoNovela.session(session); }
-            await queryDeleteVersaoNovela;
+            const queryDeletePersonagens = Personagem.deleteMany({ novelaOriginal: novela._id });
+            if (session) { queryDeletePersonagens.session(session); }
+            await queryDeletePersonagens;
         }
 
         // Validações
@@ -113,10 +113,28 @@ async function remove(_id, session = null)
         const novela = await queryFindNovela;
         if (!novela) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
         
+        // exclui as versões da novela e seus respectivos personagens, verificando antes se "session" existe
+        const queryFindVersoes = VersaoNovela.find({ novelaOriginal: _id });
+        if (session) { queryFindVersoes.session(session); }
+        const versoes = queryFindVersoes;
+
+        for (const versao of versoes)
+        {
+            // exclui os personagens da versão de novela, verificando antes se "session" existe
+            const queryDeleteVersoesPersonagens = VersaoPersonagem.deleteMany({ versaoNovelaOriginal: versao._id });
+            if (session) { queryDeleteVersoesPersonagens.session(session); }
+            await queryDeleteVersoesPersonagens;
+    
+            // exclui a versão de novela, verificando antes se "session" existe
+            const queryDeleteVersaoNovela = VersaoNovela.deleteOne({ _id: versao._id });
+            if (session) { queryDeleteVersaoNovela.session(session); }
+            await queryDeleteVersaoNovela;
+        }
+
         // exclui os personagens da novela, verificando antes se "session" existe
-        const queryDeleteVersaoNovela = Personagem.deleteMany({ novelaOriginal: novela._id });
-        if (session) { queryDeleteVersaoNovela.session(session); }
-        await queryDeleteVersaoNovela;
+        const queryDeletePersonagens = Personagem.deleteMany({ novelaOriginal: novela._id });
+        if (session) { queryDeletePersonagens.session(session); }
+        await queryDeletePersonagens;
 
         // exclui a novela, verificando antes se "session" existe
         const queryDeleteNovela = Novela.deleteOne({ _id: novela._id });
