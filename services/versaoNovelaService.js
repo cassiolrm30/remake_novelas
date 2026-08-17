@@ -1,10 +1,10 @@
-const VersaoNovela       = require("../models/VersaoNovela");
-const Novela            = require("../models/Novela");
-const Personagem        = require("../models/Personagem");
-const VersaoPersonagem   = require("../models/VersaoPersonagem");
-const MENSAGENS         = require("../constants/messages");
-const mongoose          = require("mongoose");
-const personagemService = require("../services/personagemService");
+const VersaoNovela     = require("../models/VersaoNovela");
+const Autor            = require("../models/Autor");
+const Emissora         = require("../models/Emissora");
+const Novela           = require("../models/Novela");
+const VersaoPersonagem = require("../models/VersaoPersonagem");
+const MENSAGENS        = require("../constants/messages");
+const mongoose         = require("mongoose");
 
 async function getAll()
 {
@@ -62,7 +62,7 @@ async function save(dados, session = null)
         // Validações
         const filtroSinopse = { titulo: dados.sinopse };
         if (dados._id) { filtroSinopse._id = { $ne: dados._id }; }
-        const sinopseExistente = await Novela.findOne(filtroSinopse).session(session);
+        const sinopseExistente = await VersaoNovela.findOne(filtroSinopse).session(session);
         if (sinopseExistente != null) { throw new Error(MENSAGENS.NOVELA.SYNOPSIS_DUPLICATE); }
 
         const _versaoOriginal = await Novela.findById(dados.versaoOriginal);
@@ -74,9 +74,9 @@ async function save(dados, session = null)
         const _emissora = await Emissora.findById(dados.emissora);
         if (_emissora == null) { return res.status(409).json({ message: "Emissora não existente." }); }
 
-        versao.dataLancamento = versao.dataLancamento;
-        versao.qtdCapitulos   = versao.qtdCapitulos;
-        versao.sinopse        = versao.sinopse;
+        versao.dataLancamento = dados.dataLancamento;
+        versao.qtdCapitulos   = dados.qtdCapitulos;
+        versao.sinopse        = dados.sinopse;
         versao.versaoOriginal = _versaoOriginal;
         versao.autor          = _autor;
         versao.emissora       = _emissora;
@@ -92,17 +92,17 @@ async function save(dados, session = null)
             const personagem = new VersaoPersonagem
                                ({
                                     genero: _dados[0],
-                                    etnia: _dados[1],
-                                    faixaEtaria: _dados[2],
-                                    faixaPeso: _dados[3],
-                                    faixaEstatura: _dados[4],
-                                    generoObrig: _dados[5],
-                                    etniaObrig: _dados[6],
-                                    faixaEtariaObrig: _dados[7],
-                                    faixaPesoObrig: _dados[8],
+                                    generoObrig: _dados[1],
+                                    etnia: _dados[2],
+                                    etniaObrig: _dados[3],
+                                    faixaEtaria: _dados[4],
+                                    faixaEtariaObrig: _dados[5],
+                                    faixaPeso: _dados[6],
+                                    faixaPesoObrig: _dados[7],
+                                    faixaEstatura: _dados[8],
                                     faixaEstaturaObrig: _dados[9],
-                                    versaoNovelaOriginal: versao._id,
-                                    personagemOriginal: personagem._id
+                                    versaoNovelaOriginal: _dados[10],
+                                    personagemOriginal: _dados[11]
                                });
             await personagem.save({ session });
             versao.personagens.push(personagem._id);
@@ -138,7 +138,7 @@ async function save(dados, session = null)
 
 async function remove(_id, session = null)
 {
-    let novela;
+    let resultado;
     const executar = async () =>
     {
         // localiza a novela, verificando antes se "session" existe
@@ -158,14 +158,14 @@ async function remove(_id, session = null)
         if (session) { queryDeleteVersaoNovela.session(session); }
         await queryDeleteVersaoNovela;
 
-        return novela;
+        return versao;
     }
 
     // já existe uma transação externa
     if (session)
     {
-        novela = await executar();
-        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado: novela };
+        resultado = await executar();
+        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado };
     }
 
     // caso a sessão não exista, cria-se uma nova
@@ -175,10 +175,10 @@ async function remove(_id, session = null)
     {
         await novaSession.withTransaction(async () =>
         {
-            novela = await executar();
+            resultado = await executar();
         });
 
-        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado: novela };
+        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado };
     }
     finally
     {

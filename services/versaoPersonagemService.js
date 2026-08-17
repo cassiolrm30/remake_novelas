@@ -1,6 +1,7 @@
-const Novela           = require("../models/Novela");
-const Personagem       = require("../models/Personagem");
 const VersaoPersonagem = require("../models/VersaoPersonagem");
+const Personagem       = require("../models/Personagem");
+const VersaoNovela     = require("../models/VersaoNovela");
+const Novela           = require("../models/Novela");
 const MENSAGENS        = require("../constants/messages");
 const mongoose         = require("mongoose");
 
@@ -20,44 +21,44 @@ async function save(dados, session = null)
 {
     const executar = async () =>
     {
-        let personagem;
+        let resultado;
 
         if (!dados._id)
-            personagem = new VersaoPersonagem();
+            resultado = new VersaoPersonagem();
         else
         {
-            personagem = await VersaoPersonagem.findById(dados._id).session(session);
-            if (!personagem) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
+            resultado = await VersaoPersonagem.findById(dados._id).session(session);
+            if (!resultado) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
         }
 
-        personagem.genero               = dados.genero;
-        personagem.etnia                = dados.etnia;
-        personagem.faixaEtaria          = dados.faixaEtaria;
-        personagem.faixaPeso            = dados.faixaPeso;
-        personagem.faixaEstatura        = dados.faixaEstatura;
-        personagem.generoObrig          = dados.generoObrig;
-        personagem.etniaObrig           = dados.etniaObrig;
-        personagem.faixaEtariaObrig     = dados.faixaEtariaObrig;
-        personagem.faixaPesoObrig       = dados.faixaPesoObrig;
-        personagem.faixaEstaturaObrig   = dados.faixaEstaturaObrig;
-        personagem.versaoNovelaOriginal = dados.versaoNovelaOriginal;
-        personagem.personagemOriginal   = dados.personagemOriginal;
+        resultado.genero               = dados.genero;
+        resultado.etnia                = dados.etnia;
+        resultado.faixaEtaria          = dados.faixaEtaria;
+        resultado.faixaPeso            = dados.faixaPeso;
+        resultado.faixaEstatura        = dados.faixaEstatura;
+        resultado.generoObrig          = dados.generoObrig;
+        resultado.etniaObrig           = dados.etniaObrig;
+        resultado.faixaEtariaObrig     = dados.faixaEtariaObrig;
+        resultado.faixaPesoObrig       = dados.faixaPesoObrig;
+        resultado.faixaEstaturaObrig   = dados.faixaEstaturaObrig;
+        resultado.versaoNovelaOriginal = dados.versaoNovelaOriginal;
+        resultado.personagemOriginal   = dados.personagemOriginal;
 
-        await personagem.save({ session });
+        await resultado.save({ session });
 
         // localiza a novela
-        const novela = await VersaoNovela.findById(personagem.novelaOriginal).session(session);
+        const novela = await VersaoNovela.findById(resultado.versaoNovelaOriginal).session(session);
         if (!novela) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
 
         // verifica se o personagem já está vinculado
         await VersaoNovela.updateOne
                      (
-                        { _id: personagem.versaoNovelaOriginal },
-                        { $addToSet: { personagens: personagem._id } },
+                        { _id: resultado.versaoNovelaOriginal },
+                        { $addToSet: { personagens: resultado._id } },
                         { session }
                      );
 
-        return personagem;
+        return resultado;
     };
 
     // caso a sessão já exista, a função anônima "executar()" é chamada e o método é encerrado
@@ -85,7 +86,7 @@ async function save(dados, session = null)
 
 async function remove(_id, session = null)
 {
-    let personagem;
+    let resultado;
     const executar = async () =>
     {
         // localiza o personagem, verificando antes se "session" existe
@@ -111,7 +112,7 @@ async function remove(_id, session = null)
         const queryUpdateVersaoNovela = VersaoNovela.updateOne
         (
             { _id: VersaoNovela._id },
-            { $pull: { personagens: personagem._id } }
+            { $pull: { personagens: resultado._id } }
         );
 
         if (session) { queryUpdateVersaoNovela.session(session); }
@@ -124,8 +125,8 @@ async function remove(_id, session = null)
     // já existe uma transação externa
     if (session)
     {
-        personagem = await executar();
-        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado: personagem };
+        resultado = await executar();
+        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado };
     }
 
     // caso a sessão não exista, cria-se uma nova
@@ -135,10 +136,10 @@ async function remove(_id, session = null)
     {
         await novaSession.withTransaction(async () =>
         {
-            personagem = await executar();
+            resultado = await executar();
         });
 
-        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado: personagem };
+        return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado };
     }
     finally
     {

@@ -3,12 +3,12 @@ const mongoose   = require("mongoose");
 const SCHEMA = new mongoose.Schema
 ({
   //id:                 { type: Number, required: true, unique: true },
-  _id:                  { type: mongoose.Schema.Types.ObjectId, default: () => new mongoose.Types.ObjectId() },
-  genero:               { type: mongoose.Schema.Types.ObjectId, required: true, ref: "GENERO" },
-  etnia:                { type: mongoose.Schema.Types.ObjectId, required: true, ref: "ETNIA" },
-  faixaEtaria:          { type: mongoose.Schema.Types.ObjectId, required: true, ref: "FAIXA_ETARIA" },
-  faixaPeso:            { type: mongoose.Schema.Types.ObjectId, required: true, ref: "FAIXA_PESO" },
-  faixaEstatura:        { type: mongoose.Schema.Types.ObjectId, required: true, ref: "FAIXA_ESTATURA" },
+  _id:                  { type: String, default: () => new mongoose.Types.ObjectId() },
+  genero:               { type: String, required: true, ref: "GENERO" },
+  etnia:                { type: String, required: true, ref: "ETNIA" },
+  faixaEtaria:          { type: String, required: true, ref: "FAIXA_ETARIA" },
+  faixaPeso:            { type: String, required: true, ref: "FAIXA_PESO" },
+  faixaEstatura:        { type: String, required: true, ref: "FAIXA_ESTATURA" },
   generoObrig:          { type: Boolean, required: false },
   etniaObrig:           { type: Boolean, required: false },
   faixaEtariaObrig:     { type: Boolean, required: false },
