@@ -13,11 +13,11 @@ const ETNIA =
 
 const FAIXA_ESTATURA =
 {
-    ATE10001: "Até 1,00 m",
-    ENTRE10001_150: "1,01 m a 1,50 m",
-    ENTRE15001_200: "1,51 m a 2,00 m",
-    ENTRE20001_250: "2,01 m a 2,50 m",
-    ENTRE25001_300: "2,50 m a 3,00 m"
+    ATE10001:       { descricao: "Até 1,00 m", min: 0, max: 1 },
+    ENTRE10001_150: { descricao: "1,01 m a 1,50 m", min: 10.1, max: 1.5 },
+    ENTRE15001_200: { descricao: "1,51 m a 2,00 m", min: 15.1, max: 2.0 },
+    ENTRE20001_250: { descricao: "2,01 m a 2,50 m", min: 20.1, max: 2.5 },
+    ENTRE25001_300: { descricao: "2,50 m a 3,00 m", min: 25.1, max: 3.0 },
 };
 
 const FAIXA_ETARIA =
@@ -36,12 +36,12 @@ const FAIXA_ETARIA =
 
 const FAIXA_PESO =
 {
-    ATE50: "Até 50 kg",
-    ENTRE50_100: "De 50,01 kg a 100 kg",
-    ENTRE10001_150: "De 100,01 kg a 150 kg",
-    ENTRE15001_200: "De 150,01 kg a 200 kg",
-    ENTRE20001_250: "De 200,01 kg a 250 kg",
-    ENTRE25001_300: "De 250,01 kg a 300 kg"
+    ATE50:          { descricao: "Até 50 kg", min: 0, max: 50 },
+    ENTRE50_100:    { descricao: "De 50,01 kg a 100 kg", min: 50.01, max: 100 },
+    ENTRE10001_150: { descricao: "De 100,01 kg a 150 kg", min: 100.01, max: 150 },
+    ENTRE15001_200: { descricao: "De 150,01 kg a 200 kg", min: 150.01, max: 200 },
+    ENTRE20001_250: { descricao: "De 200,01 kg a 250 kg", min: 200.01, max: 250 },
+    ENTRE25001_300: { descricao: "De 250,01 kg a 300 kg", min: 250.01, max: 300 }
 };
 
 const GENERO = { MASCULINO: "MASCULINO", FEMININO: "FEMININO", AMBOS: "AMBOS" };

@@ -8,6 +8,7 @@ module.exports =
 
     COMMON:
     {
+        INEXISTENT_DATA: campo => `${campo} inexistente.`,
         NOT_FOUND: "Registro não encontrado.",
         REQUIRED_FIELD: campo => `${campo} obrigatório.`,
         INVALID_RANGE: (campoInicial, campoFinal) => `${campoInicial} não deve ser maior que ${campoFinal}.`,
