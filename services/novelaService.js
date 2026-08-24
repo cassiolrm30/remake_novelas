@@ -1,4 +1,5 @@
 const Novela            = require("../models/Novela");
+const VersaoNovela      = require("../models/VersaoNovela");
 const Personagem        = require("../models/Personagem");
 const MENSAGENS         = require("../constants/messages");
 const mongoose          = require("mongoose");
@@ -103,61 +104,85 @@ async function save(dados, session = null)
 
 async function remove(_id, session = null)
 {
-    let novela;
     const executar = async () =>
     {
-        // localiza a novela, verificando antes se "session" existe
+        // ============================================================
+        // 1. Localiza a novela
+        // ============================================================
         const queryFindNovela = Novela.findById(_id);
         if (session) { queryFindNovela.session(session); }
-
         const novela = await queryFindNovela;
         if (!novela) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
-        
-        // exclui as versões da novela e seus respectivos personagens, verificando antes se "session" existe
-        const queryFindVersoes = VersaoNovela.find({ novelaOriginal: _id });
-        if (session) { queryFindVersoes.session(session); }
-        const versoes = queryFindVersoes;
 
-        for (const versao of versoes)
+        // ============================================================
+        // 2. Localiza as versões da novela
+        // ============================================================
+        const queryFindVersoes = VersaoNovela.find({ novelaOriginal: novela._id });
+        if (session) { queryFindVersoes.session(session); }
+        const versoes = await queryFindVersoes;
+
+        // ============================================================
+        // 3. Obtém somente os IDs das versões
+        // ============================================================
+        const versaoIds = versoes.map(versao => versao._id);
+
+        // ============================================================
+        // 4. Exclui os personagens das versões da novela
+        // ============================================================
+        if (versaoIds.length > 0)
         {
-            // exclui os personagens da versão de novela, verificando antes se "session" existe
-            const queryDeleteVersoesPersonagens = VersaoPersonagem.deleteMany({ versaoNovelaOriginal: versao._id });
+            const queryDeleteVersoesPersonagens = 
+                    VersaoPersonagem.deleteMany({ versaoNovelaOriginal: { $in: versaoIds }});
             if (session) { queryDeleteVersoesPersonagens.session(session); }
             await queryDeleteVersoesPersonagens;
-    
-            // exclui a versão de novela, verificando antes se "session" existe
-            const queryDeleteVersaoNovela = VersaoNovela.deleteOne({ _id: versao._id });
-            if (session) { queryDeleteVersaoNovela.session(session); }
-            await queryDeleteVersaoNovela;
         }
 
-        // exclui os personagens da novela, verificando antes se "session" existe
+        // ============================================================
+        // 5. Exclui as versões da novela
+        // ============================================================
+        const queryDeleteVersoes = VersaoNovela.deleteMany({ novelaOriginal: novela._id });
+        if (session) { queryDeleteVersoes.session(session); }
+        await queryDeleteVersoes;
+
+        // ============================================================
+        // 6. Exclui os personagens da novela
+        // ============================================================
         const queryDeletePersonagens = Personagem.deleteMany({ novelaOriginal: novela._id });
         if (session) { queryDeletePersonagens.session(session); }
         await queryDeletePersonagens;
 
-        // exclui a novela, verificando antes se "session" existe
+        // ============================================================
+        // 7. Exclui a novela
+        // ============================================================
         const queryDeleteNovela = Novela.deleteOne({ _id: novela._id });
         if (session) { queryDeleteNovela.session(session); }
         await queryDeleteNovela;
+        
+        return novela;  // retorna a novela que existia antes da exclusão
+    };
 
-        return novela;
-    }
-
-    // já existe uma transação externa
+    // ================================================================
+    // A função foi chamada dentro de uma transação existente
+    // ================================================================
     if (session)
     {
-        novela = await executar();
+        const novela = await executar();
         return { status: 200, message: MENSAGENS.SUCCESS.DELETED, resultado: novela };
     }
 
-    // caso a sessão não exista, cria-se uma nova
+    // ================================================================
+    // Não existe sessão: cria uma nova transação
+    // ================================================================
     const novaSession = await mongoose.startSession();
 
     try
     {
+        let novela;
+
         await novaSession.withTransaction(async () =>
         {
+            // Faz com que executar() utilize a transação recém-criada
+            session = novaSession;
             novela = await executar();
         });
 

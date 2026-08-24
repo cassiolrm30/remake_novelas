@@ -1,8 +1,9 @@
 const VersaoNovela     = require("../models/VersaoNovela");
+const VersaoPersonagem = require("../models/VersaoPersonagem");
 const Autor            = require("../models/Autor");
 const Emissora         = require("../models/Emissora");
 const Novela           = require("../models/Novela");
-const VersaoPersonagem = require("../models/VersaoPersonagem");
+const Personagem       = require("../models/Personagem");
 const MENSAGENS        = require("../constants/messages");
 const mongoose         = require("mongoose");
 
@@ -31,7 +32,7 @@ async function get(_id)
     return registro;
 }
 
-async function save(dados, session = null)
+/*async function save(dados, session = null)
 {
     // Validações
     if (dados.dataLancamento == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Data de Lançamento")); }
@@ -41,91 +42,264 @@ async function save(dados, session = null)
     if (dados.autor == "")          { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Autor")); }
     if (dados.emissora == "")       { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Emissora")); }
 
-	const executar = async () =>
+    const executar = async () =>
     {
         let versao;
 
+        // ============================================================
+        // Localiza ou cria a versão
+        // ============================================================
         if (!dados._id)
+        {
             versao = new VersaoNovela();
+            versao.personagens = [];
+        }
         else
         {
             versao = await VersaoNovela.findById(dados._id).session(session);
             if (!versao) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
-            
-            // exclui os personagens antigos da versão de novela, verificando antes se "session" existe
-            versao.personagens = [];
+
+            // Exclui os personagens antigos
             const queryDeletePersonagens = VersaoPersonagem.deleteMany({ versaoNovelaOriginal: versao._id });
-            if (session) { queryDeletePersonagens.session(session); }
-            await queryDeletePersonagens;    
+            queryDeletePersonagens.session(session);
+            await queryDeletePersonagens;
+            versao.personagens = [];
         }
 
-        // Validações
-        const filtroSinopse = { titulo: dados.sinopse };
+        // ============================================================
+        // Validação da sinopse
+        // ============================================================
+        const filtroSinopse = { sinopse: dados.sinopse };
         if (dados._id) { filtroSinopse._id = { $ne: dados._id }; }
         const sinopseExistente = await VersaoNovela.findOne(filtroSinopse).session(session);
-        if (sinopseExistente != null) { throw new Error(MENSAGENS.NOVELA.SYNOPSIS_DUPLICATE); }
+        if (sinopseExistente) { throw new Error(MENSAGENS.NOVELA.SYNOPSIS_DUPLICATE); }
 
-        const _versaoOriginal = await Novela.findById(dados.versaoOriginal);
-        if (_versaoOriginal == null) { return res.status(409).json({ message: "Novela não existente." }); }
+        // ============================================================
+        // Localiza novela original
+        // ============================================================
+        const novelaOriginal = await Novela.findById(dados.versaoOriginal).session(session);
+        if (!novelaOriginal) { throw new Error("Novela original não existente."); }
 
-        const _autor = await Autor.findById(dados.autor);
-        if (_autor == null) { return res.status(409).json({ message: "Autor não existente." }); }
+        // ============================================================
+        // Localiza autor
+        // ============================================================
+        const autor = await Autor.findById(dados.autor).session(session);
+        if (!autor) { throw new Error("Autor não existente."); }
 
-        const _emissora = await Emissora.findById(dados.emissora);
-        if (_emissora == null) { return res.status(409).json({ message: "Emissora não existente." }); }
+        // ============================================================
+        // Localiza emissora
+        // ============================================================
+        const emissora = await Emissora.findById(dados.emissora).session(session);
+        if (!emissora) { throw new Error("Emissora não existente."); }
 
+        // ============================================================
+        // Preenche a versão
+        // ============================================================
         versao.dataLancamento = dados.dataLancamento;
         versao.qtdCapitulos   = dados.qtdCapitulos;
         versao.sinopse        = dados.sinopse;
-        versao.versaoOriginal = _versaoOriginal;
-        versao.autor          = _autor;
-        versao.emissora       = _emissora;
-
-        // salva a versão de novela
+        versao.versaoOriginal = novelaOriginal._id;
+        versao.autor          = autor._id;
+        versao.emissora       = emissora._id;
         await versao.save({ session });
 
-        // salva os personagens
-        const _personagens = [...new Set(dados.personagens)]; // elimina itens repetidos
-        for (const item of _personagens)
+        // ============================================================
+        // Salva os personagens da versão
+        // ============================================================
+        const personagens = [ ...new Set(dados.personagens) ];
+        for (const item of personagens)
         {
-            const _dados = item.split('|');
-            const personagem = new VersaoPersonagem
-                               ({
-                                    genero: _dados[0],
-                                    generoObrig: _dados[1],
-                                    etnia: _dados[2],
-                                    etniaObrig: _dados[3],
-                                    faixaEtaria: _dados[4],
-                                    faixaEtariaObrig: _dados[5],
-                                    faixaPeso: _dados[6],
-                                    faixaPesoObrig: _dados[7],
-                                    faixaEstatura: _dados[8],
-                                    faixaEstaturaObrig: _dados[9],
-                                    versaoNovelaOriginal: _dados[10],
-                                    personagemOriginal: _dados[11]
-                               });
-            await personagem.save({ session });
-            versao.personagens.push(personagem._id);
-        }        
-        // atualiza o array de personagens da novela
-        await versao.save({ session });
+            const personagem = await Personagem.findById(item.personagemOriginal).session(session);
+            if (!personagem) { throw new Error("Personagem original não existente."); }
+            let versaoPersonagem                  = new VersaoPersonagem();
+            versaoPersonagem.genero               = item.genero;
+            versaoPersonagem.generoObrig          = item.generoObrig;
+            versaoPersonagem.etnia                = item.etnia;
+            versaoPersonagem.etniaObrig           = item.etniaObrig;
+            versaoPersonagem.faixaEtaria          = item.faixaEtaria;
+            versaoPersonagem.faixaEtariaObrig     = item.faixaEtariaObrig;
+            versaoPersonagem.faixaPeso            = item.faixaPeso;
+            versaoPersonagem.faixaPesoObrig       = item.faixaPesoObrig;
+            versaoPersonagem.faixaEstatura        = item.faixaEstatura;
+            versaoPersonagem.faixaEstaturaObrig   = item.faixaEstaturaObrig;
+            versaoPersonagem.personagemOriginal   = personagem._id;
+            versaoPersonagem.versaoNovelaOriginal = versao._id;
+            await versaoPersonagem.save({ session });
+            versao.personagens.push(versaoPersonagem._id);
+        }
+        await versao.save({ session }); // atualiza o array de personagens da versão
 
         return versao;
     };
 
-    // caso a sessão já exista, a função anônima "executar()" é chamada e o método é encerrado
-    if (session)
-        return await executar();
+    // Já existe uma transação externa
+    if (session) { return await executar(); }
 
-    // caso a sessão não exista, cria-se uma nova
+    // ================================================================
+    // Cria uma nova transação
+    // ================================================================
     const novaSession = await mongoose.startSession();
 
     try
     {
         let resultado;
+
         await novaSession.withTransaction(async () =>
         {
+            session = novaSession;
             resultado = await executar();
+        });
+
+        return { status: 201, message: MENSAGENS.SUCCESS.SAVED, resultado };
+    }
+    finally
+    {
+        await novaSession.endSession();
+    }
+}*/
+
+async function save(dados, session = null)
+{
+    // ================================================================
+    // Validações
+    // ================================================================
+    if (dados.dataLancamento == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Data de Lançamento")); }
+    if (dados.qtdCapitulos == "")   { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Nº Capítulos")); }
+    if (dados.sinopse == "")        { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Sinopse")); }
+    if (dados.versaoOriginal == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Versão Original")); }
+    if (dados.autor == "")          { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Autor")); }
+    if (dados.emissora == "")       { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Emissora")); }
+
+    // ================================================================
+    // Função efetivamente executada
+    // ================================================================
+    const executar = async (sessaoAtual) =>
+    {
+        let versao;
+
+        // ============================================================
+        // Localiza ou cria a versão da novela
+        // ============================================================
+        if (!dados._id)
+        {
+            versao = new VersaoNovela();
+            versao.personagens = [];
+        }
+        else
+        {
+            versao = await VersaoNovela.findById(dados._id).session(sessaoAtual);
+            if (!versao) { throw new Error(MENSAGENS.COMMON.NOT_FOUND); }
+
+            // ========================================================
+            // Exclui as versões antigas dos personagens
+            // ========================================================
+            await VersaoPersonagem.deleteMany({ versaoNovelaOriginal: versao._id }).session(sessaoAtual);
+            versao.personagens = [];
+        }
+
+        // ============================================================
+        // Validação da sinopse
+        // ============================================================
+        const filtroSinopse = { sinopse: dados.sinopse };
+        if (dados._id) { filtroSinopse._id = { $ne: dados._id }; }
+        const sinopseExistente = await VersaoNovela.findOne(filtroSinopse).session(sessaoAtual);
+        if (sinopseExistente) { throw new Error(MENSAGENS.NOVELA.SYNOPSIS_DUPLICATE); }
+
+        // ============================================================
+        // Localiza a novela original
+        // ============================================================
+        const novelaOriginal = await Novela.findById(dados.versaoOriginal).session(sessaoAtual);
+        if (!novelaOriginal) { throw new Error("Novela original não existente."); }
+
+        // ============================================================
+        // Localiza o autor
+        // ============================================================
+        const autor = await Autor.findById(dados.autor).session(sessaoAtual);
+        if (!autor) { throw new Error("Autor não existente."); }
+
+        // ============================================================
+        // Localiza a emissora
+        // ============================================================
+        const emissora = await Emissora.findById(dados.emissora).session(sessaoAtual);
+        if (!emissora) { throw new Error("Emissora não existente."); }
+
+        // ============================================================
+        // Preenche a versão da novela
+        // ============================================================
+        versao.dataLancamento = dados.dataLancamento;
+        versao.qtdCapitulos   = dados.qtdCapitulos;
+        versao.sinopse        = dados.sinopse;
+        versao.versaoOriginal = novelaOriginal._id;
+        versao.autor          = autor._id;
+        versao.emissora       = emissora._id;
+        await versao.save({ session: sessaoAtual });
+
+        // ============================================================
+        // Elimina personagens duplicados
+        // ============================================================
+        const personagens = [ ...new Map(dados.personagens.map(item => [item.personagemOriginal, item])).values() ];
+
+        // ============================================================
+        // Cria as versões dos personagens
+        // ============================================================
+        for (const item of personagens) // Parei aqui
+        {
+            console.log("Item recebido:", item);
+            // --------------------------------------------------------
+            // Localiza o personagem original
+            // --------------------------------------------------------
+            const personagem = await Personagem.findById(item.personagemOriginal).session(sessaoAtual);
+            if (!personagem) { throw new Error("Personagem original não existente."); }
+
+            // --------------------------------------------------------
+            // Cria a versão do personagem
+            // --------------------------------------------------------
+            const versaoPersonagem = new VersaoPersonagem
+            ({
+                genero:               item.genero,
+                etnia:                item.etnia,
+                faixaEtaria:          item.faixaEtaria,
+                faixaPeso:            item.faixaPeso,
+                faixaEstatura:        item.faixaEstatura,
+                generoObrig:          item.generoObrig,
+                etniaObrig:           item.etniaObrig,
+                faixaEtariaObrig:     item.faixaEtariaObrig,
+                faixaPesoObrig:       item.faixaPesoObrig,
+                faixaEstaturaObrig:   item.faixaEstaturaObrig,
+                personagemOriginal:   personagem._id,
+                versaoNovelaOriginal: versao._id
+            });
+
+            console.log("VersaoPersonagem antes do save:", versaoPersonagem);
+            // --------------------------------------------------------
+            // Salva a versão do personagem
+            // --------------------------------------------------------
+            await versaoPersonagem.save({ session: sessaoAtual });
+            console.log( "VersaoPersonagem salva:", versaoPersonagem._id );
+            versao.personagens.push(versaoPersonagem._id);  // Adiciona o ID ao array da versão da novela
+        }
+        await versao.save({ session: sessaoAtual });    // Atualiza o array "personagens" da versão da novela
+
+        return versao;
+    };
+
+    // ================================================================
+    // Se já existe uma transação externa
+    // ================================================================
+    if (session) { return await executar(session); }
+
+    // ================================================================
+    // Cria uma nova transação
+    // ================================================================
+    const novaSession = await mongoose.startSession();
+
+    try
+    {
+        let resultado;
+
+        await novaSession.withTransaction(async () =>
+        {
+            resultado = await executar(novaSession);
         });
 
         return { status: 201, message: MENSAGENS.SUCCESS.SAVED, resultado };
