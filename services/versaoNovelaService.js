@@ -244,7 +244,7 @@ async function save(dados, session = null)
         // ============================================================
         for (const item of personagens) // Parei aqui
         {
-            console.log("Item recebido:", item);
+            //console.log("Item recebido:", item);
             // --------------------------------------------------------
             // Localiza o personagem original
             // --------------------------------------------------------

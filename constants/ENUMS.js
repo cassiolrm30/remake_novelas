@@ -14,10 +14,10 @@ const ETNIA =
 const FAIXA_ESTATURA =
 {
     ATE10001:       { descricao: "Até 1,00 m", min: 0, max: 1 },
-    ENTRE10001_150: { descricao: "1,01 m a 1,50 m", min: 10.1, max: 1.5 },
-    ENTRE15001_200: { descricao: "1,51 m a 2,00 m", min: 15.1, max: 2.0 },
-    ENTRE20001_250: { descricao: "2,01 m a 2,50 m", min: 20.1, max: 2.5 },
-    ENTRE25001_300: { descricao: "2,50 m a 3,00 m", min: 25.1, max: 3.0 },
+    ENTRE10001_150: { descricao: "1,01 m a 1,50 m", min: 1.01, max: 1.5 },
+    ENTRE15001_200: { descricao: "1,51 m a 2,00 m", min: 1.51, max: 2.0 },
+    ENTRE20001_250: { descricao: "2,01 m a 2,50 m", min: 2.01, max: 2.5 },
+    ENTRE25001_300: { descricao: "2,50 m a 3,00 m", min: 2.51, max: 3.0 },
 };
 
 const FAIXA_ETARIA =
