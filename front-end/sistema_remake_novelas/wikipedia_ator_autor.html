@@ -1,0 +1,417 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sistema de Remake de Novelas</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="css/bootstrap_3_4_1.min.css">
+		<link rel="stylesheet" href="css/site.css" />
+		<link rel="stylesheet" href="css/site.min.css" />
+		<script src="css/jquery_3_5_1.min.js"></script>
+		<script src="css/bootstrap_3_4_1.min.js"></script>
+		<script src="js/chart.js"></script>
+		<script src="carga/atores.js"></script>
+		<script src="carga/autores.js"></script>
+		<script src="carga/novelas.js"></script>
+		<script src="carga/versoesNovelas.js"></script>
+		<script src="carga/personagens.js"></script>
+		<script src="carga/interpretacoes.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			.abas     { background-color:#FFF; }
+			.abas li  { float:left; }
+			.aba      { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:#FFF; font-size:15px; font-weight:bold; float:left; }
+			.ativa    { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:#000; color:#FFF; border-color:#000; float:left; }
+			.selected { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:#000; color:#FFF; border-color:#000; }
+			#header   { margin-left:-40px; }
+			#content  { padding:0px 0px 0px 0px; }
+
+			tr:nth-child(even) { background-color: #F2F2F2; }
+			.tabela			   { border: solid 1px #000; border-collapse: collapse; border-spacing: 0; font-size: 12px; width: 100%; }
+			.celulaTitulo	   { padding: 6px; font-weight: bold; color: #FFF; background-color: #000; vertical-align: middle; cursor: pointer; }
+			.celulaAcoes	   { padding: 6px 0px 0px 0px; font-weight: bold; color: #FFF; background-color: #000; vertical-align: top; }
+			.celulaConteudo    { padding: 4px 0px 4px 0px; vertical-align: middle; }
+			.acoes 			   { text-align:center; margin: 0px 0px 0px 0px; }
+			.paginacao 		   { background-color: #000; color: #FFF; text-align: center; padding: 5px; }
+			.paginacao a 	   { text-decoration: none; padding: 0px 10px 0px 10px; color: #FFF; background-color: #000; }
+			.pagina_atual 	   { text-decoration: none; padding: 1px 7px 1px 7px; color: #000; background-color: #FFF; font-weight: bold; border-radius: 3px; }
+			.item_paginacao a  { padding:0px 5px 0px 5px; }
+			.background_atores { background-image: url('wikipedia_ator_autor_files/figura_fundo_perfil_atores.png'); background-position:top right; background-repeat:no-repeat; height:22.5px; width:43px; }
+		</style>
+	</head>
+	<body>
+		<div class="container body-content">
+			<div style="height:100%;margin-top:-50px;">
+				<center>
+					<div id="header"></div>
+					<div id="content">
+						<table id="tblFilmografia" class="tabela"></table>
+					</div>
+				</center>
+			</div>
+		</div>
+		<script src="js/funcoes_gerais.js"></script>
+		<script>
+			var tabela, rotulos = [], larguras = [], aligns = [];
+			var vID = "2";
+			var v_qt_linhas 	   = 1;
+			var	sentidosAscendente = [];
+			var dadosProfissional  =
+			{
+				"CaminhoFoto": "",
+				"NomeCompleto": "",
+				"NomeArtistico": "",
+				"DataNascimento": "",
+				"DataFalecimento": "",
+				"Idade": "",
+				"CidadeNatal": "",
+				"Nacionalidade": "",
+				"Biografia" : "",
+				"Filmografia": []
+			};
+
+			function getIdade(data_nascimento, data_falecimento)
+			{
+				var ano_final, mes_final, dia_final;
+				var dados_data_nascimento = data_nascimento.split('-');
+				var ano_nascimento = parseInt(dados_data_nascimento[0]),
+					mes_nascimento = parseInt(dados_data_nascimento[1] - 1),
+					dia_nascimento = parseInt(dados_data_nascimento[2]);
+
+				if (data_falecimento == null)
+				{
+					var data_final = new Date;
+					ano_final = data_final.getFullYear();
+					mes_final = data_final.getMonth() + 1;
+					dia_final = data_final.getDate();
+				}
+				else
+				{
+					var dados_data_falecimento = data_falecimento.split('-');
+					ano_final = parseInt(dados_data_falecimento[0]);
+					mes_final = parseInt(dados_data_falecimento[1] - 1);
+					dia_final = parseInt(dados_data_falecimento[2]);
+				}
+				var idade = ano_final - ano_nascimento;
+				if (mes_final < mes_nascimento || mes_final == mes_nascimento && dia_final < dia_nascimento)
+					idade--;
+				return idade < 0 ? 0 : idade;
+			}
+
+			function getDataPorExtenso(data)
+			{
+				const dias_mes = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+				var dados_data = data.split('-');
+				var ano = parseInt(dados_data[0]), mes = parseInt(dados_data[1] - 1), dia = parseInt(dados_data[2]);
+				let mesPorExtenso = dias_mes[mes];
+				return (dia + " de " + mesPorExtenso + " de " + ano);
+			}
+
+			function exibirPerfil()
+			{
+				var altura_foto  = 100;
+				var largura_foto = 27;
+				var resultado    = "";
+
+				$("#spanTitulo").html(dadosProfissional.NomeArtistico);
+				resultado += "<table border='0' style='height:100%;width:390px;font-size:11px;'>";
+				resultado += "<tr><td colspan='4' class='background_atores' style='border:solid 1px;font-size:13px;font-weight:bold;padding:4px;text-align:center;background-color:#EEDD88;'>" + dadosProfissional.NomeArtistico + "</td></tr>";
+				resultado += "<tr>";
+				resultado += "	<td colspan='4' style='text-align:center;padding:4px;border:solid 1px;border-color:#000;'>";
+				resultado += "	<img src='imagens/" + dadosProfissional.CaminhoFoto + "' style='padding:0px;vertical-align:top;height:" + altura_foto + "%;width:" + largura_foto + "%;' />";
+				resultado += "	</td>";
+				resultado += "</tr>";
+				resultado += "<tr><td colspan='4' style='height:7px;background-color:#FFF;'></td></tr>";
+				resultado += "<tr>";
+				resultado += "	<td style='vertical-align:top; text-align:left; font-weight:bold;width:100px;'>Nome completo</td>";
+				resultado += "	<td style='vertical-align:top; text-align:left;' colspan='3'>" + dadosProfissional.NomeCompleto + "</td>";
+				resultado += "</tr>";
+				resultado += "<tr>";
+				resultado += "	<td style='vertical-align:top; text-align:left; font-weight:bold;'>Cidade Natal</td>";
+				resultado += "	<td style='vertical-align:top; text-align:left; text-transform:capitalize;'>" + dadosProfissional.CidadeNatal;
+				resultado += "	<td style='vertical-align:top; text-align:left; font-weight:bold;width:90px;padding-right:10px;padding-right:5px;'>Nacionalidade</td>";
+				resultado += "	<td style='vertical-align:top; text-align:left;'>" + dadosProfissional.Nacionalidade + "</td>";
+				resultado += "</td>";
+				resultado += "</tr>";
+				resultado += "<tr>";
+				resultado += "	<td style='vertical-align:top; text-align:left; font-weight:bold;'>Nascimento</td>";
+				resultado += "	<td style='vertical-align:top; text-align:left;' colspan='3'>" + dadosProfissional.DataNascimento + " (" + dadosProfissional.Idade + " anos)";
+				resultado += "</td>";
+				resultado += "</tr>";
+				if (dadosProfissional.DataFalecimento == null || dadosProfissional.DataFalecimento == "")
+					resultado += "<tr><td colspan='4' style='height:15px;'></td></tr>";
+				else
+				{
+					resultado += "<tr>";
+					resultado += "	<td style='vertical-align:top; text-align:left; font-weight:bold;'>Falecimento</td>";
+					resultado += "	<td style='vertical-align:top; text-align:left;' colspan='3'>" + dadosProfissional.DataFalecimento + "</td>";
+					resultado += "</tr>";
+				}
+				resultado += "</table>";
+				return resultado;
+			}
+
+			function montarTabelaBiografia(p_pagina_atual)
+			{
+				$("#tblFilmografia tr").remove(); // reinicializar a tabela
+				var linha = tabela.insertRow(0);
+
+				/*jQuery.ajax
+				({
+					type: "GET",
+					contentType: "json",
+					url: URL + "ator/" + vID,
+					async: false,
+					success: function (data)
+					{
+						var dataCorrente = new Date();
+						let dataAtual = dataCorrente.getFullYear() + "-" + (dataCorrente.getMonth() + 1) + "-" + dataCorrente.getDate();
+						let dataNascimentoPorExtenso = getDataPorExtenso(data.dataNascimento);
+						var descricaoBiografia = "", nacionalidade = "";
+						var dataFalecimentoPorExtenso = "";
+						debugger;
+						descricaoBiografia += "<strong>" + data.nomeCompleto + "</strong> ";
+						descricaoBiografia += "(" + dataNascimentoPorExtenso;
+						if (data.dataFalecimento != "")
+						{
+							dataFalecimentoPorExtenso = getDataPorExtenso(data.dataFalecimento);
+							dataAtual = data.dataFalecimento;
+							descricaoBiografia += " – " + dataFalecimentoPorExtenso;
+						}
+						descricaoBiografia += ") ";
+						switch (parseInt(data.generoId))
+						{
+							case 1: descricaoBiografia += "é uma atriz brasileira";
+									nacionalidade = "Brasileira";
+									break;
+							case 2: descricaoBiografia += "é um ator brasileiro";
+									nacionalidade = "Brasileiro";
+									break;
+							case 3: descricaoBiografia += "é um@ ator/atriz brasileir@";
+									nacionalidade = "Brasileir@";
+									break;
+						}
+						
+						dadosProfissional.CaminhoFoto = (true ? "atores" : "autores") + "/" + data.imagemFoto;
+						dadosProfissional.NomeCompleto = data.nomeCompleto;
+						dadosProfissional.NomeArtistico = data.nomeArtistico;
+						dadosProfissional.DataNascimento = dataNascimentoPorExtenso;
+						dadosProfissional.DataFalecimento = dataFalecimentoPorExtenso;
+						dadosProfissional.Idade = getIdade(data.dataNascimento, dataAtual);
+						dadosProfissional.CidadeNatal = data.cidadeNatal.trim().toLowerCase() + ", " + data.uf.trim();
+						dadosProfissional.Nacionalidade = nacionalidade;
+						dadosProfissional.Biografia = descricaoBiografia;
+						dadosProfissional.Filmografia = [];
+					},
+					error: function (e)
+					{
+						console.log(e);
+					},
+				});
+
+				jQuery.ajax
+				({
+					type: "GET",
+					contentType: "json",
+					url: URL + "novelas/" + vID,
+					async: false,
+					success: function (data)
+					{
+						debugger;
+						for (var i = 0; i < data.length; i++)
+							dadosProfissional.Filmografia.push( { "Ano": "data[i].id", "Titulo": "data[i].titulo", "Personagem": "data[i].autorOriginal" } );
+					},
+					error: function (e)
+					{
+						console.log(e);
+					},
+				});*/
+
+				let dataCorrente = new Date();
+				let dataAtual = dataCorrente.getFullYear() + "-" + (dataCorrente.getMonth() + 1) + "-" + dataCorrente.getDate();
+				let descricaoBiografia = "", nacionalidade = "", dataFalecimentoPorExtenso = "";
+
+				const profissional	  = atores.find(x => x.id == vID);
+				const _interpretacoes = interpretacoes.filter(x => x.atorId == vID);
+
+				const dataNascimentoPorExtenso = getDataPorExtenso(profissional.dataNascimento);
+				descricaoBiografia += "<strong>" + profissional.nomeCompleto + "</strong> ";
+				descricaoBiografia += "(" + dataNascimentoPorExtenso;
+				if (profissional.dataFalecimento != null)
+				{
+					dataFalecimentoPorExtenso = getDataPorExtenso(profissional.dataFalecimento);
+					dataAtual = profissional.dataFalecimento;
+					descricaoBiografia += " – " + dataFalecimentoPorExtenso;
+				}
+				descricaoBiografia += ") ";
+
+				switch (parseInt(profissional.generoId))
+				{
+					case 1: descricaoBiografia += "é uma atriz brasileira";		 nacionalidade = "Brasileira"; break;
+					case 2: descricaoBiografia += "é um ator brasileiro"; 		 nacionalidade = "Brasileiro"; break;
+					case 3: descricaoBiografia += "é um@ ator/atriz brasileir@"; nacionalidade = "Brasileir@"; break;
+				}
+
+				dadosProfissional =
+				{
+					"CaminhoFoto": (true ? "atores" : "autores") + "/" + profissional.imagemFoto,
+					"NomeCompleto": profissional.nomeCompleto,
+					"NomeArtistico": profissional.nomeArtistico,
+					"DataNascimento": dataNascimentoPorExtenso,
+					"DataFalecimento": dataFalecimentoPorExtenso,
+					"Idade": getIdade(profissional.dataNascimento, dataAtual),
+					"CidadeNatal": profissional.cidadeNatal.trim().toLowerCase() + ", " + profissional.uf.trim(),
+					"Nacionalidade": nacionalidade,
+					"Biografia" : descricaoBiografia,
+					"Filmografia": []
+				};
+				
+				for (let i = 0; i < _interpretacoes.length; i++)
+				{
+					const _personagem = personagens.find(x => x.id == _interpretacoes[i].personagemId);
+					const _versaoNovela = versoesNovelas.find(x => x.id == _interpretacoes[i].versaoNovelaId);
+					if (_personagem != null && _versaoNovela != null)
+					{
+						const _novelaOriginal = novelas.find(x => x.id == _versaoNovela.versaoOriginalId);
+						dadosProfissional.Filmografia.push({ "Ano": (new Date(_versaoNovela.dataLancamento)).getFullYear(), "Titulo": _novelaOriginal.titulo, "Personagem": _personagem.nome });
+					}
+				}
+
+				$("#abaFilmografia").css("visibility", (dadosProfissional.Filmografia.length == 0 ? "hidden" : "visible"));
+
+				let celulas = [];
+				celulas.push("|justify");
+				celulas.push("|right");
+				adicionarLinha(celulas);
+				$("#C11").css("width", "65%");
+				$("#C11").css("height", "260px");
+				$("#C11").css("color", "#000");
+				$("#C11").css("background-color", "#FFF");
+				$("#C11").css("vertical-align", "top");
+				$("#C11").css("padding", "10px 10px 10px 10px");
+				$("#C11").html(dadosProfissional.Biografia);
+
+				$("#C12").css("width", "35%");
+				$("#C12").css("height", "260px");
+				$("#C12").css("color", "#000");
+				$("#C12").css("background-color", "#FFF");
+				$("#C12").css("vertical-align", "top");
+				$("#C12").css("padding", "10px 10px 10px 10px");
+				$("#C12").html(exibirPerfil());
+			}
+
+			function montarTabelaFilmografia(p_pagina_atual, p_filtro_por_letra)
+			{
+				$("#tblFilmografia tr").remove(); // reinicializar a tabela
+				let linhaTitulo = tabela.insertRow(0);
+				// Definindo o título da cada coluna da tabela
+				for (let i = 0; i < rotulos.length; i++)
+				{
+					let celulaTitulo = linhaTitulo.insertCell(i);
+					celulaTitulo.id = "T" + (i+1);
+					celulaTitulo.className = "celulaTitulo";
+					celulaTitulo.innerHTML = rotulos[i];
+					celulaTitulo.style.width = larguras[i];
+					celulaTitulo.style.textAlign = aligns[i];
+					if (celulaTitulo.style.textAlign == "left")
+						celulaTitulo.style.paddingLeft = "5px";
+					if (celulaTitulo.style.textAlign == "right")
+						celulaTitulo.style.paddingRight = "5px";
+				}
+				$(".celulaTitulo").click(function () { sortTable(this.cellIndex); });
+
+				// Definindo o corpo da tabela
+				const pagina_inicio = (p_pagina_atual - 1) * v_qt_registros_por_pagina;
+				const pagina_fim    = pagina_inicio + v_qt_registros_por_pagina;
+				let dadosPaginados  = dadosProfissional.Filmografia.slice(pagina_inicio, pagina_fim);
+				for (let i = 0; i < dadosPaginados.length; i++)
+				{
+					let celulas = [];
+					celulas.push(dadosPaginados[i].Ano + "|center");
+					celulas.push(dadosPaginados[i].Titulo + "|left");
+					celulas.push(dadosPaginados[i].Personagem + "|left");
+					adicionarLinha(celulas);
+				}
+
+				// Definindo a linha da paginaçăo
+				let linhaPaginacao = tabela.insertRow(dadosPaginados.length+1);
+				let celula = linhaPaginacao.insertCell(0);
+				celula.className = "paginacao";
+				$("td.paginacao").prop("colspan", rotulos.length);
+				
+				let paginacao = "";
+				const v_qt_paginas  = (dadosProfissional.Filmografia.length / v_qt_registros_por_pagina).toFixed(0);
+				if (v_qt_paginas <= 1)
+					paginacao += "<span style='padding:6px;'></span>";
+				else
+				{
+					for (let i = 1; i <= v_qt_paginas; i++)
+					{
+						if (i == p_pagina_atual)
+							paginacao += "<span class='pagina_atual'>" + p_pagina_atual + "</span>";
+						else
+						{
+							v_qt_linhas = 1;
+							paginacao += "<a href='#' onclick='montarTabelaFilmografia(" + i + ", " + p_filtro_por_letra + ");'>" + i + "</a>";
+						}
+					}
+				}
+				$("td.paginacao").html(paginacao);
+			}
+
+			function adicionarLinha(linhas)
+			{
+				var linha = tabela.insertRow(1);
+				var conteudo = linhas;
+				for (var i = 0; i < conteudo.length; i++)
+				{
+					var dadosConteudo = conteudo[i].split('|');
+					var celula = linha.insertCell(i);
+					celula.id = "C1" + (i+1);
+					celula.className = "celulaConteudo";
+					celula.innerHTML = dadosConteudo[0];
+					celula.style.textAlign = dadosConteudo[1];
+					if (celula.style.textAlign == "left")
+						celula.style.paddingLeft = "5px";
+					if (celula.style.textAlign == "right")
+						celula.style.paddingRight = "5px";
+				}
+			}
+
+			function definirConteudosAbas(opcaoAba)
+			{
+				if (opcaoAba == "abaBiografia")
+				{
+					rotulos  = ["", ""];
+					larguras = ["80%", "20%"];
+					aligns   = ["justify", "center"];
+					if ($("#abaFilmografia").css("visibility") == "visible")	// chamar a função caso a aba corrente não seja única
+						montarTabelaBiografia(1, 65);
+				}
+				else
+				{
+					v_qt_linhas = 1;
+					rotulos  = ["Ano", "Título", "Personagem"];
+					larguras = ["20%", "40%", "40%"];
+					aligns   = ["center", "left", "left"];
+					montarTabelaFilmografia(1, 65);
+				}
+			}
+
+			$(document).ready(function()
+			{
+				tabela = document.getElementById($("#content table").prop("id"));
+				montarAbasWikipedia();
+				$(".abas li:first div").addClass("selected");
+				$(".aba").click(
+					function()
+					{
+						$(".aba").removeClass("selected");
+						$(this).addClass("selected");
+						definirConteudosAbas($(this).prop("id"));
+					}
+				);
+				definirConteudosAbas("abaBiografia");
+			});
+		</script>
+	</body>
+</html>

@@ -1,0 +1,635 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+    <link rel="stylesheet" href="../css/site.css" />
+    <link rel="stylesheet" href="../css/site.min.css" />
+    <script src="../css/jquery_3_5_1.min.js"></script>
+    <script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/novelas.js"></script>
+	<script src="../carga/versoesNovelas.js"></script>
+	<script src="../carga/atores.js"></script>
+	<script src="../carga/personagens.js"></script>
+	<script src="../carga/Interpretacoes.js"></script>
+    <style>
+        label
+		{
+            color: black;
+            font-weight: bold;
+        }
+
+        legend
+		{
+            color: black;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 0px 0px 5px 10px;
+            padding: 0px 5px 0px 5px;
+            border: solid 0px;
+        }
+
+        .comboNovela
+		{
+            border-color: black;
+            font-size: 12px;
+            height: 25px;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .comboHabilitada
+        {
+            border-color: black;
+            font-size: 12px;
+            border-radius: 5px;
+            width: 70%;
+            padding: 0px;
+            height: 20px;
+        }
+
+        .comboDesabilitada
+        {
+            border-color: black;
+            font-size: 12px;
+            border-radius: 5px;
+            width: 70%;
+            padding: 0px;
+            height: 20px;
+            background-color: #DDDDDD;
+            font-weight: bold;
+        }
+
+        .tabela
+        {
+            border-collapse: collapse;
+            font-family: arial;
+            font-size: 12px;
+            border: solid 1px black;
+            width: 100%;
+        }
+
+        .celulaTitulo {
+            font-weight: bold;
+            color: white;
+            background-color: black;
+            height: 20px;
+            vertical-align: middle;
+            border: 0px;
+        }
+
+        .celulaConteudo { padding: 1px 0px 1px 0px; vertical-align: middle; color: black; }
+
+        fieldset
+		{
+            border: solid 1px;
+            border-radius: 5px;
+            padding: 0px;
+            height: 285px;
+            padding: 0px 5px 0px 5px;
+        }
+
+        .divExternoTabelaEditavel { overflow-x:scroll; overflow-y:scroll; padding-top:15px; }
+
+        .divInternoTabelaEditavel
+		{
+            height: 242px;
+            width: 100%;
+            margin: -14px 0px 0px 0px;
+            border: solid 1px black;
+        }
+
+        .modalAtor { border:solid 1px black; cursor:pointer; height:17px; width:17px; }
+    </style>
+</head>
+<body>
+    <div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+        <div style="margin-top:-20px;font-size:12px;width:1100px;margin-left:20px;">
+            <h3 class="titulo">Montagem de Elenco para Remakes</h3>
+            <form method="post">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group" style="">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <label for="cboNovela">Novela:</label>
+                                        <select id="cboNovela" class="comboNovela"></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" id="divTabelaElenco">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <fieldset>
+                                <legend style="width:160px;"> Elenco Original x Atual: </legend>
+                                <div class="divExternoTabelaEditavel">
+                                    <div class="divInternoTabelaEditavel">
+                                        <table id="tblElenco" class="tabela" style="border:0px;"></table>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="padding:10px 0px 10px 0px;">
+                    <div class="row">
+                        <div class="col-sm-5" style="text-align:right;">
+                            <button type="button" class="btn btn-primary" style="width:100px;" id="btnSalvar">Salvar</button>
+                        </div>
+                        <div class="col-sm-2" style="text-align:center;">
+                            <button type="button" class="btn btn-primary" style="width:100px;" id="btnComparar">Comparar</button>
+                        </div>
+                        <div class="col-sm-5" style="text-align:left;">
+                            <button type="button" class="btn btn-primary" style="width:100px;" id="btnCancelar">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal fade" style="width:240px;left:500px;" id="modalFotoAtor" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header" style="width: 240px; background-color: black; color: white; font-weight: bold; padding: 5px;">
+                            <button type="button" class="close" data-dismiss="modal" style="color:white;">&times;</button>
+                            <h4 class="modal-title"></h4>
+                        </div>
+                        <div class="modal-body" style="padding:0px;left:1px;">
+                            <img style="height:300px;width:237px;">
+                        </div>
+                        <div class="modal-footer" style="background-color:black;padding:5px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="divRodape"></div>
+    </div>
+    <script src="../js/funcoes_gerais.js"></script>
+    <script src="../js/tabela_editavel.js"></script>
+    <script>
+        var listagemElenco = new TabelaEditavel(1);
+        var listaIdsVersoes = [];
+        var idVersaoAtual;
+        var listaDadosAtores = [];
+        var atorSelecionado;
+        var listaParametros = getParametros();
+        //var parametroNovelaId = listaParametros[0] == undefined ? null : listaParametros[0];
+
+        var dadosCadastro =
+        {
+            "NovelaId": "",
+            "VersaoNovelaId": "0",
+            "Interpretacoes": []
+        };
+
+        function defineTabelaElenco(novelaId)
+        {
+            if (novelaId == "")
+            {
+                $("#btnSalvar").attr("disabled", true);
+                $("#btnComparar").attr("disabled", true);
+                listagemElenco.Carga = [];
+            }
+            else
+            {
+                $("#btnSalvar").attr("disabled", false);
+                $("#btnComparar").attr("disabled", false);
+                listagemElenco.Carga = getElenco(novelaId);
+            }
+            listagemElenco.Tabela = document.getElementById("tblElenco");
+            listagemElenco.Rotulos = [];
+            listagemElenco.Larguras = [];
+            listagemElenco.Alinhamentos = [];
+            listagemElenco.Inputs = [];
+            listagemElenco.Rotulos.push("Personagem");
+            listagemElenco.Alinhamentos.push("left");
+            for (var i = 0; i < listaIdsVersoes.length; i++)
+            {
+                listagemElenco.Rotulos.push((i + 1) + "ª Versão" + (i == 0 ? " (Original)" : ""));
+                listagemElenco.Alinhamentos.push("center");
+            }
+            listagemElenco.Rotulos.push("");
+            switch (listaIdsVersoes.length)
+            {
+                case 3: listagemElenco.Larguras = [24, 25, 25, 25, 1]; break;
+                case 4: listagemElenco.Larguras = [19, 20, 20, 20, 20, 1]; break;
+                default: listagemElenco.Larguras = [33, 33, 33, 1]; break;
+            }
+            listagemElenco.Inputs = ["", "", ""];
+            listagemElenco.QtLinhas = 0;
+            listagemElenco.montarTabela();
+            $("#" + listagemElenco.Tabela.id + " td").each(function (index)
+            {
+                $(this).css("height", "25px");
+                if ($(this).html().indexOf("adicionar.jpg") != -1 || $(this).html().indexOf("editar.jpg") != -1 || $(this).html().indexOf("excluir.jpg") != -1)
+                    $(this).html("");
+            });
+            document.getElementById("LC1-1").hidden = true;
+        }
+
+		function getElenco(novelaId)
+		{
+			let resultado = [];
+			let personagensDaNovela = [];
+			let _personagens = personagens.filter((p) => p.novelaId == novelaId);
+			let _atores = atores.sort((a, b) => { if (a.nomeArtistico <= b.nomeArtistico) { return -1; }});
+			listaIdsVersoes = ["11", "12"];
+		
+			for (let i = 0; i < _personagens.length; i++)
+			{
+				let combosAtores = [];
+				debugger;
+				for (let j = 0; j < listaIdsVersoes.length; j++)
+				{
+					let dadosAtores2 = _atores;
+					let ID = _personagens[i].id + "-" + listaIdsVersoes[j].id;
+					let conteudoCombo = "";
+					let v_disabled = "";
+					let nomeClasse = "comboHabilitada";
+					let linkImagem = "";
+					let _interpretacao = interpretacoes.filter((x) => x.personagemId == _personagens[i].id && x.versaoNovelaId == listaIdsVersoes[j].id);
+					let _atorId = (_interpretacao == null || _interpretacao.length == 0 ? "0" : _interpretacao[0].atorId);
+					if (dadosAtores2.length == 0 || listaIdsVersoes[j].elencoCompleto)
+					{
+						v_disabled = " disabled";
+						nomeClasse = "comboDesabilitada";
+						linkImagem += "<span style='padding-left:26px;'>";
+					}
+					else
+					{
+						linkImagem += "<span style='padding-left:10px;' id='spanAtor" + ID + "'>";
+						linkImagem += "<a href='#' onclick='selecionarComboAtores(" + _personagens[i].id + "," + listaIdsVersoes[j].id + ")';>";
+						linkImagem += "<img src='../imagens/SEM_FOTO.jpg' class='modalAtor' data-toggle='modal' data-target='#modalFotoAtor' id='img" + _personagens[i].id + "' />";
+						linkImagem += "</a>";
+					}
+					linkImagem += "</span>";
+					conteudoCombo += "<select class='" + nomeClasse + "' id='cboAtor" + ID + "'" + v_disabled + ">";
+					conteudoCombo += "<option value=''>-- Selecione --</option>";
+					for (let k = 0; k < dadosAtores2.length; k++)
+					{
+						if (_atorId != "0") { debugger; }
+						conteudoCombo += "<option value='" + dadosAtores2[k].id + "'";
+						conteudoCombo += (dadosAtores2[k].id == _atorId ? " selected" : "");
+						conteudoCombo += ">" + dadosAtores2[k].nomeArtistico + "</option>";
+					}
+					conteudoCombo += "</select>";
+					conteudoCombo += linkImagem;
+					combosAtores.push(conteudoCombo);
+				}
+				personagensDaNovela.push({ "Id": _personagens[i].id, "Nome": _personagens[i].nome, "CombosAtores": combosAtores });
+			}
+			//listaDadosAtores = dadosDaNovela.dados_atores.filter(function (el, i) { return dadosDaNovela.dados_atores.indexOf(el) === i; });
+
+            let dadosElenco = "";
+            for (let i = 0; i < personagensDaNovela.length; i++)
+			{
+                dadosElenco += ((i > 0) ? "||" : "") + personagensDaNovela[i].Nome + "|";
+                for (let j = 0; j < personagensDaNovela[i].CombosAtores.length; j++) 
+                    dadosElenco += personagensDaNovela[i].CombosAtores[j] + "|";
+                dadosElenco += personagensDaNovela[i].Id;
+            }
+            resultado = dadosElenco.split('||');
+            return resultado;
+		}
+
+		function getElenco_OLD(novelaId)
+		{
+            var resultado = [];
+            var personagensDaNovela = [];
+			var dadosDaNovela = { "titulo" : null, "id_versao_atual": null, "dados_versoes": [], "dados_personagens": [], "dados_atores": [] };
+			let _novela = novelas.filter((n) => n.id == novelaId);
+			if (_novela == null || _novela.length == 0)
+				return resultado;
+			dadosDaNovela.titulo = _novela[0].titulo;
+			_novela.dadosVersoes = getVersoesNovelas("N", novelaId);
+			for (var i = 0; i < _novela.dadosVersoes.length; i++)
+			{
+				let _dados = _novela.dadosVersoes[i].dataLancamento.split('-');
+				let _dataVersao = parseInt(_dados[2]) + "|" + (parseInt(_dados[1]) - 1) + "|" + _dados[0];
+				dadosDaNovela.dados_versoes.push(_dataVersao);
+				if (i == _novela.dadosVersoes.length - 1)
+					dadosDaNovela.id_versao_atual = _novela.dadosVersoes[i].id;
+			}
+			_novela.dadosPersonagens = getPersonagens("N", novelaId);
+			let dadosAtores = [];
+			for (let i = 0; i < _novela.dadosPersonagens.length; i++)
+			{
+				let dadosPersonagem = _novela.dadosPersonagens[i].nome + "||";
+				let dadosInterpretacoes = interpretacoes.filter((x) => x.versaoNovelaId == dadosDaNovela.id_versao_atual && x.personagemId == _novela.dadosPersonagens[i].id);
+				for (let j = 0; j < dadosInterpretacoes.length; j++)
+				{
+					dadosPersonagem += dadosInterpretacoes[j].atorId + "|";
+					if (j == dadosInterpretacoes.length - 1)
+						dadosPersonagem += "|";
+				}
+				dadosAtores = atores.sort((a, b) => { if (a.nome <= b.nome) { return -1; }});
+				if (_novela.dadosPersonagens[i].generoObrig)
+					dadosAtores = dadosAtores.filter((a) => a.generoId == _novela.dadosPersonagens[i].generoId);
+				if (_novela.dadosPersonagens[i].etniaObrig)
+					dadosAtores = dadosAtores.filter((a) => a.etniaId == _novela.dadosPersonagens[i].etniaId);
+				if (_novela.dadosPersonagens[i].faixaEtariaObrig)
+					dadosAtores = dadosAtores.filter((a) => a.faixaEtariaId == _novela.dadosPersonagens[i].faixaEtariaId);
+				if (_novela.dadosPersonagens[i].faixaPesoObrig)
+					dadosAtores = dadosAtores.filter((a) => a.faixaPesoId == _novela.dadosPersonagens[i].faixaPesoId);
+				if (_novela.dadosPersonagens[i].faixaEstaturaObrig)
+					dadosAtores = dadosAtores.filter((a) => a.faixaEstaturaId == _novela.dadosPersonagens[i].faixaEstaturaId);
+				for (let j = 0; j < dadosAtores.length; j++)
+				{
+					dadosPersonagem += dadosAtores[j].id + "|";
+					if (j == dadosAtores.length - 1)
+						dadosPersonagem += "|";
+				}
+				dadosPersonagem += _novela.dadosPersonagens[i].id;
+				dadosDaNovela.dados_personagens.push(dadosPersonagem);
+			}
+			debugger;
+			dadosAtores = atores.sort((a, b) => { if (a.nomeArtistico <= b.nomeArtistico) { return -1; }});
+			for (let i = 0; i < dadosAtores.length; i++)
+				dadosDaNovela.dados_atores.push(dadosAtores[i].id + ";" + dadosAtores[i].nomeArtistico + ";atores/" + (dadosAtores[i].imagemFoto == null ? "SEM_FOTO" : dadosAtores[i].nomeArtistico.toUpperCase()));
+
+			listaIdsVersoes = [];
+			for (var i = 0; i < dadosDaNovela.dados_versoes.length; i++)
+			{
+				var dadosVersoes = dadosDaNovela.dados_versoes[i].split('|');
+				listaIdsVersoes.push(dadosVersoes[0]);
+			}
+			for (var i = 0; i < dadosDaNovela.dados_personagens.length; i++)
+			{
+				var dadosPersonagens = dadosDaNovela.dados_personagens[i].split('||');
+				var idsInterpretacoes = dadosPersonagens[1].split('|');
+				var combosAtores = [];
+				for (var j = 0; j < listaIdsVersoes.length; j++)
+				{
+					var dadosAtores2 = (dadosPersonagens[2] == "" ? [] : dadosPersonagens[2].split('|'));
+					var ID = dadosPersonagens[3] + "-" + listaIdsVersoes[j];
+					var conteudoCombo = "";
+					var v_disabled = "";
+					var nomeClasse = "comboHabilitada";
+					var linkImagem = "";
+					if (dadosAtores2.length == 0 || listaIdsVersoes[j] != parseInt(dadosDaNovela.id_versao_atual))
+					{
+						v_disabled = " disabled";
+						nomeClasse = "comboDesabilitada";
+						linkImagem += "<span style='padding-left:26px;'>";
+					}
+					else
+					{
+						linkImagem += "<span style='padding-left:10px;' id='spanAtor" + ID + "'>";
+						linkImagem += "<a href='#' onclick='selecionarComboAtores(" + dadosPersonagens[3] + "," + listaIdsVersoes[j] + ")';><img src='../imagens/SEM_FOTO.jpg' class='modalAtor' data-toggle='modal' data-target='#modalFotoAtor' id='img" + dadosPersonagens[3] + "' /></a>";
+					}
+					linkImagem += "</span>";
+					conteudoCombo += "<select class='" + nomeClasse + "' id='cboAtor" + ID + "'" + v_disabled + ">";
+					conteudoCombo += "<option value=''>-- Selecione --</option>";
+					for (var k = 0; k < dadosAtores2.length; k++) {
+						for (var l = 0; l < dadosDaNovela.dados_atores.length; l++)
+						{
+							var dados = dadosDaNovela.dados_atores[l].split(';');
+							if (dados[0] == dadosAtores2[k])
+							{
+								conteudoCombo += "<option value='" + dados[0] + "'";
+								conteudoCombo += (dados[0] == idsInterpretacoes[j] ? " selected" : "");
+								conteudoCombo += ">" + dados[1] + "</option>";
+								break;
+							}
+						}
+					}
+					conteudoCombo += "</select>";
+					conteudoCombo += linkImagem;
+					combosAtores.push(conteudoCombo);
+				}
+				personagensDaNovela.push({ "Id": dadosPersonagens[3], "Nome": dadosPersonagens[0], "CombosAtores": combosAtores });
+			}
+			listaDadosAtores = dadosDaNovela.dados_atores.filter(function (el, i) { return dadosDaNovela.dados_atores.indexOf(el) === i; });
+
+            var dadosElenco = "";
+            for (var i = 0; i < personagensDaNovela.length; i++)
+			{
+                dadosElenco += ((i > 0) ? "||" : "") + personagensDaNovela[i].Nome + "|";
+                for (var j = 0; j < personagensDaNovela[i].CombosAtores.length; j++) {
+                    dadosElenco += personagensDaNovela[i].CombosAtores[j] + "|";
+                }
+                dadosElenco += personagensDaNovela[i].Id;
+            }
+            resultado = dadosElenco.split('||');
+            return resultado;
+		}
+
+        function getPersonagens_OLD(novelaId)
+        {
+            var resultado = [];
+            var personagens = [];
+            jQuery.ajax
+			({
+				type: "get",
+				dataType: "json",
+				url: URL + "novela/get_personagens/" + novelaId,
+				async: false,
+				success: function (data)
+				{
+					idVersaoAtual = parseInt(data.id_versao_atual);
+					listaIdsVersoes = [];
+					for (var i = 0; i < data.dados_versoes.length; i++)
+					{
+						var dadosVersoes = data.dados_versoes[i].split('|');
+						listaIdsVersoes.push(dadosVersoes[0]);
+					}
+					for (var i = 0; i < data.dados_personagens.length; i++)
+					{
+						var dadosPersonagens = data.dados_personagens[i].split('||');
+						var idsInterpretacoes = dadosPersonagens[1].split('|');
+						var combosAtores = [];
+						for (var j = 0; j < listaIdsVersoes.length; j++)
+						{
+							var dadosAtores = (dadosPersonagens[2] == "" ? [] : dadosPersonagens[2].split('|'));
+							var ID = dadosPersonagens[3] + "-" + listaIdsVersoes[j];
+							var conteudoCombo = "";
+							var v_disabled = "";
+							var nomeClasse = "comboHabilitada";
+							var linkImagem = "";
+							if (dadosAtores.length == 0 || listaIdsVersoes[j] != idVersaoAtual)
+							{
+								v_disabled = " disabled";
+								nomeClasse = "comboDesabilitada";
+								linkImagem += "<span style='padding-left:26px;'>";
+							}
+							else
+							{
+								linkImagem += "<span style='padding-left:10px;' id='spanAtor" + ID + "'>";
+								linkImagem += "<a href='#' onclick='selecionarComboAtores(" + dadosPersonagens[3] + "," + listaIdsVersoes[j] + ")';><img src='../imagens/SEM_FOTO.jpg' class='modalAtor' data-toggle='modal' data-target='#modalFotoAtor' id='img" + dadosPersonagens[3] + "' /></a>";
+							}
+							linkImagem += "</span>";
+							conteudoCombo += "<select class='" + nomeClasse + "' id='cboAtor" + ID + "'" + v_disabled + ">";
+							conteudoCombo += "<option value=''>-- Selecione --</option>";
+							for (var k = 0; k < dadosAtores.length; k++) {
+								for (var l = 0; l < data.dados_atores.length; l++)
+								{
+									var dados = data.dados_atores[l].split(';');
+									if (dados[0] == dadosAtores[k])
+									{
+										conteudoCombo += "<option value='" + dados[0] + "'";
+										conteudoCombo += (dados[0] == idsInterpretacoes[j] ? " selected" : "");
+										conteudoCombo += ">" + dados[1] + "</option>";
+										break;
+									}
+								}
+							}
+							conteudoCombo += "</select>";
+							conteudoCombo += linkImagem;
+							combosAtores.push(conteudoCombo);
+						}
+						personagens.push({ "Id": dadosPersonagens[3], "Nome": dadosPersonagens[0], "CombosAtores": combosAtores });
+					}
+					listaDadosAtores = data.dados_atores.filter(function (el, i) { return data.dados_atores.indexOf(el) === i; });
+				},
+				error: function (data) { },
+			});
+
+            var dadosElenco = "";
+            for (var i = 0; i < personagens.length; i++) {
+                dadosElenco += ((i > 0) ? "||" : "") + personagens[i].Nome + "|";
+                for (var j = 0; j < personagens[i].CombosAtores.length; j++) {
+                    dadosElenco += personagens[i].CombosAtores[j] + "|";
+                }
+                dadosElenco += personagens[i].Id;
+            }
+            resultado = dadosElenco.split('||');
+            return resultado;
+        }
+
+        function preencherComboNovelas()
+        {
+            var novelasComPersonagens = getNovelasComPersonagens();
+            var primeiraOption = document.createElement("option");
+            primeiraOption.value = "";
+            primeiraOption.text = "-- Selecione --";
+            document.getElementById("cboNovela").add(primeiraOption);
+            for (var i = 0; i < novelasComPersonagens.length; i++)
+			{
+                var option = document.createElement("option");
+                option.value = novelasComPersonagens[i].id;
+                option.text = novelasComPersonagens[i].titulo;
+                document.getElementById("cboNovela").add(option);
+            }
+        }
+
+        function salvar()
+        {
+            if ($("#cboNovela").val() == 0)
+            {
+                alert("É necessário preencher a novela.");
+                $("#cboNovela").focus();
+                return;
+            }
+            dadosCadastro.NovelaId = $("#cboNovela").val();
+            dadosCadastro.Interpretacoes = [];
+            dadosCadastro.VersaoNovelaId = idVersaoAtual;
+            var combos = $("select[class='comboHabilitada']");
+            for (var i = 0; i < combos.length; i++) {
+                if (combos[i].value != "") {
+                    var valoresNoID = combos[i].id.replace("cboAtor", "").split('-');
+                    var valorDaCombo = combos[i].value;
+                    dadosCadastro.Interpretacoes.push
+                        ({
+                            "PersonagemId": (valoresNoID[0] == "" ? 0 : parseInt(valoresNoID[0])),
+                            "VersaoNovelaId": (valoresNoID[1] == "" ? 0 : parseInt(valoresNoID[1])),
+                            "AtorId": (valorDaCombo == "" ? 0 : parseInt(valorDaCombo))
+                        });
+                }
+            }
+
+            var interpretacoesVersaoAtual = $("select[id$='-" + idVersaoAtual + "']");
+            dadosCadastro.Completo = true;
+            for (var i = 0; i < interpretacoesVersaoAtual.length; i++) {
+                if (interpretacoesVersaoAtual[i].value == "") {
+                    dadosCadastro.Completo = false;
+                    break;
+                }
+            }
+            $.ajax(
+                {
+                    type: "POST",
+                    contentType: "application/json",
+                    url: URL + "personagem/set_interpretacoes/",
+                    data: JSON.stringify(dadosCadastro),
+                    async: false,
+                    success: function (data) {
+                        if (!data.sucesso)
+                            alert("Erro interno - não foi possível o cadastro!");
+                        else
+                            alert("Operação realizada com sucesso.");
+                    },
+                    error: function (e) {
+                        console.log(e.message);
+                        alert("Erro interno - não foi possível o cadastro!");
+                    }
+                });
+        }
+
+        function comparar()
+        {
+			localStorage.setItem("novelaId", $("#cboNovela").val());
+            window.location.href = "comparacao_remakes.html";
+            //window.location.href = "comparacao_remakes.html?novelaId=" + $("#cboNovela").val();
+        }
+
+        function selecionarComboAtores(x, y)
+        {
+            atorSelecionado = $("#cboAtor" + x + "-" + y).val();
+        }
+
+        $("#cboNovela").change(function () { localStorage.removeItem("novelaId"); defineTabelaElenco(this.value); });
+
+        $("#btnSalvar").click(function () { salvar(); });
+
+        $("#btnComparar").click(function () { comparar(); });
+
+        $("#btnCancelar").click(function () { localStorage.removeItem("novelaId"); window.location.href = "../Index.html"; });
+
+        $('#modalFotoAtor').on('show.bs.modal', function ()
+        {
+            console.log("atorSelecionado: " + atorSelecionado);
+            if (atorSelecionado == "")
+            {
+                $("#modalFotoAtor .modal-title").html("");
+                $("#modalFotoAtor .modal-body img").attr("src", "../imagens/SEM_FOTO.jpg");
+            }
+            else
+            {
+                for (var i = 0; i < listaDadosAtores.length; i++)
+                {
+                    var item = listaDadosAtores[i].split(';');
+                    if (item[0] == atorSelecionado)
+                    {
+                        atorSelecionado = "";
+                        $("#modalFotoAtor .modal-title").html(item[1]);
+                        $("#modalFotoAtor .modal-body img").attr("src", "../imagens/" + item[2] + ".jpg");
+                        break;
+                    }
+                }
+            }
+        })
+
+        $(document).ready(function ()
+        {
+            preencherComboNovelas();
+            listagemElenco.Tabela = document.getElementById("tblElenco");
+            listagemElenco.Rotulos = ["Personagem", "1ª Versão (Original)", "2ª Versão", ""];
+            listagemElenco.Larguras = [33, 33, 33, 1];
+            listagemElenco.Alinhamentos = ["left", "center", "center"];
+            listagemElenco.Inputs = ["", "", ""];
+			const parametroNovelaId = localStorage.getItem("novelaId");
+            if (parametroNovelaId == null)
+                defineTabelaElenco("");
+            else
+            {
+                defineTabelaElenco(parametroNovelaId);
+                $("#cboNovela").val(parametroNovelaId);
+            }
+        });
+    </script>
+</body>
+</html>

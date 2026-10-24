@@ -52,7 +52,9 @@ router.patch("/:id", async (req, res) =>
 {
     try
     {
-        res.status(201).json(await service.save(req.body));
+        const dados = { ...req.body, _id: req.params.id };
+        const resposta = await service.save(dados);
+        res.status(resposta.status).json(resposta);
     }
     catch (err)
     {

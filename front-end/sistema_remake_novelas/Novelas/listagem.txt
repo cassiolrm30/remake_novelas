@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sistema de Remake de Novelas</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+	<link rel="stylesheet" href="../css/site.css" />
+	<link rel="stylesheet" href="../css/site.min.css" />
+	<script src="../css/jquery_3_5_1.min.js"></script>
+	<script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/autores.js"></script>
+	<script src="../carga/novelas.js"></script>
+	<script src="../carga/versoesNovelas.js"></script>
+	<style>
+	.abas     { background-color:white; }
+	.abas li  { float:left; }
+	.aba      { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:white; font-size:15px; font-weight:bold; font-family:arial; float:left; }
+	.ativa    { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:black; color:white; border-color:black; float:left; }
+	.selected { width:30px; height:30px; border:solid 1px; border-radius:5px 5px 0px 0px; text-align:center; padding-top:5px; cursor:pointer; background-color:black; color:white; border-color:black; }
+	#header   { margin-left:60px; }
+	#content  { padding-left:100px; padding-right:100px; }
+
+	.tabela
+	{
+		border: solid 1px black;
+		border-collapse: collapse;
+		border-spacing: 0;
+		font-family: Arial;
+		font-size: 12px;
+		width: 100%;
+	}
+
+	tr:nth-child(even) { background-color: #F2F2F2; }
+
+	.celulaTitulo
+	{
+		padding: 6px;
+		font-weight: bold;
+		color: white;
+		background-color: black;
+		vertical-align: middle;
+		cursor: pointer;
+	}
+
+	.celulaAcoes
+	{
+		padding: 6px 0px 0px 0px;
+		font-weight: bold;
+		color: white;
+		background-color: black;
+		vertical-align: top;
+	}
+
+	.celulaConteudo
+	{
+		padding: 4px 0px 4px 0px;
+		vertical-align: middle;
+	}
+
+	.acoes { text-align:center; margin: 0px 0px 0px 0px; }
+
+	.paginacao 		  { background-color: black; color: white; text-align: center; padding: 5px; }
+	.paginacao a 	  { text-decoration: none; padding: 0px 10px 0px 10px; color: white; background-color: black; }
+	.pagina_atual 	  { text-decoration: none; padding: 1px 7px 1px 7px; color: black; background-color: white; font-weight: bold; border-radius: 3px; }
+	.item_paginacao a { padding:0px 5px 0px 5px; }
+</style>
+</head>
+<body>
+	<div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+		<div style="height:100%;margin-top:-20px;">
+			<h3 class="titulo"></h3>
+			<center>
+				<div id='header'></div>
+				<div id="content" style="height:370px;">
+					<table id="tblListagem" class="tabela"></table>
+				</div>
+				<div style="text-align:right;padding:10px 100px 0px 0px;">
+					<button type="button" class="btn btn-primary" style="width:100px;" id="btnNovo" onclick="javascript:window.location='cadastro.html';"> Novo </button>
+				</div>
+			</center>
+		</div>
+		<div id="divRodape"></div>
+    </div>
+    <script src="../js/funcoes_gerais.js"></script>
+	<script>
+		var dados    		= [];
+		var tabela, rotulos = [], larguras = [], aligns = [];
+		var v_qt_linhas = 1;
+		var	sentidosAscendente = [];
+		const opcao_tela = 2;
+
+		function criarRemake(id)
+		{
+			window.location.href = "cadastro.html?remake=true&Id=" + id;
+		}
+
+		$("#btnNovo").click(function () { window.location.href = "cadastro.html"; });
+
+		$(document).ready(function()
+		{
+			$("h3.titulo").html("Listagem de Novelas");
+            rotulos  = ["Título", "Autor da 1ª Versão", "Autor da 2ª Versão", "A&ccedil;&otilde;es"];
+			larguras = ["350px", "275px", "275px", "100px"];
+			aligns   = ["left", "left", "left", "center"];
+			for (var i = 0; i < rotulos.length; i++)
+				sentidosAscendente.push(true);
+
+			dados = getNovelas();
+			if (dados.length > 0)
+			{
+				montarAbasPorLetraInicial();
+				$(".abas li:first div").addClass("selected");
+				$(".aba").click(
+					function()
+					{
+						v_unicode_atual = parseInt($(this).attr("id").replace("aba",""));
+						$(".aba").removeClass("selected");
+						$(this).addClass("selected");
+						v_qt_linhas = 1;
+						montarTabela(opcao_tela, v_unicode_atual);
+					}
+				);
+				tabela = document.getElementById($("#content table").prop("id"));
+				montarTabela(opcao_tela, $(".aba")[0].innerText.charCodeAt(0));
+			}
+		});
+	</script>	
+</body>
+</html>

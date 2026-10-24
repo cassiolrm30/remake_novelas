@@ -1,0 +1,26 @@
+﻿body { padding-top: 50px; padding-bottom: 20px; }
+
+hr { border-color:black; }
+
+.body-content { padding-left: 15px; padding-right: 15px; }
+
+.carousel-caption p { font-size: 20px; line-height: 1.4; }
+
+.carousel-inner .item img[src$=".svg"] { width: 100%; }
+
+.titulo { text-align:center; text-decoration:underline; padding: 5px 0px 10px 0px }
+
+#qrCode { margin: 15px; }
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px)
+{
+    /* Hide captions */
+    .carousel-caption { display: none; }
+}
+
+.alinhamento_centro { text-align: center; }
+
+.alinhamento_esquerda { text-align: left; }
+
+.alinhamento_direita { text-align: right; }

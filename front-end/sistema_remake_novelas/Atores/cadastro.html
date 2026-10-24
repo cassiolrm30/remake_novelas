@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+	<link rel="stylesheet" href="../css/site.css" />
+	<link rel="stylesheet" href="../css/site.min.css" />
+	<script src="../css/jquery_3_5_1.min.js"></script>
+	<script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/atores.js"></script>
+	<script src="../carga/itens_combo.js"></script>
+    <style>
+        .campo_texto {
+            border: solid 1px black;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 25px;
+            width: 135px;
+            padding: 5px;
+        }
+
+        .campo_texto_desabilitado {
+            border: solid 1px black;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 25px;
+            padding: 5px;
+            color: black;
+            background-color: silver;
+        }
+
+        .campo_data {
+            border: solid 1px black;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 25px;
+            width: 130px;
+            padding: 5px;
+        }
+
+        .combo {
+            border-color: black;
+            font-size: 12px;
+            height: 25px;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .autocomplete {
+            position: relative;
+            display: inline-block;
+        }
+
+        .autocomplete-items {
+            position: relative;
+            border: solid 1px #a4a4a4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99; /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+		.autocomplete-items div {
+			padding: 2px;
+			cursor: pointer;
+			background-color: #dedede;
+			border-bottom: 1px solid #a4a4a4;
+			font-size: 12px;
+			font-family: Arial;
+		}
+
+		.autocomplete-items div:hover {
+			background-color: #e9e9e9;
+		}
+
+        .img_tamanho_normal {
+            width: 237px;
+            height: 300px;
+            border: solid 1px black;
+        }
+    </style>
+</head>
+<body>
+    <div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+        <center>
+            <div style="height:100%;margin-top:-20px;font-size:12px;width:900px;">
+                <h3 class="titulo">Cadastro de Atores</h3>
+                <form enctype="multipart/form-data" method="post">
+                    <input type="hidden" id="Id" value="">
+                    <input type="hidden" id="hidFaixaEtaria">
+                    <input type="hidden" id="hidConteudoArquivo">
+                    <div class="form-group" style="padding-top:10px;">
+                        <div class="row" style="text-align:left;">
+                            <div class="col-sm-4">
+                                <div style="width:265px;">
+                                    <center>
+                                        <div style="padding:3px 0px 5px 0px;"><input type="file" id="fileFoto" style="width:106px;" value="Escolher foto" accept="image/*" /></div>
+                                        <img id="imgAtor" class=img_tamanho_normal />
+                                    </center>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="row">
+                                    <div class="col-sm-12" style="padding-bottom:10px;">
+                                        <label for="txtNomeCompleto">Nome Completo:</label><br />
+                                        <input type="text" class="campo_texto" style="width:100%;" id="txtNomeCompleto" name="txtNomeCompleto" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-12" style="padding-bottom:13px;">
+                                        <label for="txtNomeArtistico">Nome Artístico:</label><br />
+                                        <input type="text" class="campo_texto" style="width:100%;" id="txtNomeArtistico" name="txtNomeArtistico" maxlength="100">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="row">
+                                        <div class="col-sm-6" style="padding: 0px 0px 10px 30px;">
+                                            <label for="txtDataNascimento">Data de Nascimento:</label><br>
+                                            <input type="date" class="campo_data" id="txtDataNascimento" name="txtDataNascimento">
+                                        </div>
+                                        <div class="col-sm-6" style="padding: 0px 0px 10px 10px;">
+                                            <label for="txtDataFalecimento">Data de Falecimento:</label><br>
+                                            <input type="date" class="campo_data" id="txtDataFalecimento" name="txtDataFalecimento">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12" style="padding-bottom:10px;">
+                                        <fieldset style="border:solid 1px; border-radius:5px; padding:0px 20px 10px 20px;">
+                                            <legend style="font-weight:bold; font-size:13px; width:90px; padding:2px; border:solid 0px;"> Naturalidade: </legend>
+                                            <div class="row" style="padding:0px 5px 0px 5px; margin-top:-15px;">
+                                                <div class="col-sm-12" style="padding:1px 0px 10px 0px;text-align:left;">
+                                                    <label for="cboUF">UF:</label><br>
+                                                    <select id="cboUF" class="combo"></select>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="padding:0px 5px 0px 5px; margin-top:-15px;">
+                                                <div class="col-sm-12" style="padding:1px 0px 10px 0px;text-align:left;width:100%;">
+                                                    <label for="cboCidadeNatal">Cidade:</label><br>
+                                                    <div id="divCidadeNatal"></div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <fieldset style="border:solid 1px; border-radius:5px; padding:0px 20px 10px 20px;">
+                                    <legend style="font-weight:bold; font-size:13px; width:45px; margin-left:5px; padding: 2px 2px 2px 4px; border:solid 0px;"> Perfil: </legend>
+                                    <div class="row" style="padding:0px 5px 0px 5px; margin-top:-15px;">
+                                        <div class="col-sm-12" style="padding:1px 0px 10px 0px;">
+                                            <label for="cboGenero">Gênero:</label><br>
+                                            <select id="cboGenero" class="combo"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:0px 5px 0px 5px;">
+                                        <div class="col-sm-12" style="padding:1px 0px 10px 0px;">
+                                            <label for="cboEtnia">Etnia:</label><br>
+                                            <select id="cboEtnia" class="combo"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:13px 5px 13px 5px;">
+                                        <div class="col-sm-12" style="padding:1px 0px 10px 0px;">
+                                            <label for="hidFaixaEtaria">Faixa Etária:</label> <span id="spanFaixaEtaria" style="font-weight:bold;"></span>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:0px 5px 0px 5px;">
+                                        <div class="col-sm-12" style="padding:1px 0px 10px 0px;">
+                                            <label for="cboFaixaPeso">Faixa de Peso:</label><br>
+                                            <select id="cboFaixaPeso" class="combo"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:0px 5px 0px 5px;">
+                                        <div class="col-sm-12" style="padding:1px 0px 10px 0px;">
+                                            <label for="cboFaixaEstatura">Faixa de Estatura:</label><br>
+                                            <select id="cboFaixaEstatura" class="combo"></select>
+                                        </div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group" style="text-align:center;margin-top:10px;padding-bottom:10px;">
+                        <button type="button" class="btn btn-primary" style="width:100px;margin-right:15px;" id="btnSalvar">Salvar</button>
+                        <button type="button" class="btn btn-primary" style="width:100px;margin-left:15px;" id="btnCancelar">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </center>
+        <div id="divRodape"></div>
+    </div>
+
+    <script src="../js/funcoes_gerais.js"></script>
+    <script>
+        var nomesArtisticos = [];
+
+        function getAtor(id)
+        {
+            /*if (id != "")
+            {
+                jQuery.ajax
+                ({
+                    type: "GET",
+                    contentType: "json",
+                    url: URL + "ator/" + id,
+                    async: false,
+                    success: function (data)
+                    {
+                        $("#Id").val(data.id);
+                        $("#txtNomeCompleto").val(data.nomeCompleto);
+                        $("#txtNomeArtistico").val(data.nomeArtistico);
+                        $("#txtDataNascimento").val(data.dataNascimento);
+                        $("#txtDataFalecimento").val(data.dataFalecimento);
+                        $("#cboGenero").val(data.generoId);
+                        $("#cboEtnia").val(data.etniaId);
+                        $("#hidFaixaEtaria").val(data.faixaEtariaId);
+                        $("#cboFaixaPeso").val(data.faixaPesoId);
+                        $("#cboFaixaEstatura").val(data.faixaEstaturaId);
+                        $("#cboUF").val(data.uf.trim());
+                        getCidades($("#cboUF").val());
+                        $("#cboCidadeNatal").val(data.cidadeNatal.trim());
+                        $("#spanFaixaEtaria").html(getFaixaEtaria(getIdade($("#txtDataNascimento").val(), ($("#txtDataFalecimento").val() == "" ? null : $("#txtDataFalecimento").val()))));
+                        if (data.imagemFoto != "")
+                            $("#imgAtor").attr("src", "../imagens/atores/" + data.imagemFoto);
+                        //debugger;
+                    },
+                    error: function (e)
+                    {
+                        console.log(e);
+                    },
+                });
+            }*/
+			for (var i = 0; i < atores.length; i++)
+			{
+				if (atores[i].id == id)
+				{
+					$("#Id").val(atores[i].id);
+					$("#txtNomeCompleto").val(atores[i].nomeCompleto);
+					$("#txtNomeArtistico").val(atores[i].nomeArtistico);
+					$("#txtDataNascimento").val(atores[i].dataNascimento);
+					$("#txtDataFalecimento").val(atores[i].dataFalecimento);
+					$("#cboGenero").val(atores[i].generoId);
+					$("#cboEtnia").val(atores[i].etniaId);
+					$("#hidFaixaEtaria").val(atores[i].faixaEtariaId);
+					$("#cboFaixaPeso").val(atores[i].faixaPesoId);
+					$("#cboFaixaEstatura").val(atores[i].faixaEstaturaId);
+					$("#cboUF").val(atores[i].uf);
+					getCidades($("#cboUF").val());
+					$("#cboCidadeNatal").val(atores[i].cidadeNatal);
+					$("#spanFaixaEtaria").html(getFaixaEtaria(getIdade($("#txtDataNascimento").val(), ($("#txtDataFalecimento").val() == "" ? null : $("#txtDataFalecimento").val()))));
+					$("#imgAtor").attr("src", "../imagens/" + (atores[i].imagemFoto == null ? "SEM_FOTO.jpg" : "atores/" + autores[i].imagemFoto));
+					break;
+				}
+			}
+        }
+
+        function preencherCombo(opcao)
+        {
+            var idCombo = "";
+            var v_option = new Option("-- Selecione --", "");
+			if (opcao == 6)
+			{
+				jQuery.ajax
+				({
+					type: "GET",
+					dataType: "json",
+					url: "https://servicodados.ibge.gov.br/api/v1/localidades/estados/",
+					async: false,
+					success: function (data)
+					{
+						$("#cboUF").append(v_option);
+						for (var i = 0; i < data.length; i++)
+						{
+							v_option = new Option(data[i].sigla + " - " + data[i].nome.toUpperCase(), data[i].sigla);
+							$("#cboUF").append(v_option);
+						}
+						v_option = new Option("EXTERIOR", "EXTERIOR");
+						$("#cboUF").append(v_option);
+					},
+					error: function (data) { },
+				});
+			}
+			else
+			{
+				var itens;
+				switch (opcao)
+				{
+					case 1: idCombo = "cboGenero"; 		  itens = itensComboGeneros; 		break;
+					case 2: idCombo = "cboEtnia"; 		  itens = itensComboEtnias; 		break;
+					case 3: idCombo = "cboFaixaEtaria";   itens = itensComboFaixasEtarias; 	break;
+					case 4: idCombo = "cboFaixaPeso"; 	  itens = itensComboFaixasPeso; 	break;
+					case 5: idCombo = "cboFaixaEstatura"; itens = itensComboFaixasEstatura; break;
+				}
+				$("#" + idCombo).append(v_option);
+				for (var i = 0; i < itens.length; i++)
+				{
+					var dadosItem = itens[i].split('|');
+					v_option = new Option(dadosItem[1], dadosItem[0]);
+					$("#" + idCombo).append(v_option);
+				}
+			}
+        }
+
+        function getIdade(data_nascimento, data_falecimento)
+        {
+            var ano_final, mes_final, dia_final;
+            var dados_data_nascimento = data_nascimento.split('-');
+            var ano_nascimento = parseInt(dados_data_nascimento[0]),
+                mes_nascimento = parseInt(dados_data_nascimento[1] - 1),
+                dia_nascimento = parseInt(dados_data_nascimento[2]);
+
+            if (data_falecimento == null)
+            {
+                var data_final = new Date;
+                ano_final = data_final.getFullYear();
+                mes_final = data_final.getMonth() + 1;
+                dia_final = data_final.getDate();
+            }
+            else
+            {
+                var dados_data_falecimento = data_falecimento.split('-');
+                ano_final = parseInt(dados_data_falecimento[0]);
+                mes_final = parseInt(dados_data_falecimento[1] - 1);
+                dia_final = parseInt(dados_data_falecimento[2]);
+            }
+            var idade = ano_final - ano_nascimento;
+            if (mes_final < mes_nascimento || mes_final == mes_nascimento && dia_final < dia_nascimento)
+                idade--;
+            return idade < 0 ? 0 : idade;
+        }
+
+        function getFaixaEtaria()
+        {
+            var idade = getIdade($("#txtDataNascimento").val(), ($("#txtDataFalecimento").val() == "" ? null : $("#txtDataFalecimento").val()));
+            if (idade < 10)
+            {
+                $("#hidFaixaEtaria").val("1");
+                $("#spanFaixaEtaria").html("Até 10 anos");
+                return;
+            }
+            if (idade >= 11 && idade <= 20)
+            {
+                $("#hidFaixaEtaria").val("2");
+                $("#spanFaixaEtaria").html("11 a 20 anos");
+                return;
+            }
+            if (idade >= 21 && idade <= 30)
+            {
+                $("#hidFaixaEtaria").val("3");
+                $("#spanFaixaEtaria").html("21 a 30 anos");
+                return;
+            }
+            if (idade >= 31 && idade <= 40)
+            {
+                $("#hidFaixaEtaria").val("4");
+                $("#spanFaixaEtaria").html("31 a 40 anos");
+                return;
+            }
+            if (idade >= 41 && idade <= 50)
+            {
+                $("#hidFaixaEtaria").val("6");
+                $("#spanFaixaEtaria").html("41 a 50 anos");
+                return;
+            }
+            if (idade >= 51 && idade <= 60)
+            {
+                $("#hidFaixaEtaria").val("7");
+                $("#spanFaixaEtaria").html("51 a 60 anos");
+                return;
+            }
+            if (idade >= 61 && idade <= 70)
+            {
+                $("#hidFaixaEtaria").val("8");
+                $("#spanFaixaEtaria").html("61 a 70 anos");
+                return;
+            }
+            if (idade >= 71 && idade <= 80)
+            {
+                $("#hidFaixaEtaria").val("9");
+                $("#spanFaixaEtaria").html("71 a 80 anos");
+                return;
+            }
+            if (idade >= 81 && idade <= 90)
+            {
+                $("#hidFaixaEtaria").val("10");
+                $("#spanFaixaEtaria").html("81 a 90 anos");
+                return;
+            }
+            if (idade >= 91 && idade <= 100)
+            {
+                $("#hidFaixaEtaria").val("11");
+                $("#spanFaixaEtaria").html("91 a 100 anos");
+                return;
+            }
+        }
+
+        /*
+		function preencherCombo(opcao)
+        {
+            var idCombo = "";
+            var v_URL = URL + "novela/combo/" + opcao;
+            switch (opcao)
+            {
+                case 1: idCombo = "cboGenero"; 		  break;
+                case 2: idCombo = "cboEtnia"; 		  break;
+                case 3: idCombo = "hidFaixaEtaria";   break;
+                case 4: idCombo = "cboFaixaPeso"; 	  break;
+                case 5: idCombo = "cboFaixaEstatura"; break;
+                case 6: idCombo = "cboUF";
+                        v_URL = "https://servicodados.ibge.gov.br/api/v1/localidades/estados/";
+                        break;
+            }
+            var v_option = new Option("-- Selecione --", "");
+            $("#" + idCombo).append(v_option);
+            jQuery.ajax
+            ({
+                type: "get",
+                dataType: "json",
+                url: v_URL,
+                async: false,
+                success: function (data)
+                {
+                    if (opcao == 6)
+                    {
+                        for (var i = 0; i < data.length; i++)
+                        {
+                            v_option = new Option(data[i].sigla + " - " + data[i].nome.toUpperCase(), data[i].sigla);
+                            $("#" + idCombo).append(v_option);
+                        }
+                        v_option = new Option("EXTERIOR", "EXTERIOR");
+                        $("#" + idCombo).append(v_option);
+                    }
+                    else
+                    {
+                        for (var i = 0; i < data.itens.length; i++)
+                        {
+                            var dadosItem = data.itens[i].split('|');
+                            v_option = new Option(dadosItem[1], dadosItem[0]);
+                            $("#" + idCombo).append(v_option);
+                        }
+                    }
+                },
+                error: function (data) { },
+            });
+        }
+		*/
+
+        function validaNomeArtistico()
+        {
+            //nomesArtisticos = getNomesArtisticos();
+            for (var i = 0; i < nomesArtisticos.length; i++)
+            {
+                if (nomesArtisticos[i] == $("#txtNomeArtistico").val().trim().toUpperCase())
+                    return false;
+            }
+            return true;
+        }
+
+        function getNomesArtisticos()
+        {
+            var atores = getAtores();
+            nomesArtisticos = [];
+            for (var i = 0; i < atores.length; i++)
+                nomesArtisticos.push(atores[i].Nome);
+            return true;
+        }
+
+        function getCidades(p_UF)
+        {
+            if (p_UF == "EXTERIOR")
+                $("#divCidadeNatal").html("<input type='text' id='cboCidadeNatal' name='cboCidadeNatal' class='campo_texto' style='width:100%;'>");
+            else
+            {
+                $("#divCidadeNatal").html("<select id='cboCidadeNatal' class='combo'></select>");
+                $("#cboCidadeNatal option").remove();
+                jQuery.ajax
+                ({
+                    type: "get",
+                    dataType: "json",
+                    url: "https://servicodados.ibge.gov.br/api/v1/localidades/estados/" + p_UF + "/municipios",
+                    async: false,
+                    success: function (data)
+                    {
+                        var v_option = new Option("-- Selecione --", "");
+                        $("#cboCidadeNatal").append(v_option);
+                        if (data.length == 0)
+                            $("#cboCidadeNatal").prop("disabled", true);
+                        else
+                        {
+                            for (var i = 0; i < data.length; i++)
+                            {
+                                v_option = new Option(data[i].nome.toUpperCase(), data[i].nome.toUpperCase());
+                                $("#cboCidadeNatal").append(v_option);
+                            }
+                            $("#cboCidadeNatal").index(0);
+                            $("#cboCidadeNatal").focus();
+                        }
+                    },
+                    error: function (data) { },
+                });
+            }
+        }
+
+        function uploadFoto(input)
+        {
+            if (input.value == "")
+            {
+                alert("É necessário selecionar uma imagem.");
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function (e)
+            {
+                $("#imgAtor").attr("src", e.target.result);
+                $("#hidConteudoArquivo").val(e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function setAtor()
+        {
+            var typeAJAX = "POST";
+            var ID = 0;
+            if ($("#Id").val() != "")
+            {
+                typeAJAX = "PUT";
+                ID = parseInt($("#Id").val());
+            }
+            if ($("#txtNomeCompleto").val().trim() == "")
+            {
+                alert("É necessário preencher o nome completo.");
+                $("#txtNomeCompleto").focus();
+                return;
+            }
+            if ($("#txtNomeArtistico").val().trim() == "")
+            {
+                alert("É necessário preencher o nome artístico.");
+                $("#txtNomeArtistico").focus();
+                return;
+            }
+            debugger;
+            if (ID == 0 && !validaNomeArtistico())
+            {
+                alert("Nome artístico já existente.");
+                $("#txtNomeArtistico").focus();
+                return;
+            }
+            if ($("#txtDataNascimento").val() == "")
+            {
+                alert("É necessário preencher a data de nascimento.");
+                $("#txtDataNascimento").focus();
+                return;
+            }
+            if ($("#cboUF").val() == "")
+            {
+                alert("É necessário preencher o estado (UF).");
+                $("#cboUF").focus();
+                return;
+            }
+            if ($("#cboCidadeNatal").val() == "")
+            {
+                alert("É necessário preencher a cidade natal.");
+                $("#cboCidadeNatal").focus();
+                return;
+            }
+            if ($("#cboGenero").val() == 0)
+            {
+                alert("É necessário preencher o gênero.");
+                $("#cboGenero").focus();
+                return;
+            }
+            if ($("#cboEtnia").val() == 0)
+            {
+                alert("É necessário preencher a etnia.");
+                $("#cboEtnia").focus();
+                return;
+            }
+            if ($("#cboFaixaPeso").val() == 0)
+            {
+                alert("É necessário preencher a faixa de peso.");
+                $("#cboFaixaPeso").focus();
+                return;
+            }
+            if ($("#cboFaixaEstatura").val() == 0)
+            {
+                alert("É necessário preencher a faixa de estatura.");
+                $("#cboFaixaEstatura").focus();
+                return;
+            }
+            console.log("ImagemFoto: " + $("#fileFoto").val());
+            console.log("ImagemUpload: " + $("#hidConteudoArquivo").val());
+            debugger;
+            var dados =
+            {
+                "Id": ID,
+                "NomeCompleto": $("#txtNomeCompleto").val().trim(),
+                "NomeArtistico": $("#txtNomeArtistico").val().trim(),
+                "DataNascimento": $("#txtDataNascimento").val(),
+                "DataFalecimento": $("#txtDataFalecimento").val(),
+                "GeneroId": $("#cboGenero").val(),
+                "EtniaId": $("#cboEtnia").val(),
+                "FaixaEtariaId": $("#hidFaixaEtaria").val(),
+                "FaixaPesoId": $("#cboFaixaPeso").val(),
+                "FaixaEstaturaId": $("#cboFaixaEstatura").val(),
+                "UF": $("#cboUF").val(),
+                "CidadeNatal": $("#cboCidadeNatal").val().trim(),
+                "ImagemFoto": $("#fileFoto").val(),
+                "ImagemUpload": $("#hidConteudoArquivo").val()
+            };
+
+            $.ajax({
+                type: typeAJAX,
+                contentType: "application/json",
+                url: URL + "ator/" + (typeAJAX == "PUT" ? ID : ""),
+                data: JSON.stringify(dados),
+                async: false,
+                success: function (data)
+                {
+                    if (data.id <= 0)
+                        alert("Erro interno - não foi possível o cadastro!");
+                    else
+                    {
+                        alert("Operação realizada com sucesso.");
+                        window.location.href = "listagem.html";
+                    }
+                },
+                error: function (e)
+                {
+                    console.log(e.responseJSON.error);
+                    alert("Erro interno - não foi possível o cadastro!");
+                }
+            });
+        }
+
+        function uploadImagem()
+        {
+            if (event.target.files != null && event.target.files.length != 0)
+            {
+                var arquivoSelecionado = event.target.files[0];
+                var formData = new FormData();
+                formData.append("minhaImagem", arquivoSelecionado);
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/Ator/post", true);
+                xhr.send(formData);
+            }
+        }
+
+        $("#cboUF").change(function () { getCidades(this.value); });
+
+        $("#btnSalvar").click(function () { setAtor(); });
+
+        $("#btnCancelar").click(function () { window.location.href = "listagem.html"; });
+
+        $("input[type=file]").on("change", function () { uploadFoto(this); });
+
+        $("#txtDataNascimento").on("change", function () { getFaixaEtaria(); });
+
+        $("#txtDataFalecimento").on("change", function () { getFaixaEtaria(); });
+
+        $("#txtNomeArtistico").on("blur", function () { validaNomeArtistico(this.value); });
+
+        $(document).ready(function ()
+        {
+            $("label").css("padding-left", "2px");
+            $("#divCidadeNatal").html("<select id='cboCidadeNatal' class='combo' style='width:100%;' disabled></select>");
+            preencherCombo(1);
+            preencherCombo(2);
+            preencherCombo(3);
+            preencherCombo(4);
+            preencherCombo(5);
+            preencherCombo(6);
+            getNomesArtisticos();
+            $("#imgAtor").attr("src", "../imagens/SEM_FOTO.jpg");
+            if (window.location.href.indexOf('?') != -1)
+            {
+                var URL = window.location.href.split('?');
+                if (URL[1] !== undefined)
+                    getAtor(URL[1].split('=')[1]);
+            }
+        });
+    </script>
+</body>
+</html>

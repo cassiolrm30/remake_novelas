@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sistema de Remake de Novelas</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="css/bootstrap_3_4_1.min.css">
+		<link rel="stylesheet" href="css/site.css" />
+		<link rel="stylesheet" href="css/site.min.css" />
+		<script src="css/jquery_3_5_1.min.js"></script>
+		<script src="css/bootstrap_3_4_1.min.js"></script>
+		<script src="js/chart.js"></script>
+		<script src="carga/atores.js"></script>
+		<script src="carga/autores.js"></script>
+		<script src="carga/itens_combo.js"></script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			canvas { float: left; z-index: -1000; margin: -80px 0px 0px -70px; }
+			[class$="-legend"] { list-style: none; cursor: pointer; }
+			[class$="-legend"] li { display: block; }
+			[class$="-legend"] li.hidden { text-decoration: line-through; }
+			[class$="-legend"] li span { border-radius: 5px; display: inline-block; height: 10px; margin-right: 5px; width: 10px; }
+			.legenda { font-weight: bold; font-size: 11px; float: right; width: 100px; height: 100%; padding: 5px 0px 0px 165px; position: absolute; }
+			div .col-sm-4 { border: 1px solid; border-radius: 5px; height: 140px; width: 340px; overflow-x: hidden; overflow-y: hidden; margin: 1px 5px 1px 5px; background-color: #FFFFBF; }
+			.asterisco { color: blue; font-weight: bold; font-size: 12px; }
+			.rotated-div { transform: rotate(270deg); font-weight: bold; font-size: 13px; width: 170px; height: 20px; float: left; color: #FFF; background-color: #666;	margin: 45px 50px 0px -89px; }
+		</style>
+	</head>
+	<body>
+		<div class="container body-content" style="padding:0px;">
+			<div style="height:100%;margin-top:-58px;">
+				<div class="form-group" style="margin:5px;padding-top:10px;padding-left:70px;">
+					<div class="row" style="padding:1px;">
+						<div class="col-sm-4"><div class="rotated-div" style="padding-left:50px;" id="1"></div><canvas id="chart1"></canvas><div class="legenda" id="legend1"></div></div>
+						<div class="col-sm-4"><div class="rotated-div" style="padding-left:55px;" id="2"></div><canvas id="chart2"></canvas><div class="legenda" id="legend2"></div></div>
+						<div class="col-sm-4"><div class="rotated-div" style="padding-left:35px;" id="3"></div><canvas id="chart3"></canvas><div class="legenda" id="legend3"></div></div>
+					</div>
+					<div class="row" style="padding:1px;">
+						<div class="col-sm-4"><div class="rotated-div" style="padding-left:30px;" id="4"></div><canvas id="chart4"></canvas><div class="legenda" id="legend4"></div></div>
+						<div class="col-sm-4"><div class="rotated-div" style="padding-left:17px;" id="5"></div><canvas id="chart5"></canvas><div class="legenda" id="legend5"></div></div>
+						<div class="col-sm-4" style="border:solid 0px; color:black; font-family:Arial; font-size:12px; font-weight:bold; padding-top:10px; background-color:transparent;">
+							<div style="float: left;">(*) somente atores</div>
+							<div style="float: right;">(**) atores e autores</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="js/funcoes_gerais.js"></script>
+		<script>
+			var xValues, yValues, percValues, barColors, totalQuantidade;
+			var porGenero, porEtnia, porFaixaEtaria, porFaixaPeso, porFaixaEstatura;
+
+			function getDadosDashboard()
+			{
+				/*jQuery.ajax
+				({
+					type: "GET",
+					dataType: "json",
+					url: URL + "novela/get_itens_dashboard_profissionais/",
+					async: false,
+					success: function (data)
+					{
+						porGenero 		 = data.por_genero;
+						porEtnia 		 = data.por_etnia;
+						porFaixaEtaria 	 = data.por_faixa_etaria;
+						porFaixaPeso 	 = data.por_faixa_peso;
+						porFaixaEstatura = data.por_faixa_estatura;
+					},
+					error: function (e)
+					{
+						console.log(e);
+					},
+				});*/
+
+				let itensDashboardProfissionaisPorGenero = [];
+				for (var i = 0; i < itensComboGeneros.length; i++)
+				{
+					var dadosItem = itensComboGeneros[i].split('|');
+					var qtd = autores.filter(a => a.genero == parseInt(dadosItem[0])).length + atores.filter(a => a.generoId == parseInt(dadosItem[0])).length;
+					if (qtd > 0)
+						itensDashboardProfissionaisPorGenero.push(dadosItem[1] + ";" + qtd);
+				}
+
+				let itensDashboardProfissionaisPorEtnia = [];
+				for (var i = 0; i < itensComboEtnias.length; i++)
+				{
+					var dadosItem = itensComboEtnias[i].split('|');
+					var qtd = atores.filter(a => a.etniaId == parseInt(dadosItem[0])).length;
+					if (qtd > 0)
+						itensDashboardProfissionaisPorEtnia.push(dadosItem[1] + ";" + qtd);
+				}
+
+				let itensDashboardProfissionaisPorFaixaEtaria = [];
+				for (var i = 0; i < itensComboFaixasEtarias.length; i++)
+				{
+					var dadosItem = itensComboFaixasEtarias[i].split('|');
+					var qtd = atores.filter(a => a.faixaEtariaId == parseInt(dadosItem[0])).length;
+					if (qtd > 0)
+						itensDashboardProfissionaisPorFaixaEtaria.push(dadosItem[1] + ";" + qtd);
+				}
+
+				let itensDashboardProfissionaisPorFaixaPeso = [];
+				for (var i = 0; i < itensComboFaixasPeso.length; i++)
+				{
+					var dadosItem = itensComboFaixasPeso[i].split('|');
+					var qtd = atores.filter(a => a.faixaPesoId == parseInt(dadosItem[0])).length;
+					if (qtd > 0)
+						itensDashboardProfissionaisPorFaixaPeso.push(dadosItem[1] + ";" + qtd);
+				}
+
+				let itensDashboardProfissionaisPorFaixaEstatura = [];
+				for (var i = 0; i < itensComboFaixasEstatura.length; i++)
+				{
+					var dadosItem = itensComboFaixasEstatura[i].split('|');
+					var qtd = atores.filter(a => a.faixaEstaturaId == parseInt(dadosItem[0])).length;
+					if (qtd > 0)
+						itensDashboardProfissionaisPorFaixaEstatura.push(dadosItem[1] + ";" + qtd);
+				}
+
+				porGenero 		 = itensDashboardProfissionaisPorGenero;
+				porEtnia 		 = itensDashboardProfissionaisPorEtnia;
+				porFaixaEtaria 	 = itensDashboardProfissionaisPorFaixaEtaria;
+				porFaixaPeso 	 = itensDashboardProfissionaisPorFaixaPeso;
+				porFaixaEstatura = itensDashboardProfissionaisPorFaixaEstatura;
+			}
+
+			function setDadosAgrupados(opcao)
+			{
+				var dadosAgrupados = [];
+				barColors = [];
+				switch (opcao)
+				{
+					case "1":
+						dadosAgrupados = porGenero;
+						barColors.push("#FF0000");
+						barColors.push("#FF6347");
+						barColors.push("#8B0000");
+						break;
+					case "2":
+						dadosAgrupados = porEtnia;
+						barColors.push("#00FF00");
+						barColors.push("#006400");
+						barColors.push("#00FF7F");
+						barColors.push("#98FB98");
+						break;
+					case "3":
+						dadosAgrupados = porFaixaEtaria;
+						barColors.push("#0000FF");
+						barColors.push("#ADD8E6");
+						barColors.push("#00008B");
+						barColors.push("#00BFFF");
+						barColors.push("#191970");
+						barColors.push("#87CEEB");
+						barColors.push("#483D8B");
+						barColors.push("#4682B4");
+						barColors.push("#B0E0E6");
+						barColors.push("#0A0A2A");
+						break;
+					case "4":
+						dadosAgrupados = porFaixaPeso;
+						barColors.push("#A020F0");
+						barColors.push("#DDA0DD");
+						barColors.push("#8B008B");
+						barColors.push("#EE82EE");
+						barColors.push("#9400D3");
+						barColors.push("#DA70D6");
+						barColors.push("#9932CC");
+						barColors.push("#C71585");
+						barColors.push("#BA55D3");
+						barColors.push("#9370DB");
+						break;
+					case "5":
+						dadosAgrupados = porFaixaEstatura;
+						barColors.push("#FFA500");
+						barColors.push("#FF4500");
+						barColors.push("#F19644");
+						barColors.push("#FF8C00");
+						barColors.push("#FFB449");
+						barColors.push("#E57700");
+						barColors.push("#FFAD34");
+						barColors.push("#ED9121");
+						barColors.push("#FF9F40");
+						barColors.push("#FFA227");
+						break;
+				}
+				xValues = [], yValues = [];
+				for (var i = 0; i < dadosAgrupados.length; i++)
+				{
+					var dados = dadosAgrupados[i].split(';');
+					xValues.push(dados[0]);
+					yValues.push(parseInt(dados[1]));
+				}
+			}
+
+			function gerarChart(opcaoAgrupamento, id, aba, titulo)
+			{
+				setDadosAgrupados(id);
+				$(".rotated-div#" + id).html(aba);
+				var chart = new Chart(document.getElementById("chart" + id).getContext('2d'),
+				{
+					type: "pie",
+					data:
+					{
+						labels: xValues,
+						datasets: [{ backgroundColor: barColors, data: yValues }]
+					},
+					options:
+					{
+						legend: { display: false },
+						title: { display: true, text: titulo, padding: 16 },
+						legendCallback: function (chart)
+						{
+							var text = [];
+							var ds = chart.data.datasets[0];
+							var sum = ds.data.reduce(function add(a, b) { return a + b; }, 0);
+							text.push("<ul class='" + opcaoAgrupamento + "-legend' style='width:155px;float:left;padding-left:0px;visibility:visible;'>");
+							for (var i = 0; i < ds.data.length; i++)
+							{
+								var perc = Math.round(100 * ds.data[i] / sum, 0);
+								text.push("<li>");
+								text.push("<span style='background-color:" + ds.backgroundColor[i] + "'></span>");
+								text.push(chart.data.labels[i] + " (" + perc + "%)");
+								text.push('</li>');
+							}
+							text.push('</ul>');
+							return text.join("");
+						}
+					}
+				});
+
+				var myLegendContainer = document.getElementById("legend" + id);
+				myLegendContainer.innerHTML = chart.generateLegend();
+				// bind onClick event to all LI-tags of the legend
+				var legendItems = myLegendContainer.getElementsByTagName('li');
+				for (var i = 0; i < legendItems.length; i++)
+					legendItems[i].addEventListener("click", legendClickCallback, false);
+			}
+
+			function legendClickCallback(event)
+			{
+				event = event || window.event;
+				var target = event.target || event.srcElement;
+				while (target.nodeName !== 'LI')
+					target = target.parentElement;
+				var parent = target.parentElement;
+				var chartId = parseInt(parent.classList[0].split("-")[0], 10);
+				var chart = Chart.instances[chartId];
+				var index = Array.prototype.slice.call(parent.children).indexOf(target);
+				var item = chart.getDatasetMeta(0).data[index];
+				if (item.hidden === null || item.hidden === false)
+				{
+					item.hidden = true;
+					target.style.textDecoration = "line-through";
+				}
+				else
+				{
+					target.style.textDecoration = "none";
+					item.hidden = null;
+				}
+				chart.update();
+			}
+
+			function init()
+			{
+				getDadosDashboard();
+				gerarCharts();
+			}
+
+			function gerarCharts()
+			{
+				gerarChart("0", "1", "G" + String.fromCharCode(234) + "nero", "Por G" + String.fromCharCode(234) + "nero (**)");
+				gerarChart("1", "2", "Etnia", "Por Etnia (*)");
+				gerarChart("2", "3", "Faixa Et" + String.fromCharCode(225) + "ria", "Por Faixa Et" + String.fromCharCode(225) + "ria (*)");
+				gerarChart("3", "4", "Faixa de Peso", "Por Faixa de Peso (*)");
+				gerarChart("4", "5", "Faixa de Estatura", "Por Faixa de Estatura (*)");
+			}
+
+			$("#optFormatoPizza").change(function ()  { formato = "pie"; gerarCharts(); });
+
+			$(document).ready(function () { init(); });
+		</script>
+	</body>
+</html>

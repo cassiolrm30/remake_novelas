@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Pessoa   = require("./Pessoa");
 
 const SCHEMA = new mongoose.Schema
 ({

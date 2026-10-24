@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sistema de Remake de Novelas</title>
+	<meta charset="iso-8859-1"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+	<link rel="stylesheet" href="../css/site.css" />
+	<link rel="stylesheet" href="../css/site.min.css" />
+	<script src="../css/jquery_3_5_1.min.js"></script>
+	<script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/novelas.js"></script>
+	<script src="../carga/personagens.js"></script>
+	<style>
+		#header   { margin-left:60px; }
+		#content  { padding-left:100px; padding-right:100px; }
+
+        .selected
+		{
+            width: 30px;
+            height: 30px;
+            border: solid 1px;
+            border-radius: 5px 5px 0px 0px;
+            text-align: center;
+            padding-top: 5px;
+            cursor: pointer;
+            background-color: black;
+            color: white;
+            border-color: black;
+        }
+
+		tr:nth-child(even) { background-color: #F2F2F2; }
+
+		.celulaTitulo
+		{
+			padding: 6px;
+			font-weight: bold;
+			color: white;
+			background-color: black;
+			vertical-align: middle;
+		}
+
+		.celulaConteudo
+		{
+			padding: 2px 0px 2px 0px;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body>
+	<div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+		<div style="height:100%;margin-top:-20px;">
+			<h3 class="titulo"></h3>
+			<form method="post">
+				<input type="hidden" id="Id" value="">
+				<input type="hidden" id="PersonagemIds" value="">
+				<div class="form-group">
+					<label for="cboNovela">Novela:</label>
+					<select class="form-control form-control-sm" style="border-color:black;font-size:12px;height:25px;padding-top:4px;" id="cboNovela" name="cboNovela">
+						<option value="0">-- Selecione --</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<fieldset style="border:solid 1px;border-radius:5px;">
+						<legend style="font-size:13px;width:90px;margin-left:10px;p
+						adding:5px;border:solid 0px;"> Personagens: </legend>
+						<div style="padding-left:10px;padding-right:10px;padding-bottom:5px;overflow-y:scroll;height:250px;">
+							<table id="tblPersonagens" class="tabela" style="width:100%;font-family:arial;font-size:12px;border:solid 1px;border-color:black;" cellpadding="1" cellspacing="0"></table>
+						</div>
+					</fieldset>
+				</div>
+				<div class="form-group" style="text-align:center;">
+					<button type="button" class="btn btn-primary" id="btnSalvar">Salvar</button>
+					<button type="button" class="btn btn-primary" id="btnCancelar">Cancelar</button>
+				</div>
+			</form>
+		</div>
+		<div id="divRodape"></div>
+    </div>	
+    <script src="../js/funcoes_gerais.js"></script>
+	<script>
+		var qtLinhas = 1;
+		var tabela   = document.getElementById("tblPersonagens");
+        var rotulos  = ["Personagem", "Gênero", "Etnia", "Faixa Etária", "Peso", "Altura"];
+        var larguras = ["50", "10", "10", "10", "10", "10"];
+        var aligns   = ["left", "center", "center", "center", "center", "center"];
+
+		function montarTabela()
+		{
+			$("#tblPersonagens tr").remove(); // reinicializar a tabela
+			var linha = tabela.insertRow(0);
+			// Definindo o título da cada coluna da tabela
+			for (var i = 0; i < rotulos.length; i++)
+			{
+				var celulaTitulo = linha.insertCell(i);
+				celulaTitulo.id = "T" + (i+1);
+				celulaTitulo.className = "celulaTitulo";
+				celulaTitulo.innerHTML = rotulos[i];
+				celulaTitulo.style.width = larguras[i];
+				celulaTitulo.style.textAlign = aligns[i];
+				if (celulaTitulo.style.textAlign == "left")
+					celulaTitulo.style.paddingLeft = "5px";
+				if (celulaTitulo.style.textAlign == "right")
+					celulaTitulo.style.paddingRight = "5px";
+			}
+			// Definindo o corpo da tabela
+			var linha = [];
+			adicionarLinha(linha);
+		}
+
+		function adicionarLinha(linhas)
+		{
+			var linha = tabela.insertRow(qtLinhas);
+			var conteudo = linhas;
+			for (var i = 0; i < conteudo.length; i++)
+			{
+				var dadosConteudo = conteudo[i].split('|');
+				var celula = linha.insertCell(i);
+				celula.id = "C" + qtLinhas + (i+1);
+				celula.className = (i == 0 ? "coluna1" : "celulaConteudo");
+				celula.innerHTML = dadosConteudo[0];
+				celula.style.textAlign = dadosConteudo[1];
+				if (celula.style.textAlign == "left")
+					celula.style.paddingLeft = "5px";
+				if (celula.style.textAlign == "right")
+					celula.style.paddingRight = "5px";
+			}
+			qtLinhas++;
+		}
+
+        function montarComboNovelas()
+		{
+			let data = getNovelasComPersonagens();
+            for (var i = 0; i < data.length; i++)
+			{
+                var option   = document.createElement("option");
+                option.value = data[i].id;
+                option.text  = data[i].titulo;
+                document.getElementById("cboNovela").add(option);
+            }
+        }
+
+		function getPrioridades(novelaId)
+		{
+			var personagemIds = "";
+            var data = personagens;
+			montarTabela();
+			for (var i = 0; i < data.length; i++)
+			{
+				var linha = [];
+				linha.push(data[i].nome + "|left");
+                linha.push("<input type='checkbox' id='chk" + data[i].id + "-1' value='" + data[i].generoId + "' " + (data[i].generoObrig == "1" ? " checked" : "") + ">|center");
+                linha.push("<input type='checkbox' id='chk" + data[i].id + "-2' value='" + data[i].etniaId + "' " + (data[i].etniaObrig == "1" ? " checked" : "") + ">|center");
+                linha.push("<input type='checkbox' id='chk" + data[i].id + "-3' value='" + data[i].faixaEtariaId + "' " + (data[i].faixaEtariaObrig == "1" ? " checked" : "") + ">|center");
+                linha.push("<input type='checkbox' id='chk" + data[i].id + "-4' value='" + data[i].faixaPesoId + "' " + (data[i].faixaPesoObrig == "1" ? " checked" : "") + ">|center");
+                linha.push("<input type='checkbox' id='chk" + data[i].id + "-5' value='" + data[i].faixaEstaturaId + "' " + (data[i].faixaEstaturaObrig == "1" ? " checked" : "") + ">|center");
+				adicionarLinha(linha);
+                personagemIds += data[i].PersonagemId + "|";
+			}
+			$("#PersonagemIds").val(personagemIds);
+		}
+
+		function setPrioridades()
+		{
+			if ($("#cboNovela").val() == "")
+			{
+				alert("É necessário preencher a novela.");
+				$("#cboNovela").focus();
+				return;
+			}
+			var qtSelecionados = $("input:checked").length;
+			if (qtSelecionados == 0)
+			{
+				alert("É necessário selecionar pelo menos uma caixa de seleção.");
+				return;
+			}
+
+			var qtColunas	      = rotulos.length;
+			var celulas			  = $("#tblPersonagens td[class!='celulaTitulo']");
+			var qtLinhas		  = (celulas.length / rotulos.length);
+			var prioridadesPerfis = [];
+			var indice			  = 0;
+			for (var i = 0; i < qtLinhas; i++)
+			{
+                var v_ids = $("#PersonagemIds").val().split('|');
+                var id = v_ids[i];
+                var generoId 		  = $("#chk"+id+"-1").val();
+                var etniaId			  = $("#chk"+id+"-2").val();
+                var faixaEtariaId	  = $("#chk"+id+"-3").val();
+                var faixaPesoId		  = $("#chk"+id+"-4").val();
+                var faixaEstaturaId   = $("#chk"+id+"-5").val();
+				var flagGenero 		  = $("#chk"+id+"-1").prop("checked") ? "true" : "false";
+				var flagEtnia 		  = $("#chk"+id+"-2").prop("checked") ? "true" : "false";
+				var flagFaixaEtaria	  = $("#chk"+id+"-3").prop("checked") ? "true" : "false";
+                var flagFaixaPeso     = $("#chk"+id+"-4").prop("checked") ? "true" : "false";
+                var flagfaixaEstatura = $("#chk"+id+"-5").prop("checked") ? "true" : "false";
+                prioridadesPerfis.push ({
+										 "Id": id,
+										 "NovelaId":		$("#cboNovela").val(),  "Nome":				  celulas[indice].innerText,
+										 "GeneroId":		generoId,  				"GeneroObrig":		  flagGenero,
+										 "EtniaId":			etniaId,				"EtniaObrig":		  flagEtnia,
+										 "FaixaEtariaId":	faixaEtariaId,			"FaixaEtariaObrig":	  flagFaixaEtaria,
+										 "FaixaPesoId":		faixaPesoId,			"FaixaPesoObrig":	  flagFaixaPeso,
+										 "FaixaEstaturaId": faixaEstaturaId,		"FaixaEstaturaObrig": flagfaixaEstatura
+									    });
+				indice += qtColunas;
+                console.log(prioridadesPerfis[i]);
+			}
+			
+			var dados = prioridadesPerfis;
+			$.ajax({
+                type: "PUT",
+                contentType: "application/json",
+                url: URL + "personagem/set_prioridades_perfis/",
+                data: JSON.stringify(dados),
+				success: function (data, status)
+				{
+                    if (status != "success")
+                        alert("Não foi possível a movimentação!");
+					else
+					{
+                        alert("Operação realizada com sucesso.");
+                        return true;
+                    }
+                },
+				error: function ()
+				{
+                    alert("Erro interno");
+                    return false;
+                }
+            });
+		}
+
+		$("#btnSalvar").click(function () { setPrioridades(); });
+
+		$("#btnCancelar").click(function () { window.location.href = "../Index.html"; });
+
+        $("#cboNovela").change(function () { qtLinhas = 1; getPrioridades($(this).val()); });
+
+		$(document).ready(function()
+		{
+            $("h3.titulo").html("Definição de Prioridades");
+			montarComboNovelas();
+		});
+	</script>
+</body>
+</html>

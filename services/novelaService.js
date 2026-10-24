@@ -20,7 +20,7 @@ async function get(_id)
 async function save(dados, session = null)
 {
 	// Validações
-	if (dados.titulo == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Título")); }
+	if (dados.tituloOriginal == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Título Original")); }
 	if (dados.sinopseConceitual == "") { throw new Error(MENSAGENS.COMMON.REQUIRED_FIELD("Sinopse Conceitual")); }
 
 	const executar = async () =>
@@ -42,18 +42,19 @@ async function save(dados, session = null)
         }
 
         // Validações
-        const filtroTitulo = { titulo: dados.titulo };
-        if (dados._id) { filtroTitulo._id = { $ne: dados._id }; }
-        const tituloExistente = await Novela.findOne(filtroTitulo).session(session);
-        if (tituloExistente != null) { throw new Error(MENSAGENS.NOVELA.TITLE_DUPLICATE); }
+        const filtroTituloOriginal = { tituloOriginal: dados.tituloOriginal };
+        if (dados._id) { filtroTituloOriginal._id = { $ne: dados._id }; }
+        const tituloOriginalExistente = await Novela.findOne(filtroTituloOriginal).session(session);
+        if (tituloOriginalExistente != null) { throw new Error(MENSAGENS.NOVELA.TITLE_DUPLICATE); }
 
         const filtroSinopseConceitual = { sinopseConceitual: dados.sinopseConceitual };
         if (dados._id) { filtroSinopseConceitual._id = { $ne: dados._id }; }
         const sinopseConceitualExistente = await Novela.findOne(filtroSinopseConceitual).session(session);
         if (sinopseConceitualExistente != null) { throw new Error(MENSAGENS.NOVELA.SYNOPSIS_DUPLICATE); }
 
-        novela.titulo            = dados.titulo;
-        novela.sinopseConceitual = dados.sinopseConceitual;
+        novela.tituloOriginal     = dados.tituloOriginal;
+        novela.sinopseConceitual  = dados.sinopseConceitual;
+        novela.titulosProvisorios = dados.titulosProvisorios;
 
         // salva a novela
         await novela.save({ session });

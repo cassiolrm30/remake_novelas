@@ -13,9 +13,9 @@ const SCHEMA = new mongoose.Schema
   UF:              { type: String, required: true, uppercase: true, minlength: 2, maxlength: 2 },
   genero:          { type: String, required: true, enum: Object.values(GENERO) },
   etnia:           { type: String, required: true, enum: Object.values(ETNIA) },
-  faixaEtaria:     { type: Object, required: true, enum: Object.values(FAIXA_ETARIA) },
-  faixaPeso:       { type: String, required: true, enum: Object.values(FAIXA_PESO) },
-  faixaEstatura:   { type: String, required: true, enum: Object.values(FAIXA_ESTATURA) },
+  faixaEtaria:     { type: String, required: true, enum: Object.values(FAIXA_ETARIA).map(item => item.descricao) },
+  faixaPeso:       { type: String, required: true, enum: Object.values(FAIXA_PESO).map(item => item.descricao) },
+  faixaEstatura:   { type: String, required: true, enum: Object.values(FAIXA_ESTATURA).map(item => item.descricao) },
   imagemFoto:      { type: String, required: false },
   imagemUpload:    { type: Object, required: false }
 },

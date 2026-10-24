@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+    <link rel="stylesheet" href="../css/site.css" />
+    <link rel="stylesheet" href="../css/site.min.css" />
+    <script src="../css/jquery_3_5_1.min.js"></script>
+    <script src="../css/bootstrap_3_4_1.min.js"></script>
+    <style>
+        #header { margin-left: 60px; }
+
+        #content 
+        {
+            padding-left: 100px;
+            padding-right: 100px;
+        }
+
+        .tabela 
+        {
+            border: solid 1px black;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-family: Arial;
+            font-size: 12px;
+            width: 570px;
+        }
+
+        tr:nth-child(even) { background-color: #F2F2F2; }
+
+        .celulaTitulo 
+        {
+            padding: 6px;
+            font-weight: bold;
+            color: white;
+            background-color: black;
+            vertical-align: middle;
+        }
+
+        .celulaConteudo 
+        {
+            padding: 4px 0px 4px 0px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .paginacao
+        {
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .paginacao a 
+        {
+            text-decoration: none;
+            padding: 0px 10px 0px 10px;
+            color: white;
+            background-color: black;
+        }
+
+        .pagina_atual
+        {
+            text-decoration: none;
+            padding: 1px 7px 1px 7px;
+            color: black;
+            background-color: white;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+        <div style="height:100%;margin-top:-20px;">
+            <h3 class="titulo"></h3>
+            <div class="row" style="padding:0px 15px 0px 15px;height:370px;">
+                <div class="col-sm-6" style="padding-left:0px;" id="content">
+                    <table id="tblListagem" class="tabela"></table>
+                </div>
+                <div class="col-sm-6" style="">
+                    Aqui será o carrossel de atores
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="text-align:center;padding:0px 0px 0px 0px;">
+                    <button type="button" class="btn btn-primary" style="width:100px;" id="btnVoltar" onclick="javascript:window.location='cadastro.html';">Voltar</button>
+                </div>
+            </div>
+            <div id="divSinopse" style="text-align:justify;visibility:hidden;"></div>
+        </div>
+        <div id="divRodape"></div>
+    </div>
+    <script src="../js/funcoes_gerais.js"></script>
+    <script>
+        function montarTabela(p_pagina_atual)
+        {
+            $("#tblListagem tr").remove(); // reinicializar a tabela
+            var linha = tabela.insertRow(0);
+            // Definindo o título da cada coluna da tabela
+            for (var i = 0; i < rotulos.length; i++)
+            {
+                var celulaTitulo = linha.insertCell(i);
+                celulaTitulo.id = "T" + (i + 1);
+                celulaTitulo.className = "celulaTitulo";
+                celulaTitulo.innerHTML = rotulos[i];
+                celulaTitulo.style.width = larguras[i];
+                celulaTitulo.style.textAlign = aligns[i];
+                if (celulaTitulo.style.textAlign == "left")
+                    celulaTitulo.style.paddingLeft = "5px";
+                if (celulaTitulo.style.textAlign == "right")
+                    celulaTitulo.style.paddingRight = "5px";
+            }
+
+            // Definindo o corpo da tabela
+            var v_qt_paginas   = (dados.length / v_qt_registros_por_pagina).toFixed(0);
+            var pagina_inicio  = (p_pagina_atual - 1) * v_qt_registros_por_pagina;
+            var pagina_fim     = pagina_inicio + v_qt_registros_por_pagina;
+            var dadosPaginados = dados.slice(pagina_inicio, pagina_fim);
+            var atores = [];
+            for (var i = 0; i < dadosPaginados.length; i++)
+            {
+                var celulas = [];
+                celulas.push(dadosPaginados[i].Personagem + "|left");
+                atores = dadosPaginados[i].Atores.split("|");
+                for (var j = 0; j < atores.length; j++)
+                    celulas.push(atores[j] + "|left");
+                v_qt_linhas = 1;
+                var linha = tabela.insertRow(v_qt_linhas);
+                for (var j = 0; j < celulas.length; j++)
+                {
+                    var dadosConteudo = celulas[j].split('|');
+                    var celula = linha.insertCell(j);
+                    celula.id = "C" + v_qt_linhas + (j + 1);
+                    celula.className = "celulaConteudo";
+                    celula.innerHTML = dadosConteudo[0];
+                    celula.style.textAlign = dadosConteudo[1];
+                    if (celula.style.textAlign == "left")
+                        celula.style.paddingLeft = "5px";
+                    if (celula.style.textAlign == "right")
+                        celula.style.paddingRight = "5px";
+                }
+                v_qt_linhas++;
+            }
+
+            // Definindo a linha da paginação
+            var linha = tabela.insertRow(dadosPaginados.length + 1);
+            var celula = linha.insertCell(0);
+            celula.className = "paginacao";
+            $("td.paginacao").prop("colspan", rotulos.length);
+
+            var paginacao = "";
+            var v_qt_paginas = (dados.length / v_qt_registros_por_pagina).toFixed(0);
+            if (v_qt_paginas <= 1)
+                paginacao += "<span style='padding:6px;'></span>";
+            else
+            {
+                for (var i = 1; i <= v_qt_paginas; i++)
+                {
+                    if (i == p_pagina_atual)
+                        paginacao += "<span class='pagina_atual'>" + p_pagina_atual + "</span>";
+                    else
+                    {
+                        v_qt_linhas = 1;
+                        paginacao += "<a href='#' onclick='montarTabela(" + i + ");'>" + i + "</a>";
+                    }
+                }
+            }
+            $("td.paginacao").html(paginacao);
+            v_pagina_atual = p_pagina_atual;
+        }
+
+        function getPersonagens(novelaId)
+        {
+            var resultado = [];
+            var personagens = [];
+
+			var data = [];
+			//{ "Id": "1", "Nome": "EUNICE (NICE)" }
+			var dados_versoes 	  	 = [];
+			var dados_personagens 	 = [];
+			var dados_atores 	  	 = [];
+			var dados_interpretacoes = [];
+
+			dados_versoes.push("11|bbbbbb|1976");
+			dados_versoes.push("12|eeeeee|1997");
+
+			dados_personagens.push("1|EUNICE (NICE)");
+			dados_personagens.push("2|RODRIGO");
+
+			dados_atores.push("1|Suzana Vieira|suzana_vieira");
+			dados_atores.push("2|José Wilker|jose_wilker");
+			dados_atores.push("3|Glória Pires|gloria_pires");
+			dados_atores.push("4|Kadu Moliterno|kadu_moliterno");
+
+			dados_interpretacoes.push("EUNICE (NICE)|Suzana Vieira|suzana_vieira|Glória Pires|gloria_pires");
+			dados_interpretacoes.push("RODRIGO|José Wilker|jose_wilker|Kadu Moliterno|kadu_moliterno");
+
+			data.push(
+						{
+							"titulo": 		 	 	"Teste de Hoje",
+							"sinopse": 		 	 	"Lorem ipsum taciti potenti vestibulum arcu nostra netus posuere curae nisi, netus varius nostra ullamcorper dictum mollis arcu viverra at, mi rutrum laoreet ac neque proin donec suscipit cras. scelerisque inceptos gravida commodo praesent lectus eros diam, suspendisse tincidunt erat urna et non dapibus enim, orci turpis nostra sapien mattis netus. suspendisse ante lacinia tortor ultrices metus aenean vel nisi nunc accumsan potenti, felis nulla neque condimentum sapien phasellus odio lectus gravida. posuere tincidunt eros porta himenaeos curabitur a pretium odio suscipit vel potenti habitasse, fermentum etiam erat orci donec cursus sodales laoreet sodales nec pellentesque rhoncus, vitae bibendum laoreet ac curabitur purus aliquet ullamcorper ut primis non.<br>Suscipit est eros aenean posuere cursus at egestas curabitur pellentesque, mattis at mi netus mi habitant vitae tempus, sapien feugiat posuere neque praesent eros pellentesque adipiscing. malesuada mi ligula velit lacus sociosqu arcu quisque arcu dui luctus litora vehicula, nisl vehicula donec non est torquent rutrum at pulvinar interdum. ultrices sit morbi duis commodo laoreet eget tempor habitasse, commodo lacinia ipsum placerat platea integer condimentum neque, scelerisque vulputate tellus porta aliquam eget pharetra. vulputate enim quam venenatis tincidunt ultrices dapibus eleifend eget fermentum, pharetra quisque enim adipiscing gravida congue egestas nam quis, porta laoreet amet gravida dolor tempus suscipit laoreet.<br>Enim fermentum cras pellentesque nec curabitur eget metus, interdum venenatis vehicula curabitur est risus congue eleifend, accumsan diam convallis nunc rutrum auctor. sociosqu vivamus congue dolor lacinia litora porta dapibus ipsum faucibus cras non, iaculis justo integer proin diam elit aenean fringilla lacus aliquam libero nam, tempor fringilla integer velit tempor venenatis at nisl tempus eu. felis lacinia eu cursus mattis imperdiet per lobortis quisque curabitur magna, tincidunt pharetra inceptos leo a posuere dictum dui consectetur accumsan, eget tortor praesent molestie pretium ultrices commodo leo tellus. malesuada sit vestibulum condimentum sollicitudin non lacus sem torquent, nisl nunc semper libero quis suspendisse dictumst lobortis proin, sagittis phasellus maecenas facilisis amet nam sed.<br>Aptent lacus vulputate duis sagittis congue dolor etiam, primis volutpat molestie quisque proin ut pretium, leo suscipit malesuada senectus aliquet imperdiet. mattis tincidunt lobortis leo consectetur leo orci risus, auctor convallis commodo sit interdum iaculis fringilla, fusce metus urna pulvinar tellus nibh. porta etiam praesent viverra consequat per etiam nec, fermentum dictumst varius lectus fusce luctus eleifend bibendum, tempor sodales netus senectus enim aenean. nostra non sit quisque orci semper, nibh justo dictumst augue, non vulputate ac senectus. pulvinar litora ipsum per facilisis platea nunc nibh gravida, hendrerit condimentum nullam sollicitudin mauris aliquam pellentesque sodales dolor, suspendisse eu proin in lacinia est feugiat.<br>Sem et molestie maecenas ornare praesent nisi faucibus habitasse, nibh netus commodo etiam scelerisque amet sit senectus, id sem nam morbi vitae fames hendrerit. amet auctor sodales sagittis id lorem convallis, malesuada ullamcorper eleifend himenaeos cursus velit, nullam non ut vehicula aenean. non aliquam per quis interdum consequat tristique habitasse dictumst, varius metus scelerisque quisque massa a rutrum dapibus in, pulvinar orci hac dictumst non etiam imperdiet. sed quisque vulputate arcu ultricies congue dictumst, iaculis maecenas litora nisi.",
+						}
+					 );
+
+			/*
+            jQuery.ajax
+			({
+				type: "GET",
+				dataType: "json",
+				url: URL + "novela/get_personagens/" + novelaId,
+				async: false,
+				success: function (data)
+				{
+			*/
+					rotulos.push("Personagem");
+					larguras.push("270px");
+					aligns.push("left");
+
+					$("h3.titulo").html(data.titulo + ": Original e Remake(s)");
+					$("#divSinopse").text(data.sinopse);
+
+					// Definição dos valores do cabeçalho
+					console.log(data);
+					for (var i = 0; i < dados_versoes.length; i++)
+					{
+						var dadosItem = dados_versoes[i].split('|');
+						for (var j = 0; j < dadosItem.length; j++)
+						{
+							if (j == 2)
+							{
+								rotulos.push((i+1) + "ª Versão (" + dadosItem[2].substring(0, 4) + ")");
+								break;
+							}
+						}
+						larguras.push("150px");
+						aligns.push("left");
+					}
+
+					debugger;
+					// Definição dos valores do conteúdo
+					for (var i = 0; i < dados_personagens.length; i++)
+					{
+						var dadosItem = dados_personagens[i].split('|');
+						var dadosAtores = "";
+						for (var j = 0; j < dados_versoes.length; j++)
+						{
+							// Parei aqui
+							//if (dadosItem[j + 2] == "")
+							//    dadosItem[j + 2] = "sdfsdfsdfsd";
+							//else
+							//{
+								for (var k = 0; k < dados_atores.length; k++)
+								{
+									var item = dados_atores[k].split(';');
+									if (item[0] == dadosItem[j + 2])
+									{
+										dadosAtores += (j == 0 ? "" : "|") + item[1];
+										break;
+									}
+								}
+							//}
+						}
+						dados.push({ "Personagem": dadosItem[0], "Atores": dadosAtores });
+					}
+				/*
+				},
+				error: function (data) { },
+			});*/
+
+            var dadosElenco = "";
+            for (var i = 0; i < personagens.length; i++)
+            {
+                dadosElenco += ((i > 0) ? "||" : "") + personagens[i].Nome + "|";
+                for (var j = 0; j < personagens[i].CombosAtores.length; j++) {
+                    dadosElenco += personagens[i].CombosAtores[j] + "|";
+                }
+                dadosElenco += personagens[i].Id;
+            }
+            resultado = dadosElenco.split('||');
+            return resultado;
+        }
+
+        $(document).ready(function ()
+        {
+            getPersonagens(40);
+            if (dados.length > 0)
+            {
+                tabela = document.getElementById($("#content table").prop("id"));
+                montarTabela(1);
+            }
+        });
+    </script>
+</body>
+</html>

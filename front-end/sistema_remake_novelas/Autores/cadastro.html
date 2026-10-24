@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+    <script src="../css/jquery_3_5_1.min.js"></script>
+    <script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/autores.js"></script>
+	<script src="../carga/novelas.js"></script>
+	<script src="../carga/versoesNovelas.js"></script>
+	<script src="../carga/itens_combo.js"></script>
+    <style>
+        .campo_texto {
+            border: solid 1px #000;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 25px;
+            width: 135px;
+            padding: 5px;
+			margin: -4px 0px 0px 0px;
+        }
+
+        .campo_texto_desabilitado {
+            border: solid 1px #000;
+            border-radius: 5px;
+            font-size: 12px;
+            height: 25px;
+            padding: 5px;
+            color: #000;
+            background-color: silver;
+			margin: -4px 0px 0px 0px;
+        }
+
+        .campo_data
+		{
+			border:solid 1px #000;
+			border-radius: 5px;
+			font-size: 12px;
+			height: 25px;
+			width: 130px;
+			padding: 5px;
+			margin: -4px 0px 0px 0px;
+		}
+
+        .combo
+		{
+            border-color: #000;
+            font-size: 12px;
+            height: 25px;
+            border-radius: 5px;
+            width: 100%;
+			margin: -4px 0px 0px 0px;
+        }
+		
+        .autocomplete { position:relative; display:inline-block; }
+
+        .autocomplete-items
+		{
+            position: relative;
+            border: solid 1px #a4a4a4;
+            border-bottom: none;
+            border-top: none;
+            z-index: 99; /*position the autocomplete items to be the same width as the container:*/
+            top: 100%;
+            left: 0;
+            right: 0;
+        }
+
+        .img_tamanho_normal { width:189.6px; height:240px; border:solid 1px #000; }
+    </style>
+</head>
+<body>
+    <div class="container body-content">
+		<div style="font-size:12px;height:359px;width:100%;">
+			<form enctype="multipart/form-data" method="post">
+				<input type="hidden" id="Id" value="">
+				<input type="hidden" id="hidFaixaEtaria">
+				<input type="hidden" id="hidConteudoArquivo">
+				<div class="form-group" style="padding-top:10px;">
+					<div class="row" style="text-align:left;">
+						<div class="col-sm-3">
+							<div style="width:100%;">
+								<center>
+									<div style="padding:3px 0px 5px 0px;"><input type="file" id="fileFoto" style="width:106px;" value="Escolher foto" accept="image/*" /></div>
+									<img id="imgAutor" class=img_tamanho_normal />
+								</center>
+							</div>
+						</div>
+						<div class="col-sm-5">
+							<div class="row">
+								<div class="col-sm-12" style="padding: 0px 0px 10px 0px; margin: 0px 0px 0px 22px;">
+									<label for="txtNomeArtistico">Nome Artístico:</label><br />
+									<input type="text" class="campo_texto" style="width:50%;" id="txtNomeArtistico" name="txtNomeArtistico" maxlength="100">
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-12" style="padding-bottom:10px;">
+									<fieldset style="border:solid 1px; border-radius:5px; padding:10px;">
+										<legend style="font-weight:bold; font-size:13px; width:165px; margin-left:0px; padding:0px 3px 20px 0px; border:solid 0px;">
+										<label for="txtCPF">CPF:</label><br />
+										<input type="text" class="campo_texto" style="width:100px;" id="txtCPF" name="txtCPF" maxlength="14">
+										<button type="button" class="btn btn-primary" style="width:50px;margin-left:5px;" id="btnPessoa">OK</button>
+										</legend>
+										<div class="row">
+											<div class="col-sm-12" style="padding-bottom:7px; margin-top:-50px;">
+												<label for="txtNomeCompleto">Nome Completo:</label><br />
+												<input type="text" class="campo_texto" style="width:100%;" id="txtNomeCompleto" name="txtNomeCompleto" maxlength="100">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-6" style="padding-bottom:7px;">
+												<label for="txtDataNascimento">Data de Nascimento:</label><br><input type="date" class="campo_data" id="txtDataNascimento" name="txtDataNascimento">
+											</div>
+											<div class="col-sm-6" style="text-align:right;">
+												<label for="txtDataFalecimento" style="padding-right:10px;">Data de Falecimento:</label><br><input type="date" class="campo_data" id="txtDataFalecimento" name="txtDataFalecimento">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-4" style="padding-bottom:7px;">
+												<label for="cboGenero">Gênero:</label><br>
+												<div id="divGenero"></div>
+											</div>
+											<div class="col-sm-4" style="padding-bottom:7px;">
+												<label for="cboEtnia">Etnia:</label><br>
+												<div id="divEtnia"></div>
+											</div>
+											<div class="col-sm-4" style="padding-bottom:7px;">
+												<label for="cboFaixaEtaria">Faixa Etária:</label><br>
+												<div id="divFaixaEtaria"></div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-sm-6" style="padding-bottom:7px;">
+												<label for="cboGenero">Faixa de Peso:</label><br>
+												<div id="divFaixaPeso"></div>
+											</div>
+											<div class="col-sm-6" style="padding-bottom:7px;">
+												<label for="cboFaixaEstatura">Faixa de Estatura:</label><br>
+												<div id="divFaixaEstatura"></div>
+											</div>
+										</div>
+										<div class="col-sm-12" style="padding:0px;">
+											<fieldset style="border:solid 1px; border-radius:5px; padding:0px 0px 0px 0px;">
+												<legend style="font-weight:bold; font-size:13px; width:90px; padding:1px 0px 1px 3px; margin:0px 0px 0px 5px; border:solid 0px;"> Naturalidade: </legend>
+													<div class="row" style="padding:0px 25px 0px 25px; margin-top:0px;">
+														<div class="col-sm-6" style="padding:1px 5px 10px 0px;text-align:left;width:50%;">
+															<label for="cboUF">UF:</label><br>
+															<select id="cboUF" class="combo"></select>
+														</div>
+														<div class="col-sm-6" style="padding:1px 5px 10px 0px;text-align:left;width:50%;">
+															<label for="cboCidadeNatal">Cidade:</label><br>
+															<div id="divCidadeNatal"></div>
+														</div>
+													</div>
+											</fieldset>
+										</div>
+									</fieldset>
+								</div>
+							</div>
+							<div class="row">
+								<div class="form-group" style="text-align:center;margin-top:10px;padding-top:10px;padding-bottom:0px;">
+									<button type="button" class="btn btn-primary" style="width:100px;margin-right:15px;" id="btnSalvar">Salvar</button>
+									<button type="button" class="btn btn-primary" style="width:100px;margin-left:15px;" id="btnCancelar">Cancelar</button>
+								</div>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<fieldset style="border:solid 1px; border-radius:5px; padding:10px; margin-right:20px; height:270px; overflow-y:328px;">
+								<legend style="font-weight:bold; font-size:13px; width:62px; margin-left:5px; padding:0px 3px 0px 3px; border:solid 0px;"> Novelas: </legend>
+								<div class="row" style="vertical-align:top;">
+									<div class="col-sm-12" style="padding: 0px 0px 10px 10px; margin-top:-20px;" id="divNovelas"></div>
+								</div>
+							</fieldset>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+    </div>
+
+    <script src="../js/funcoes_gerais.js"></script>
+	<script>
+        /*function getAutor(id)
+        {
+            if (id != "")
+            {
+                jQuery.ajax
+                ({
+                    type: "GET",
+                    contentType: "json",
+                    url: URL + "autor/" + id,
+                    async: false,
+                    success: function (data)
+                    {
+                        debugger;
+                        $("#Id").val(data.id);
+                        $("#txtNomeCompleto").val(data.nomeCompleto);
+                        $("#txtNomeArtistico").val(data.nomeArtistico);
+                        $("#txtDataNascimento").val(data.dataNascimento);
+                        $("#cboGenero").val(data.genero);
+                        $("#cboUF").val(data.uf.trim());
+                        getCidades($("#cboUF").val());
+                        $("#cboCidadeNatal").val(data.cidadeNatal.trim());
+                        if (data.imagemFoto != "")
+                            $("#imgAutor").attr("src", "../imagens/Autores/" + data.imagemFoto);
+
+                        var listaNovelas = "";
+                        listaNovelas += "<ul style='padding-left:20px;'>";
+                        for (var i = 0; i < data.versoesNovelas.length; i++)
+                        {
+                            var dadosVersoesNovelas = data.versoesNovelas[i].split('|');
+                            listaNovelas += "<li><a href='#' style='font-weight:bold;color:#000;'>" + dadosVersoesNovelas[1] + " (" + dadosVersoesNovelas[2] + ")</a></li>";
+                        }
+                        listaNovelas += "</ul>";
+                        $("#divNovelas").html(listaNovelas);
+                    },
+                    error: function (e)
+                    {
+                        console.log(e);
+                    },
+                });
+            }
+        }
+
+        function getGeneros()
+        {
+            var resultado = "";
+            resultado += "<select class='combo' style='width:130px;' id='cboGenero'>";
+            resultado += "<option value=''>-- Selecione --</option>";
+            jQuery.ajax
+            ({
+                type: "GET",
+                dataType: "json",
+                url: URL + "novela/combo/1",
+                async: false,
+                success: function (data)
+                {
+                    for (var i = 0; i < data.itens.length; i++)
+                    {
+                        var dados = data.itens[i].split('|');
+                        resultado += "<option value='" + dados[0] + "'>" + dados[1] + "</option>";
+                    }
+                },
+                error: function (data) { },
+            });
+			for (var i = 0; i < itensComboGeneros.length; i++)
+			{
+				var dados = itensComboGeneros[i].split('|');
+				resultado += "<option value='" + dados[0] + "'>" + dados[1] + "</option>";
+			}
+            resultado += "</select>";
+            return resultado;
+        }
+		
+		function getGeneros()
+        {
+            var resultado = "";
+            resultado += "<select class='combo' style='width:130px;' id='cboGenero'>";
+            resultado += "<option value=''>-- Selecione --</option>";
+			for (var i = 0; i < itensComboGeneros.length; i++)
+			{
+				var dados = itensComboGeneros[i].split('|');
+				resultado += "<option value='" + dados[0] + "'>" + dados[1] + "</option>";
+			}
+            resultado += "</select>";
+            return resultado;
+        }
+		*/
+
+        function preencherCombo(opcao)
+        {
+            var idCombo = "";
+            var v_option = new Option("-- Selecione --", "");
+			if (opcao == 6)
+			{
+				jQuery.ajax
+				({
+					type: "GET",
+					dataType: "json",
+					url: "https://servicodados.ibge.gov.br/api/v1/localidades/estados/",
+					async: false,
+					success: function (data)
+					{
+						$("#cboUF").append(v_option);
+						for (var i = 0; i < data.length; i++)
+						{
+							v_option = new Option(data[i].sigla + " - " + data[i].nome.toUpperCase(), data[i].sigla);
+							$("#cboUF").append(v_option);
+						}
+						v_option = new Option("EXTERIOR", "EXTERIOR");
+						$("#cboUF").append(v_option);
+					},
+					error: function (data) { },
+				});
+			}
+			else
+			{
+				let itens;
+				switch (opcao)
+				{
+					case 1: idCombo = "Genero"; 	   itens = itensComboGeneros; 		 break;
+					case 2: idCombo = "Etnia"; 		   itens = itensComboEtnias; 		 break;
+					case 3: idCombo = "FaixaEtaria";   itens = itensComboFaixasEtarias;	 break;
+					case 4: idCombo = "FaixaPeso"; 	   itens = itensComboFaixasPeso; 	 break;
+					case 5: idCombo = "FaixaEstatura"; itens = itensComboFaixasEstatura; break;
+				}
+				//let combo = document.createElement("SELECT");
+				//combo.id = "#cbo" + idCombo;
+				//combo.className = "combo";
+				//combo.append(v_option);
+				//for (var i = 0; i < itens.length; i++)
+				//{
+				//	var dadosItem = itens[i].split('|');
+				//	v_option = new Option(dadosItem[1], dadosItem[0]);
+				//	combo.append(v_option);
+				//}
+				//$("#div" + idCombo).append(combo);
+
+                $("#div" + idCombo).html("<select id='cbo"+idCombo+"' class='combo'></select>");
+				$("#cbo" + idCombo + " option").remove();
+                $("#cbo" + idCombo).prop("disabled", (itens.length == 0));
+				let v_option = new Option("-- Selecione --", "");
+                $("#cbo" + idCombo).append(v_option);
+				for (let i = 0; i < itens.length; i++)
+				{
+					const dadosItem = itens[i].split('|');
+					v_option = new Option(dadosItem[1], dadosItem[0]);
+					$("#cbo" + idCombo).append(v_option);
+				}
+			}
+        }
+
+        function getCidades(p_UF)
+        {
+            if (p_UF == "EXTERIOR")
+                $("#divCidadeNatal").html("<input type='text' id='cboCidadeNatal' name='cboCidadeNatal' class='campo_texto' style='width:100%;'>");
+            else
+            {
+                $("#divCidadeNatal").html("<select id='cboCidadeNatal' class='combo'></select>");
+                $("#cboCidadeNatal option").remove();
+                jQuery.ajax
+                ({
+                    type: "GET",
+                    dataType: "json",
+                    url: "https://servicodados.ibge.gov.br/api/v1/localidades/estados/" + p_UF + "/municipios",
+                    async: false,
+                    success: function (data)
+                    {
+                        var v_option = new Option("-- Selecione --", "");
+                        $("#cboCidadeNatal").append(v_option);
+                        if (data.length == 0)
+                            $("#cboCidadeNatal").prop("disabled", true);
+                        else
+                        {
+                            for (var i = 0; i < data.length; i++)
+                            {
+                                v_option = new Option(data[i].nome.toUpperCase(), data[i].nome.toUpperCase());
+                                $("#cboCidadeNatal").append(v_option);
+                            }
+                            $("#cboCidadeNatal").index(0);
+                            $("#cboCidadeNatal").focus();
+                        }
+                    },
+                    error: function (data) { },
+                });
+            }
+        }
+
+        function uploadFoto(input)
+        {
+            if (input.value == "")
+            {
+                alert("É necessário selecionar uma imagem.");
+                return;
+            }
+            var reader = new FileReader();
+            reader.onload = function (e)
+            {
+                $("#imgAutor").attr("src", e.target.result);
+                $("#hidConteudoArquivo").val(e.target.result);
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+
+        function uploadImagem()
+        {
+            if (event.target.files != null && event.target.files.length != 0)
+            {
+                var arquivoSelecionado = event.target.files[0];
+                var formData = new FormData();
+                formData.append("minhaImagem", arquivoSelecionado);
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/Autor/post", true);
+                xhr.send(formData);
+            }
+        }
+
+        function getAutor(id)
+        {
+			for (var i = 0; i < autores.length; i++)
+			{
+				if (autores[i].id == id)
+				{
+					$("#Id").val(autores[i].id);
+					$("#txtNomeCompleto").val(autores[i].nomeCompleto);
+					$("#txtNomeArtistico").val(autores[i].nomeArtistico);
+					$("#txtDataNascimento").val(autores[i].dataNascimento);
+					$("#cboGenero").val(autores[i].genero);
+					$("#cboUF").val(autores[i].uf);
+					getCidades($("#cboUF").val());
+					$("#cboCidadeNatal").val(autores[i].cidadeNatal);
+					$("#imgAutor").attr("src", "../imagens/" + (autores[i].imagemFoto == null ? "SEM_FOTO.jpg" : "Autores/" + autores[i].imagemFoto));
+
+					let versoesNovelasDoAutor = getVersoesNovelas("A", id);
+					debugger;
+					let listaNovelas = "";
+					listaNovelas += "<ul style='padding-left:20px;'>";
+					for (var j = 0; j < versoesNovelasDoAutor.length; j++)
+					{
+						listaNovelas += "<li>";
+						listaNovelas += "<a href='#' style='font-weight:bold;color:#000;'>" + versoesNovelasDoAutor[j].tituloNovela + " (" + versoesNovelasDoAutor[j].anoLancamento + ")</a>";
+						listaNovelas += "</li>";
+					}
+					listaNovelas += "</ul>";
+					$("#divNovelas").html(listaNovelas);
+					break;
+				}
+			}
+        }
+
+        function setAutor()
+        {
+            const typeAJAX = ($("#Id").val() != "") ? "PUT" : "POST";
+            if ($("#txtNomeArtistico").val().trim() == "")
+            {
+                alert("É necessário preencher o nome artístico.");
+                $("#txtNomeArtistico").focus();
+                return;
+            }
+            if ($("#txtCPF").val().trim() == "")
+            {
+                alert("É necessário preencher o CPF.");
+                $("#txtCPF").focus();
+                return;
+            }
+            if ($("#txtNomeCompleto").val().trim() == "")
+            {
+                alert("É necessário preencher o nome completo.");
+                $("#txtNomeCompleto").focus();
+                return;
+            }
+            if ($("#cboGenero").val() == 0)
+            {
+                alert("É necessário preencher o gênero.");
+                $("#cboGenero").focus();
+                return;
+            }
+            if ($("#txtDataNascimento").val() == "")
+            {
+                alert("É necessário preencher a data de nascimento.");
+                $("#txtDataNascimento").focus();
+                return;
+            }
+            if ($("#cboUF").val() == "")
+            {
+                alert("É necessário preencher o estado (UF).");
+                $("#cboUF").focus();
+                return;
+            }
+            if ($("#cboCidadeNatal").val() == "")
+            {
+                alert("É necessário preencher a cidade natal.");
+                $("#cboCidadeNatal").focus();
+                return;
+            }
+
+            const _pessoa =
+            {
+				"_id": $("#Id").val(),
+				"CPF": $("#txtCPF").val().trim(),
+				"nomeCompleto": $("#txtNomeCompleto").val().trim(),
+				"dataNascimento": $("#txtDataNascimento").val(),
+				"dataFalecimento": $("#txtDataFalecimento").val(),
+				"cidadeNatal": $("#cboCidadeNatal").val(),
+				"UF": $("#cboUF").val(),
+				"genero": $("#cboGenero").val(),
+				"etnia": $("#cboEtnia").val(),
+				"faixaEtaria": $("#cboFaixaEtaria").val(),
+				"faixaPeso": $("#cboFaixaPeso").val(),
+				"faixaEstatura": $("#cboFaixaEstatura").val(),
+				"imagemFoto": null,//$("#fileFoto").val(),
+				"imagemUpload": null //$("#hidConteudoArquivo").val()
+            };
+			
+			let _versoesNovelas = [];
+			const dados =
+			{
+				"id": _pessoa._id,
+				"nomeArtistico": $("#txtNomeArtistico").val().trim(),
+				"pessoa": _pessoa,
+				"versoesNovelas": _versoesNovelas
+			};
+			
+			/*const dados2 =
+			{
+				"id": "",
+				"nomeArtistico": "Cássio Matos",
+				"pessoa": {
+					"_id": "",
+					"CPF": "079.969.037-60",
+					"nomeCompleto": "Cássio Matos",
+					"dataNascimento": "1977-09-22",
+					"dataFalecimento": "",
+					"cidadeNatal": "RIO DE JANEIRO",
+					"UF": "RJ",
+					"genero": "MASCULINO",
+					"etnia": "NEGRO(A)",
+					"faixaEtaria": "41 a 50 ANOS",
+					"faixaPeso": "50,01 kg a 100,00 kg",
+					"faixaEstatura": "1,51 m a 2,00 m",
+					"imagemFoto": null,
+					"imagemUpload": null
+				},
+				"versoesNovelas": []
+			};*/
+
+            $.ajax({
+                type: typeAJAX,
+                contentType: "application/json",
+                url: URL + "autor/" + (typeAJAX == "PUT" ? $("#Id").val() : ""),
+                data: JSON.stringify(dados),
+                async: false,
+                success: function (data)
+                {
+                    if (data.id <= 0)
+                        alert("Erro interno - não foi possível o cadastro!");
+                    else
+                    {
+                        alert("Operação realizada com sucesso.");
+                        window.location.href = "listagem.html";
+                    }
+                },
+                error: function (e)
+                {
+                    console.log(e.message);
+					debugger;
+                    alert("Erro interno - não foi possível o cadastro!");
+                }
+            });
+        }
+
+        $("#cboUF").change(function () { getCidades(this.value); });
+
+        $("#btnSalvar").click(function () { setAutor(); });
+
+        $("#btnCancelar").click(function () { window.location.href = "listagem.html"; });
+
+        $("input[type=file]").on("change", function () { uploadFoto(this); });
+
+        $(document).ready(function ()
+        {
+            $("label").css("padding-left", "2px");
+            $("#divCidadeNatal").html("<select id='cboCidadeNatal' class='combo' style='width:100%;' disabled></select>");
+            preencherCombo(6);
+            preencherCombo(1);
+            preencherCombo(2);
+            preencherCombo(3);
+            preencherCombo(4);
+            preencherCombo(5);
+            $("#imgAutor").attr("src", "../imagens/SEM_FOTO.jpg");
+            if (window.location.href.indexOf('?') != -1)
+            {
+                var URL = window.location.href.split('?');
+                if (URL[1] !== undefined)
+                    getAutor(URL[1].split('=')[1]);
+            }
+        });
+    </script>
+</body>
+</html>

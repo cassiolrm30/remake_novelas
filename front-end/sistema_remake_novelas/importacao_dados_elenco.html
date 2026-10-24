@@ -1,0 +1,590 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="sistema_remake_novelas/css/jquery_3_5_1.min.js"></script>
+	<script src="sistema_remake_novelas/css/bootstrap_3_4_1.min.js"></script>
+	<link rel="stylesheet" href="css/site.css" />
+	<link rel="stylesheet" href="css/site.min.css" />
+    <script src="sistema_remake_novelas/js/jszip.js"></script>
+    <script src="sistema_remake_novelas/js/xlsx_full_min.js"></script>
+	<script src="sistema_remake_novelas/carga/itens_combo.js"></script>
+    <style>
+        label 
+        {
+            color: black;
+            font-weight: bold;
+        }
+
+        fieldset 
+        {
+            border: solid 1px;
+            border-radius: 5px;
+            padding: 0px;
+            height: 200px;
+            padding: 0px 5px 0px 5px;
+        }
+
+        legend 
+        {
+            color: black;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 0px 0px 20px 10px;
+            padding: 0px 5px 0px 5px;
+            border: solid 0px;
+        }
+
+        .divArquivo 
+        {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .divResultado 
+        {
+            height: 90px;
+            border-radius: 5px;
+            margin: 20px 15px 20px 15px;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #000099;
+            background-color: white;
+        }
+
+        input, select 
+        {
+            width: 100%;
+            border: solid 1px black;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:457px;">
+        <div style="height:100%;margin-top:-20px;">
+            <h3 class="titulo">Importa&ccedil;&atilde;o de Dados para Cadastro</h3>
+            <form method="post">
+                <div class="form-group" id="divTabelaElenco">
+                    <div class="row" style="padding-top:20px;">
+                        <div class="col-sm-6">
+                            <fieldset style="border-color:green;">
+                                <legend style="width:130px;"> Planilha de Atores: </legend>
+                                <div class="divArquivo">
+                                    <input type="file" style="background-color:#ccffdd;" value="Selecionar planilha" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" id="objArquivoAtores" name="objArquivoAtores">
+                                </div>
+                                <div class="divResultado" id="divResultadoAtores"></div>
+                            </fieldset>
+                        </div>
+                        <div class="col-sm-6">
+                            <fieldset style="border-color:orange;">
+                                <legend style="width:136px;"> Planilha de Autores: </legend>
+                                <div class="divArquivo">
+                                    <input type="file" style="background-color:#ffd6cc;" value="Selecionar planilha" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" id="objArquivoAutores" name="objArquivoAutores">
+                                </div>
+                                <div class="divResultado" id="divResultadoAutores"></div>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="text-align:center;margin-top:10px;padding-top:127px;">
+                    <button type="button" class="btn btn-primary" style="width:100px;margin-right:15px;" id="btnProcessar">Processar</button>
+                    <button type="button" class="btn btn-primary" style="width:100px;margin-left:15px;" id="btnCancelar">Cancelar</button>
+                </div>
+            </form>
+        </div>
+        <div id="divRodape"></div>
+    </div>
+    <script src="../js/funcoes_gerais.js"></script>
+    <script src="../js/tabela_editavel.js"></script>
+    <script>
+        var perfisGenero        = [];
+        var perfisEtnia         = [];
+        var perfisFaixaEtaria   = [];
+        var perfisFaixaPeso     = [];
+        var perfisFaixaEstatura = [];
+        var opcaoFile = 0;
+
+        function Upload()
+        {
+            //Reference the objArquivo element.
+            var objArquivo = document.getElementById(opcaoFile == 1 ? "objArquivoAtores" : "objArquivoAutores");
+
+            //Validate whether File is valid Excel file.
+            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+            if (!regex.test(objArquivo.value.toLowerCase()))
+                alert("É necessário selecionar uma planilha válida.");
+            else
+            {
+                if (typeof (FileReader) == "undefined")
+                    alert("Este navegador não suporta HTML5.");
+                else
+                {
+                    var reader = new FileReader();
+
+                    // Para navegadores superiores ao IE
+                    if (reader.readAsBinaryString)
+                    {
+                        reader.onload = function (e)
+                        {
+                            ProcessExcel(e.target.result);
+                        };
+                        reader.readAsBinaryString(objArquivo.files[0]);
+                    }
+                    else
+                    {
+                        // Para o IE
+                        reader.onload = function (e)
+                        {
+                            var data = "";
+                            var bytes = new Uint8Array(e.target.result);
+                            for (var i = 0; i < bytes.byteLength; i++)
+                                data += String.fromCharCode(bytes[i]);
+                            ProcessExcel(data);
+                        };
+                        reader.readAsArrayBuffer(objArquivo.files[0]);
+                    }
+                }
+            }
+        }
+
+        function ProcessExcel(data)
+        {
+            //Read the Excel File data.
+            var workbook = XLSX.read(data, { type: 'binary' });
+
+            //Fetch the name of First Sheet.
+            var firstSheet = workbook.SheetNames[0];
+
+            //Read all rows from First Sheet into an JSON array.
+            var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[firstSheet]);
+
+            var dadosImportacao = [];
+            //Add the data rows from Excel file.
+            for (var i = 0; i < excelRows.length; i++)
+            {
+                var v_data_nascimento = (excelRows[i]["DATA DE NASCIMENTO"] === undefined ? null : excelRows[i]["DATA DE NASCIMENTO"].trim());
+                var v_data_falecimento = (excelRows[i]["DATA DE FALECIMENTO"] === undefined ? null : excelRows[i]["DATA DE FALECIMENTO"].trim());
+                var v_cidade_natal = (excelRows[i]["CIDADE NATAL"] === undefined) ? "" : excelRows[i]["CIDADE NATAL"].trim();
+                var v_perfil = "", v_genero = "";
+                var dataCorrente = new Date();
+
+                var v_URL = "";
+                if (opcaoFile == 2)
+                {
+                    // Autores
+                    v_URL = URL + "autor/importar";
+
+                    if (v_data_nascimento == null && excelRows[i]["IDADE"].trim() != "")
+                    {
+                        var idade = parseInt(excelRows[i]["IDADE"].trim());
+                        var dadosDataNascimento = new Date();
+                        v_data_nascimento = (dadosDataNascimento.getFullYear() - parseInt(idade)) + "-";
+                        v_data_nascimento += ((dadosDataNascimento.getMonth() + 1 < 10) ? "0" + (dadosDataNascimento.getMonth() + 1) : (dadosDataNascimento.getMonth() + 1)) + "-";
+                        v_data_nascimento += dadosDataNascimento.getDate();
+                    }
+                    else
+                    {
+                        if (v_data_nascimento != null)
+                        {
+                            var dadosDataNascimento = v_data_nascimento.split('/');
+                            v_data_nascimento = (dadosDataNascimento[2].length == 2 ? "19" : "") + dadosDataNascimento[2] + "-";
+                            v_data_nascimento += ((parseInt(dadosDataNascimento[0]) < 10) ? "0" + parseInt(dadosDataNascimento[0]) : parseInt(dadosDataNascimento[0])) + "-";
+                            v_data_nascimento += ((parseInt(dadosDataNascimento[1]) < 10) ? "0" + parseInt(dadosDataNascimento[1]) : parseInt(dadosDataNascimento[1]));
+                        }
+                    }
+
+                    if (excelRows[i]["GÊNERO"].trim() == "")
+                    {
+                        var dados = perfisGenero[0].split('|');
+                        v_genero = dados[0];
+                    }
+                    else
+                    {
+                        for (var j = 0; j < perfisGenero.length; j++)
+                        {
+                            var dados = perfisGenero[j].split('|');
+                            if (dados[1] == excelRows[i]["GÊNERO"].trim().toUpperCase())
+                            {
+                                v_genero = dados[0];
+                                break;
+                            }
+                        }
+                    }
+
+                    dadosImportacao.push
+                        ({
+                            "NomeArtistico": excelRows[i]["NOME ARTÍSTICO"],
+                            "NomeCompleto": excelRows[i]["NOME COMPLETO"],
+                            "DataNascimento": v_data_nascimento,
+                            "DataFalecimento": v_data_falecimento,
+                            "UF": excelRows[i]["ESTADO (UF)"],
+                            "CidadeNatal": v_cidade_natal,
+                            "Genero": v_genero
+                        });
+                }
+                else
+                {
+                    // Atores
+                    v_URL = URL + "ator/importar";
+
+                    if (excelRows[i]["GÊNERO"].trim() == "")
+                    {
+                        var dados = perfisGenero[0].split('|');
+                        v_perfil += dados[0] + "|";
+                    }
+                    else
+                    {
+                        for (var j = 0; j < perfisGenero.length; j++)
+                        {
+                            var dados = perfisGenero[j].split('|');
+                            if (dados[1] == excelRows[i]["GÊNERO"].trim().toUpperCase())
+                            {
+                                v_perfil += dados[0] + "|";
+                                break;
+                            }
+                        }
+                    }
+
+                    if (excelRows[i]["ETNIA"].trim() == "")
+                    {
+                        var dados = perfisEtnia[0].split('|');
+                        v_perfil += dados[0] + "|";
+                    }
+                    else
+                    {
+                        for (var j = 0; j < perfisEtnia.length; j++)
+                        {
+                            var dados = perfisEtnia[j].split('|');
+                            if (dados[1] == excelRows[i]["ETNIA"].trim().toUpperCase())
+                            {
+                                v_perfil += dados[0] + "|";
+                                break;
+                            }
+                        }
+                    }
+
+                    if (v_data_nascimento == null && excelRows[i]["IDADE"].trim() != "")
+                    {
+                        var idade = parseInt(excelRows[i]["IDADE"].trim());
+                        var dadosDataNascimento = new Date();
+                        v_data_nascimento = (dadosDataNascimento.getFullYear() - parseInt(idade)) + "-";
+                        v_data_nascimento += ((dadosDataNascimento.getMonth() + 1 < 10) ? "0" + (dadosDataNascimento.getMonth() + 1) : (dadosDataNascimento.getMonth() + 1)) + "-";
+                        v_data_nascimento += dadosDataNascimento.getDate();
+                        for (var j = 0; j < perfisFaixaEtaria.length; j++)
+                        {
+                            var dados = perfisFaixaEtaria[j].split('|');
+                            var descricao = dados[1].split(' ');
+                            var valorMinimo = parseInt(descricao[0]);
+                            var valorMaximo = parseInt(descricao[2]);
+                            if (dados[1].indexOf('ATÉ') != -1)
+                            {
+                                valorMinimo = 0;
+                                valorMaximo = parseInt(descricao[1]);
+                            }
+                            if (idade >= valorMinimo && idade <= valorMaximo)
+                            {
+                                v_perfil += dados[0];
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (v_data_nascimento != null)
+                        {
+                            var dadosDataNascimento = v_data_nascimento.split('/');
+                            var idade;
+                            v_data_nascimento = (dadosDataNascimento[2].length == 2 ? "19" : "") + dadosDataNascimento[2] + "-";
+                            v_data_nascimento += ((parseInt(dadosDataNascimento[0]) < 10) ? "0" + parseInt(dadosDataNascimento[0]) : parseInt(dadosDataNascimento[0])) + "-";
+                            v_data_nascimento += ((parseInt(dadosDataNascimento[1]) < 10) ? "0" + parseInt(dadosDataNascimento[1]) : parseInt(dadosDataNascimento[1]));
+                            if (v_data_falecimento != null)
+                            {
+                                var dadosDataFalecimento = v_data_falecimento.split('/');
+                                if (dadosDataFalecimento[2].length == 2)
+                                {
+                                    if (parseInt(dadosDataFalecimento[2]) <= dataCorrente.getFullYear() - 2000)
+                                        v_data_falecimento = "20" + dadosDataFalecimento[2] + "-";
+                                    else
+                                        v_data_falecimento = "19" + dadosDataFalecimento[2] + "-";
+                                }
+                                v_data_falecimento += ((parseInt(dadosDataFalecimento[0]) < 10) ? "0" + parseInt(dadosDataFalecimento[0]) : parseInt(dadosDataFalecimento[0])) + "-";
+                                v_data_falecimento += ((parseInt(dadosDataFalecimento[1]) < 10) ? "0" + parseInt(dadosDataFalecimento[1]) : parseInt(dadosDataFalecimento[1]));
+                                idade = getIdade(v_data_nascimento, v_data_falecimento);
+                            }
+                            else
+                            {
+                                var v_data_corrente = new Date();
+                                var v_data_corrente_formatada = "";
+                                v_data_corrente_formatada += v_data_corrente.getFullYear() + "-";
+                                v_data_corrente_formatada += ((v_data_corrente.getMonth() + 1 < 10) ? "0" + (v_data_corrente.getMonth() + 1) : (v_data_corrente.getMonth() + 1)) + "-";
+                                v_data_corrente_formatada += v_data_corrente.getDate();
+                                idade = getIdade(v_data_nascimento, v_data_corrente_formatada);
+                            }
+                            for (var j = 0; j < perfisFaixaEtaria.length; j++)
+                            {
+                                var dados = perfisFaixaEtaria[j].split('|');
+                                var descricao = dados[1].split(' ');
+                                var valorMinimo = parseInt(descricao[0]);
+                                var valorMaximo = parseInt(descricao[2]);
+                                if (dados[1].indexOf('ATÉ') != -1)
+                                {
+                                    valorMinimo = 0;
+                                    valorMaximo = parseInt(descricao[1]);
+                                }
+                                if (idade >= valorMinimo && idade <= valorMaximo)
+                                {
+                                    v_perfil += dados[0];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    v_perfil += "|";
+
+                    if (excelRows[i]["PESO"].trim() == "")
+                    {
+                        var dados = perfisFaixaPeso[0].split('|');
+                        v_perfil += dados[0] + "|";
+                    }
+                    else
+                    {
+                        var valor = parseFloat(excelRows[i]["PESO"].trim());
+                        for (var j = 0; j < perfisFaixaPeso.length; j++)
+                        {
+                            var dados = perfisFaixaPeso[j].split('|');
+                            var descricao = dados[1].split(' ');
+                            var valorMinimo = parseFloat(descricao[0]);
+                            var valorMaximo = parseFloat(descricao[3]);
+                            if (dados[1].indexOf('ATÉ') != -1)
+                            {
+                                valorMinimo = 0;
+                                valorMaximo = parseFloat(descricao[1]);
+                            }
+                            if (valor >= valorMinimo && valor <= valorMaximo)
+                            {
+                                v_perfil += dados[0] + "|";
+                                break;
+                            }
+                        }
+                    }
+
+                    if (excelRows[i]["ESTATURA"].trim() == "")
+                    {
+                        var dados = perfisFaixaEstatura[0].split('|');
+                        v_perfil += dados[0];
+                    }
+                    else
+                    {
+                        var valor = parseFloat(excelRows[i]["ESTATURA"].trim());
+                        for (var j = 0; j < perfisFaixaEstatura.length; j++)
+                        {
+                            var dados = perfisFaixaEstatura[j].split('|');
+                            var descricao = dados[1].split(' ');
+                            var valorMinimo = parseFloat(descricao[0]);
+                            var valorMaximo = parseFloat(descricao[3]);
+                            if (dados[1].indexOf('ATÉ') != -1)
+                            {
+                                valorMinimo = 0;
+                                valorMaximo = parseFloat(descricao[1]);
+                            }
+                            if (valor >= valorMinimo && valor <= valorMaximo)
+                            {
+                                v_perfil += dados[0];
+                                break;
+                            }
+                        }
+                    }
+
+                    dadosImportacao.push
+                        ({
+                            "NomeArtistico": excelRows[i]["NOME ARTÍSTICO"],
+                            "NomeCompleto": excelRows[i]["NOME COMPLETO"],
+                            "DataNascimento": v_data_nascimento,
+                            "DataFalecimento": v_data_falecimento,
+                            "UF": excelRows[i]["ESTADO (UF)"],
+                            "CidadeNatal": v_cidade_natal,
+                            "Perfil": v_perfil
+                        });
+                }
+            }
+            console.log(v_URL);
+            debugger;
+            $.ajax({
+                    type: "PUT",
+                    contentType: "application/json",
+                    url: v_URL,
+                    data: JSON.stringify(dadosImportacao),
+                    async: false,
+                    success: function (data)
+                    {
+                        alert(data.mensagem);
+                        if (data.sucesso)
+                        {
+                            var v_data_resultado = "";
+                            v_data_resultado += (dataCorrente.getDate() < 10 ? "0" : "") + dataCorrente.getDate() + "/";
+                            v_data_resultado += ((dataCorrente.getMonth() - 1) < 10 ? "0" : "") + (dataCorrente.getMonth() - 1) + "/";
+                            v_data_resultado += dataCorrente.getFullYear() + " ";
+                            v_data_resultado += (dataCorrente.getHours() < 10 ? "0" : "") + dataCorrente.getHours() + ":";
+                            v_data_resultado += (dataCorrente.getMinutes() < 10 ? "0" : "") + dataCorrente.getMinutes() + ":";
+                            v_data_resultado += (dataCorrente.getSeconds() < 10 ? "0" : "") + dataCorrente.getSeconds();
+
+                            var resultado = "";
+                            resultado += "Data da Importação: <span>" + v_data_resultado + "</span><br />";
+                            resultado += "Quantidade de Registros: <span>" + data.qtd_registros + "</span>";
+                            resultado += "<ul>";
+                            resultado += "<li>N&ordm; Cadastros: <span>" + data.qtd_cadastros + "</span></li>";
+                            resultado += "<li>N&ordm; Atualiza&ccedil;&otilde;es: <span>" + data.qtd_atualizacoes + "</span></li>";
+                            resultado += "</ul>";
+
+                            if (opcaoFile == 1)
+                            {
+                                $("#divResultadoAutores").html("");
+                                $("#divResultadoAutores").css("background-color", "white");
+                                $("#divResultadoAutores").css("border", "solid 0px");
+                                $("#divResultadoAtores").html(resultado);
+                                $("#divResultadoAtores").css("background-color", "#ccffdd");
+                                $("#divResultadoAtores").css("border", "solid 1px gray");
+                                $("#divResultadoAtores span").css("color", "#003300");
+                            }
+                            else
+                            {
+                                $("#divResultadoAtores").html("");
+                                $("#divResultadoAtores").css("background-color", "white");
+                                $("#divResultadoAtores").css("border", "solid 0px");
+                                $("#divResultadoAutores").html(resultado);
+                                $("#divResultadoAutores").css("background-color", "#ffd6cc");
+                                $("#divResultadoAutores").css("border", "solid 1px gray");
+                                $("#divResultadoAutores span").css("color", "#ff3300");
+                            }
+                            document.getElementById("objArquivoAtores").value = "";
+                            document.getElementById("objArquivoAutores").value = "";
+                            opcaoFile = 0;
+                        }
+                    },
+                    error: function (e) 
+                    {
+                        console.log(e.message);
+                        alert("Erro interno - não foi possível a importação!");
+                    }
+                });
+        };
+
+        function getIdade(data_nascimento, data_falecimento)
+        {
+            var ano_final, mes_final, dia_final;
+            var dados_data_nascimento = data_nascimento.split('-');
+            var ano_nascimento = (dados_data_nascimento[0].length == 2 ? "19" : "") + parseInt(dados_data_nascimento[0]),
+                mes_nascimento = parseInt(dados_data_nascimento[1] - 1),
+                dia_nascimento = parseInt(dados_data_nascimento[2]);
+
+            if (data_falecimento == null)
+            {
+                var data_final = new Date;
+                ano_final = data_final.getFullYear();
+                mes_final = data_final.getMonth() + 1;
+                dia_final = data_final.getDate();
+            }
+            else
+            {
+                var dados_data_falecimento = data_falecimento.split('-');
+                ano_final = parseInt(dados_data_falecimento[0]);
+                mes_final = parseInt(dados_data_falecimento[1] - 1);
+                dia_final = parseInt(dados_data_falecimento[2]);
+            }
+            var idade = ano_final - ano_nascimento;
+            if (mes_final < mes_nascimento || mes_final == mes_nascimento && dia_final < dia_nascimento)
+                idade--;
+            return idade < 0 ? 0 : idade;
+        }
+
+        function getPerfis_OLD(opcao)
+        {
+            var resultado = [];
+            jQuery.ajax
+            ({
+                type: "get",
+                dataType: "json",
+                url: URL + "novela/combo/" + opcao,
+                async: false,
+                success: function (data)
+                {
+                    for (var i = 0; i < data.itens.length; i++)
+                        resultado.push(data.itens[i].toUpperCase());
+                },
+                error: function (data) { },
+            });
+            return resultado;
+        }
+
+        function getPerfis(opcao)
+        {
+			var resultado = [];
+            var idCombo = "";
+			if (opcao == 6)
+			{
+				jQuery.ajax
+				({
+					type: "GET",
+					dataType: "json",
+					url: "https://servicodados.ibge.gov.br/api/v1/localidades/estados/",
+					async: false,
+					success: function (data)
+					{
+						for (var i = 0; i < data.length; i++)
+							resultado.push(data[i].nome.toUpperCase());
+					},
+					error: function (data) { },
+				});
+			}
+			else
+			{
+				var itens;
+				switch (opcao)
+				{
+					case 1: idCombo = "cboGenero"; 		  itens = itensComboGeneros; 		break;
+					case 2: idCombo = "cboEtnia"; 		  itens = itensComboEtnias; 		break;
+					case 3: idCombo = "cboFaixaEtaria";   itens = itensComboFaixasEtarias; 	break;
+					case 4: idCombo = "cboFaixaPeso"; 	  itens = itensComboFaixasPeso; 	break;
+					case 5: idCombo = "cboFaixaEstatura"; itens = itensComboFaixasEstatura; break;
+				}
+				for (var i = 0; i < itens.length; i++)
+				{
+					var dadosItem = itens[i].split('|');
+					resultado.push(dadosItem);
+				}
+			}
+			return resultado;
+        }
+
+        $('#btnProcessar').on('click', function ()
+        {
+            if ($("#objArquivoAtores").val().length > 0)
+                opcaoFile = 1;
+            else
+            {
+                if ($("#objArquivoAutores").val().length > 0)
+                    opcaoFile = 2;
+            }
+            Upload();
+        })
+
+        $(document).ready(function ()
+        {
+            perfisGenero        = getPerfis(1);
+            perfisEtnia         = getPerfis(2);
+            perfisFaixaEtaria   = getPerfis(3);
+            perfisFaixaPeso     = getPerfis(4);
+            perfisFaixaEstatura = getPerfis(5);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="funcoes_gerais.js" language="Javascript"></script>
+	<script src="bootstrap.min.js"></script>
+	<script src="carga/menu.js"></script>
+	<script src="sistema_remake_novelas/css/jquery_3_5_1.min.js"></script>
+	<script src="sistema_remake_novelas/css/bootstrap_3_4_1.min.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body leftmargin="0" bottommargin="0" rightmargin="0">
+	<style type="text/css">
+		*{ margin: 0; padding: 0; }
+
+		iframe 				  { height: 100%; width: 100%; border: solid 1px; }
+		.titulo 			  { font-weight:bold; font-family:Arial; font-size:20px; width:100%; text-align:center; padding-top:11px; text-decoration:underline; color:#000; }
+		.TabControl 		  { width:100%; overflow:hidden; height:90%; padding:35px 0px 0px 50px; }
+		.TabControl #header   { width:100%; overflow:hidden; cursor:pointer; }
+		.TabControl #content  { width:92%; overflow:hidden; border:solid 1px; border-radius: 0px 0px 5px 5px; height:100%; background-color:#FFF; color:#000; }
+		.TabControl .conteudo { width:100%; height:360px; color:#FFF; display:none; }
+		.TabControl .abas 	  { margin-top:5px; display:inline; }
+		.TabControl .abas li  { float:left; }
+		.aba 				  { height:25px; border-radius:5px 5px 0 0; text-align:center; padding-top:5px; background-color:#AAAAAA; border:solid 1px; font-size:13px; font-weight:bold; font-family:arial; border-bottom-width:0px; }
+		.aba_selecionada
+		{
+			width:75px; height:35px; border-radius:10px 5px 0 0; text-align:center; padding-top:5px; border:solid 2px;
+			font-size:13px; font-weight:bold; border-bottom-width:0px; margin-bottom:5px;
+		}
+		.ativa     		 	  { width:75px; height:25px; border-radius:5px 5px 0 0; text-align:center; padding-top:5px; background-color:#FFF; }
+		.subconteudo		  { color:#000; background-color:#FFF; height:320px; width:96%; font-size:12px; border:solid 1px; }
+
+		tr:nth-child(even) 	  { background-color: #F2F2F2; }
+	</style>
+	<div id="divFundo">
+		<div class="titulo">REMAKE DE NOVELAS</div>
+		<div class="TabControl"></div>
+		<div style="display:none;">
+			<div id="div1"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/Autores/listagem.html"></iframe></div></center></div>
+			<div id="div2"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/Novelas/listagem.html"></iframe></div></center></div>
+			<div id="div3"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/Atores/listagem.html"></iframe></div></center></div>
+			<div id="div4"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/importacao_dados_elenco.html"></iframe></div></center></div>
+			<div id="div5"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/definicao_prioridades.html"></iframe></div></center></div>
+			<div id="div6"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/elenco_remakes.html"></iframe></div></center></div>
+			<div id="div7"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/wikipedia_ator_autor.html"></iframe></div></center></div>
+			<div id="div8"><center><br><div class="subconteudo"><iframe src="sistema_remake_novelas/dashboard.html"></iframe></div></center></div>
+		</div>
+		<script type="text/javascript">
+			const titulos = [
+								{ "num_titulo": "1", "dsc_cor_fundo": "#FFF4CA", "dsc_largura_aba": "132", "dsc_titulo": "Autores" },
+								{ "num_titulo": "2", "dsc_cor_fundo": "#D0EAC8", "dsc_largura_aba": "132", "dsc_titulo": "Novelas" },
+								{ "num_titulo": "3", "dsc_cor_fundo": "#FEA1A0", "dsc_largura_aba": "132", "dsc_titulo": "Atores" },
+								{ "num_titulo": "4", "dsc_cor_fundo": "#E3F5F8", "dsc_largura_aba": "190", "dsc_titulo": "Importação de Dados" },
+								{ "num_titulo": "5", "dsc_cor_fundo": "#FEE3BC", "dsc_largura_aba": "200", "dsc_titulo": "Definição de Prioridades" },
+								{ "num_titulo": "6", "dsc_cor_fundo": "#E8D6E7", "dsc_largura_aba": "190", "dsc_titulo": "Elenco para Remakes" },
+								{ "num_titulo": "7", "dsc_cor_fundo": "#F6F6F6", "dsc_largura_aba": "134", "dsc_titulo": "Wikipedia" },
+								{ "num_titulo": "8", "dsc_cor_fundo": "#E1C6B6", "dsc_largura_aba": "133", "dsc_titulo": "Dashboard" }
+							];
+			var tabela, rotulos = [], larguras = [], aligns = [];
+			var v_qt_linhas 	   = 1;
+			var	sentidosAscendente = [];
+			var dadosProfissional2 =
+			{
+				"CaminhoFoto": "",
+				"NomeCompleto": "",
+				"NomeArtistico": "",
+				"DataNascimento": "",
+				"DataFalecimento": "",
+				"Idade": "",
+				"CidadeNatal": "",
+				"Nacionalidade": "",
+				"Biografia" : "",
+				"Filmografia": []
+			};
+			var xValues, yValues, percValues, barColors, totalQuantidade;
+			var porGenero, porEtnia, porFaixaEtaria, porFaixaPeso, porFaixaEstatura;
+			var v_ascii_inicio  = 65;
+			var v_ascii_fim     = 90;
+			var dados    		= [];
+			var tabela, rotulos = [], larguras = [], aligns = [];
+			var v_qt_linhas = 1;
+			var	sentidosAscendente = [];
+
+			function DefinirDIVs()
+			{
+				let resultado = "";
+				if (titulos.length == 0) return;
+				resultado += "<div id='header'>";
+				resultado += "  <ul class='abas' type='none'>";
+				for (let i = 0; i < titulos.length; i++)
+				{
+					resultado += "	<li>";
+					resultado += "		<div class='aba' id='aba"+titulos[i].num_titulo+"' style='width:"+titulos[i].dsc_largura_aba+"px;background-color:"+titulos[i].dsc_cor_fundo+";color:#000;'>";
+					resultado += "		<span>"+titulos[i].dsc_titulo+"</a></span>";
+					resultado += "		</div>";
+					resultado += "	</li>";
+				}
+				resultado += "	</ul>";
+				resultado += "</div>";
+				resultado += "<div id='content'>";
+				for (let i = 0; i < titulos.length; i++)
+					resultado += "<div class='conteudo' style='background-color:"+titulos[i].dsc_cor_fundo+"' id='divConteudo"+titulos[i].num_titulo+"'></div>";
+				resultado += "</div>";
+				$(".TabControl").html(resultado);
+				$("#content").css("font-family", "Arial");
+			}
+
+			function DefinirAbaEConteudo(p_num_titulo)
+			{
+				let resultado = "";
+				let titulo = titulos.find(function (item) { return item.num_titulo == p_num_titulo; });
+				let v_dsc_cor_fundo = titulo.dsc_cor_fundo;
+				$(".aba").css("border-bottom", "solid 1px #000");					 							 // todas as abas
+				$("#aba" + p_num_titulo).css("border-bottom", "solid 1px " + v_dsc_cor_fundo); 					 // apenas a aba selecionada
+				$("#content").css("border", "solid 1px #000").css("border-top", "solid 1px " + v_dsc_cor_fundo); // borda do conteúdo
+				$("#divConteudo" + p_num_titulo).html($("#div" + p_num_titulo).html());
+			}
+
+			function definirConteudosAbas(opcaoAba)
+			{
+				if (opcaoAba == "abaBiografia")
+				{
+					rotulos  = ["", ""];
+					larguras = ["80%", "20%"];
+					aligns   = ["justify", "center"];
+					montarTabelaBiografia(1, 65);			
+				}
+				else
+				{
+					v_qt_linhas = 1;
+					rotulos  = ["Ano", "Título", "Personagem"];
+					larguras = ["20%", "40%", "40%"];
+					aligns   = ["center", "left", "left"];
+					montarTabelaFilmografia(1, 65);			
+				}
+			}
+
+			$(document).ready(function()
+			{
+				//MontarMenu();
+				DefinirDIVs();
+				DefinirAbaEConteudo("1");
+				$("#content div:nth-child(1)").show();
+				$(".abas li:first div").addClass("ativa");
+				$(".aba").click(
+					function()
+					{
+						$(".aba").removeClass("ativa");
+						$(this).addClass("ativa");
+						let indice = $(this).parent().index();
+						indice++;
+						$("#content div").hide();
+						$("#content div:nth-child("+indice+")").show();
+						DefinirAbaEConteudo($(this).prop("id").replace("aba", ""));
+					}
+				);
+			});
+		</script>
+	</div>
+</body>
+</html>

@@ -40,7 +40,7 @@ async function save(dados, session = null)
 
         // Validação da faixa etária
         const faixaEtariaReal = await getFaixaEtaria(dados.dataNascimento, dados.dataFalecimento);
-        if (dados.faixaEtaria != faixaEtariaReal.descricao) { throw new Error(MENSAGENS.PESSOA.FAIXA_ETARIA_INVALID); }
+        if (dados.faixaEtaria.toUpperCase() != faixaEtariaReal.descricao.toUpperCase()) { throw new Error(MENSAGENS.PESSOA.FAIXA_ETARIA_INVALID); }
 
         if (!dados._id)
             registro = new Pessoa();

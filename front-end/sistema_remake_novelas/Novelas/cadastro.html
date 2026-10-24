@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Sistema de Remake de Novelas</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+		<link rel="stylesheet" href="../css/site.css" />
+		<link rel="stylesheet" href="../css/site.min.css" />
+		<script src="../css/jquery_3_5_1.min.js"></script>
+		<script src="../css/bootstrap_3_4_1.min.js"></script>
+		<script src="../carga/autores.js"></script>
+		<script src="../carga/novelas.js"></script>
+		<script src="../carga/versoesNovelas.js"></script>
+		<script src="../carga/personagens.js"></script>
+		<script src="../carga/itens_combo.js"></script>
+		<style>
+			label { color: black; font-weight: bold; }
+
+			fieldset
+			{
+				border: solid 1px;
+				border-radius: 5px;
+				padding: 0px;
+			}
+
+			legend
+			{
+				color: black;
+				font-weight: bold;
+				font-size: 13px;
+				margin: 0px 0px 5px 10px;
+				padding: 0px 5px 0px 5px;
+				border: solid 0px;
+			}
+
+			input, select
+			{
+				width: 100%;
+				height: 17px;
+				border: solid 1px black;
+				border-radius: 2px;
+			}
+
+			.tabela
+			{
+				border-collapse: collapse;
+				font-family: arial;
+				font-size: 12px;
+				border: solid 1px black;
+				width: 100%;
+			}
+
+			.celulaTitulo
+			{
+				font-weight: bold;
+				color: white;
+				background-color: black;
+				height: 20px;
+				vertical-align: middle;
+				border: 0px;
+			}
+
+			.celulaConteudo
+			{
+				padding: 1px 0px 1px 0px;
+				vertical-align: middle;
+				color: black;
+			}
+
+			.coluna1 { color: black; border: 0px; }
+
+			.colunaAcoes { text-align: center; vertical-align: middle; }
+
+			.linkTabelaEditavel
+			{
+				cursor: pointer;
+				border: solid 1px black;
+				height: 17px;
+				width: 17px;
+			}
+
+			.fieldsetTabelaEditavel
+			{
+				height:155px;
+				padding:0px 5px 0px 5px;
+			}
+			
+			.divExternoTabelaEditavel
+			{
+				overflow-x:scroll;
+				overflow-y:scroll;
+				padding-top:15px;
+			}
+			
+			.divInternoTabelaEditavel
+			{
+				height:104px;
+				margin:-14px 0px 0px 0px;
+				border:solid 1px black;
+			}	
+		</style>
+	</head>
+	<body>
+		<div id="divNav"></div>
+		<div class="container body-content" style="margin-top:0px;height:500px;">
+			<center>
+				<div style="margin-top:-20px;font-size:12px;width:1100px;margin-left:20px;">
+					<h3 class="titulo">Cadastro de Novelas</h3>
+					<form method="post">
+						<input type="hidden" id="Id" value="">
+						<input type="hidden" id="VersaoId" value="">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-sm-12">
+									<fieldset style="height:180px;padding:0px 2px 5px 2px;">
+										<legend style="width:110px;"> Dados Básicos: </legend>
+										<div class="form-group" style="padding-top:0px;">
+											<div class="row" style="padding-left:15px;">
+												<div class="col-sm-8" style="width:660px;">
+													<div class="row">
+														<div class="col-sm-12">
+															<label for="txtTitulo" style="text-align:left;width:100%;">T&iacute;tulo:</label>
+															<input type="text" class="form-control form-control-sm" style="border-color:black;font-size:12px;height:25px;" id="txtTitulo" name="txtTitulo">
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-sm-12" style="margin-top:20px;">
+															<label style="text-align:left;width:100%;">Sinopse: </label><br>
+															<textarea id="txtSinopse" name="txtSinopse" class="form-control form-control-sm" style="border-color:black;font-size:12px;height:100%;"></textarea>
+														</div>
+													</div>
+												</div>
+												<div class="col-sm-4" style="width:430px;">
+													<fieldset>
+														<legend style="width:110px;"> Versão Original: </legend>
+														<div class="form-group" style="padding-top:5px;">
+															<div class="row" style="margin-left:2px;margin-right:2px;">
+																<div class="col-sm-12">
+																	<label for="cboAutor" style="text-align:left;width:100%;">Autor:</label>
+																	<select class="form-control form-control-sm" style="border-color:black;font-size:12px;height:25px;padding-top:4px;" id="cboAutor" name="cboAutor">
+																		<option value="0">-- Selecione --</option>
+																	</select>
+																</div>
+															</div>
+															<div class="row" style="margin: 10px 2px 0px 2px;">
+																<div class="col-sm-8" style="text-align:left;">
+																	<label for="txtDataLancamento" style="text-align:left;width:100%;">Data de Lan&ccedil;amento:</label>
+																	<input type="date" class="form-control form-control-sm" style="border-color:black;font-size:12px;height:25px;width:145px;" id="txtDataLancamento" name="txtDataLancamento">
+																</div>
+																<div class="col-sm-4" style="text-align:right;">
+																	<label for="txtQtdCapitulos"><span style="padding-left:16px;">N&ordm; Cap&iacute;tulos:</span></label>
+																	<div style="text-align:right;padding-left:22px;">
+																		<input type="number" class="form-control form-control-sm" style="border-color:black;font-size:12px;height:25px;width:80px;" min="0" max="999" id="txtQtdCapitulos" name="txtQtdCapitulos" maxlength="3">
+																	</div>
+																</div>
+															</div>
+														</div>
+													</fieldset>
+												</div>
+											</div>
+										</div>
+									</fieldset>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="row">
+								<div class="col-sm-6">
+									<fieldset class="fieldsetTabelaEditavel">
+										<legend style="width:140px;"> Versões Posteriores: </legend>
+										<div class="divExternoTabelaEditavel">
+											<div class="divInternoTabelaEditavel" style="width:650px;">
+												<table id="tblVersoes" class="tabela" style="border:0px;"></table>
+											</div>
+										</div>
+									</fieldset>
+								</div>
+								<div class="col-sm-6">
+									<fieldset class="fieldsetTabelaEditavel">
+										<legend style="width:95px;"> Personagens: </legend>
+										<div class="divExternoTabelaEditavel">
+											<div class="divInternoTabelaEditavel" style="width:900px;">
+												<table id="tblPersonagens" class="tabela" style="border:0px;"></table>
+											</div>
+										</div>
+									</fieldset>
+								</div>
+							</div>
+						</div>
+						<div class="form-group" style="text-align:center;margin-top:10px;padding-bottom:10px;">
+							<button type="button" class="btn btn-primary" style="width:100px;margin-right:15px;" id="btnSalvar">Salvar</button>
+							<button type="button" class="btn btn-primary" style="width:100px;margin-left:15px;" id="btnCancelar">Cancelar</button>
+						</div>
+					</form>
+				</div>
+			</center>
+			<div id="divRodape"></div>
+		</div>
+		<script src="../js/funcoes_gerais.js"></script>
+		<script src="../js/tabela_editavel.js"></script>
+		<script>
+			var listagemVersoes 		 = new TabelaEditavel(1);
+			var listagemPersonagens 	 = new TabelaEditavel(2);
+			var IDs 			    	 = [];
+			var dadosCadastro 			 =	{ "Id": 0, "Titulo": "", "Sinopse": "",	"DadosVersoes": [], "DadosPersonagens": [],	"AutorOriginal": "", "AutorAtual": "" };
+            var idsPersonagensExistentes = [];
+            var idsVersoesExistentes 	 = [];
+			var datasVersoesExistentes   = [];
+			var dadosVersaoAtual;
+
+			/*
+			function getAutores()
+			{
+                jQuery.ajax
+				({
+					type: "GET",
+					dataType: "json",
+					url: URL + "autor/",
+					async: false,
+					success: function (data)
+					{
+						for (var i = 0; i < data.length; i++)
+						{
+							var option   = document.createElement("option");
+							option.value = data[i].nomeArtistico.toUpperCase();
+							option.text  = data[i].nomeArtistico.toUpperCase();
+							document.getElementById("cboAutor").add(option);
+						}
+					},
+					error: function (data) { },
+				});
+            }
+			
+			function getNovela(id)
+			{
+				if (id != "")
+				{
+                    jQuery.ajax
+					({
+						type: "GET",
+						contentType: "json",
+						url: URL + "novela/" + id,
+						async: false,
+						success: function (data)
+						{
+							$("#Id").val(data.id);
+							$("#txtTitulo").val(data.titulo);
+							dadosCadastro.Id = $("#Id").val();
+							dadosCadastro.Titulo = $("#txtTitulo").val();
+							dadosCadastro.Sinopse = data.sinopse;
+							dadosCadastro.DadosVersoes = data.dadosVersoes.split('||');
+							for (var i = 0; i < dadosCadastro.DadosVersoes.length; i++)
+							{
+								var dadosItem = dadosCadastro.DadosVersoes[i].split('|');
+								dadosCadastro.DadosVersoes[i] = "";
+								for (var j = 0; j < dadosItem.length; j++)
+								{
+									if (j == 2)
+										dadosItem[j] = listagemVersoes.getDataFormatada(dadosItem[j], true);
+									dadosCadastro.DadosVersoes[i] += (j > 0 ? "|" : "") + dadosItem[j];
+								}
+							}
+							dadosCadastro.DadosPersonagens = data.dadosPersonagens.split('||');
+							listagemVersoes.Carga = dadosCadastro.DadosVersoes;
+							listagemPersonagens.Carga = dadosCadastro.DadosPersonagens;
+							dadosVersaoAtual = listagemVersoes.Carga[0].split('|');
+							if (dadosCadastro.DadosVersoes.length > 0)
+								dadosCadastro.DadosVersoes.splice(0, 1);
+							$("#txtSinopse").val(dadosCadastro.Sinopse);
+							$("#cboAutor").val(dadosVersaoAtual[1]);
+							$("#txtDataLancamento").val(listagemVersoes.getDataFormatada(dadosVersaoAtual[2], false));
+							$("#txtQtdCapitulos").val(dadosVersaoAtual[3]);
+
+							for (var i = 0; i < listagemVersoes.Carga.length; i++)
+							{
+								var dadosItem = listagemVersoes.Carga[i].split('|');
+								idsVersoesExistentes.push(dadosItem[dadosItem.length - 1]);
+								datasVersoesExistentes.push(listagemVersoes.getDataFormatada(dadosItem[2], false));
+							}
+
+							for (var i = 0; i < listagemPersonagens.Carga.length; i++)
+							{
+								var dadosItem = listagemPersonagens.Carga[i].split('|');
+								idsPersonagensExistentes.push(dadosItem[dadosItem.length - 1]);
+							}
+							console.log(datasVersoesExistentes);
+							console.log(idsVersoesExistentes);
+							console.log(idsPersonagensExistentes);
+						},
+						error: function (e) { console.log(e); },
+					});
+                }
+			}
+
+			function montarCombo(opcao)
+			{
+				var resultado = "";
+				switch (opcao)
+				{
+					case 1: nome = "Genero"; 		break;
+					case 2: nome = "Etnia"; 		break;
+					case 3: nome = "FaixaEtaria"; 	break;
+					case 4: nome = "FaixaPeso"; 	break;
+					case 5: nome = "FaixaEstatura"; break;
+					case 6: nome = "VersaoAutor"; 	break;
+				}
+				resultado += "<select>";
+				resultado += "<option value=''>-- Selecione --</option>";
+                jQuery.ajax
+				({
+					type: "get",
+					dataType: "json",
+					url: URL + ((codigo == 6) ? "autor/" : "novela/combo/" + codigo),
+					async: false,
+					success: function (data)
+					{
+						if (codigo == 6)
+						{
+							for (var i = 0; i < data.length; i++)
+							{
+								var nomeAutor = data[i].nomeArtistico.toUpperCase();
+								resultado += "<option value='" + nomeAutor + "'>" + nomeAutor + "</option>";
+							}
+						}
+						else
+						{
+							for (var i = 0; i < data.itens.length; i++)
+							{
+								var dadosItem = data.itens[i].split('|');
+								resultado += "<option value='" + dadosItem[1] + "'>" + dadosItem[1] + "</option>";
+							}
+						}
+					},
+					error: function (data) { },
+				});
+				resultado += "</select>";
+				return resultado;		
+			}
+
+            function excluirLinha(opcao, r)
+			{
+				if (confirm("Tem certeza que deseja excluir este registro?"))
+				{
+					//debugger;
+                    var tabelaEditavel = obterListagemSelecionada(opcao);
+					var pos = r - 2;
+					tabelaEditavel.excluirLinha(r);
+					if (dadosCadastro.Id == 0) return;
+					var v_URL = "";
+					var id = "0";
+					if (opcao == 1)
+					{
+						if (dadosCadastro.DadosVersoes[pos] != null)
+						{
+                            var dadosItem = dadosCadastro.DadosVersoes[pos].split('|');
+                            id = dadosItem[dadosItem.length - 1];
+                            v_URL = URL + "versaoNovela/excluir/" + id;
+                        }
+					}
+					else
+					{
+                        if (dadosCadastro.DadosPersonagens[pos] != null)
+						{
+							var dadosItem = dadosCadastro.DadosPersonagens[pos].split('|');
+							var id = dadosItem[dadosItem.length - 1];
+							v_URL = URL + "personagem/excluir/" + id;
+						}
+					}
+					if (id != "0")
+					{
+                        jQuery.ajax
+						({
+							type: "DELETE",
+							contentType: "json",
+							url: v_URL,
+							async: false,
+							success: function (data)
+							{
+								idsVersoesExistentes = [];
+								idsPersonagensExistentes = [];
+								getNovela($("#Id").val());
+							},
+							error: function (e)	{ console.log(e); },
+						});
+                    }
+                }
+            }
+
+            function setNovela()
+			{
+                var typeAJAX = "POST";
+                var ID = 0;
+				if ($("#Id").val() != "")
+				{
+                    typeAJAX = "PUT";
+                    ID = parseInt($("#Id").val());
+                }
+				if ($("#txtTitulo").val().trim() == "")
+				{
+                    alert("É necessário preencher o título.");
+                    $("#txtTitulo").focus();
+                    return;
+                }
+                if ($("#txtSinopse").val().length > 4000)
+				{
+                    alert("Sinopse deve ter no máximo 4000 caracteres.\nDevem ser retirados pelo menos " + ($("#txtSinopse").val().length - 4000) + " caracter(es).");
+                    $("#txtSinopse").focus();
+                    return;
+                }
+				if ($("#cboAutor").val() == 0)
+				{
+                    alert("É necessário preencher o autor.");
+                    $("#cboAutor").focus();
+                    return;
+                }
+				if ($("#txtDataLancamento").val() == "")
+				{
+                    alert("É necessário preencher a data de lançamento.");
+                    $("#txtDataLancamento").focus();
+                    return;
+                }
+				if ($("#txtQtdCapitulos").val().trim() == "" || parseInt($("#txtQtdCapitulos").val().trim()) == 0)
+				{
+                    alert("É necessário preencher a quantidade de capítulos.");
+                    $("#txtQtdCapitulos").focus();
+                    return;
+                }
+				if (parseInt($("#txtQtdCapitulos").val().trim()) > 999)
+				{
+                    alert("A novela deve ter no máximo 999 capítulos.");
+                    $("#txtQtdCapitulos").focus();
+                    return;
+				}
+				var valoresDatasVersoes = $("#tblVersoes td[id='CC1-2'][class='celulaConteudo']");
+				if (valoresDatasVersoes.length > 0)
+				{
+                    datasVersoesExistentes = [];
+                    datasVersoesExistentes.push($("#txtDataLancamento").val());
+                    for (var i = 0; i < valoresDatasVersoes.length; i++)
+                        datasVersoesExistentes.push(listagemVersoes.getDataFormatada(valoresDatasVersoes[i].innerText, false));
+					for (var i = 0; i < datasVersoesExistentes.length; i++)
+					{
+                        if (datasVersoesExistentes[i + 1] !== undefined && datasVersoesExistentes[i] > datasVersoesExistentes[i + 1]) {
+                            alert("As datas das versões de novela se encontram desordenadas.");
+                            return;
+                        }
+                    }
+                }
+                if ($("#tblPersonagens tr").length <= 2)
+				{
+                    alert("É necessário incluir pelo menos um personagem.");
+                    return;
+                }
+
+                var linhas, dados = "";
+                dadosCadastro.ID = ID;
+				dadosCadastro.Titulo = $("#txtTitulo").val().trim();
+				dadosCadastro.Sinopse = $("#txtSinopse").val().trim();
+				linhas = $("#tblVersoes tr");
+                dados = "1ª|" + document.getElementById("cboAutor").value + "|" + listagemVersoes.getDataFormatada($("#txtDataLancamento").val(), true) + "|" + $("#txtQtdCapitulos").val().trim() + "|";
+                dados += ((typeAJAX == "POST") ? "0" : dadosVersaoAtual[dadosVersaoAtual.length - 1]);
+                dados += (linhas.length <= 2) ? "" : "||";
+				for (var i = 2; i < linhas.length; i++)
+				{
+                    var linha = linhas[i];
+					for (var j = 0; j < linha.cells.length; j++)
+					{
+                        if (linha.cells[j].className == "celulaConteudo")
+                            dados += linha.cells[j].innerText + "|";
+                    }
+                    dados += (typeAJAX == "POST") ? "0" : idsVersoesExistentes[i - 2];
+                    if (i != linhas.length - 1)
+                        dados += "||";
+                }
+                dadosCadastro.DadosVersoes = dados;
+
+				linhas = $("#tblPersonagens tr");
+                dados = "";
+				for (var i = 2; i < linhas.length; i++)
+				{
+                    var linha = linhas[i];
+					for (var j = 0; j < linha.cells.length; j++)
+					{
+						if (linha.cells[j].className == "celulaConteudo")
+							dados += linha.cells[j].innerText + "|";
+                    }
+	                dados += (typeAJAX == "POST") ? "0" : idsPersonagensExistentes[i - 2];
+                    if (i != linhas.length - 1)
+						dados += "||";
+				}
+                dadosCadastro.DadosPersonagens = dados;
+                debugger;
+				$.ajax(
+					{
+						type: typeAJAX,
+						contentType: "application/json",
+						url: URL + "novela/" + (typeAJAX == "PUT" ? ID : ""),
+                        data: JSON.stringify(dadosCadastro),
+						async: false,
+						success: function (data)
+						{
+							if (data.id <= 0)
+								alert("Erro interno - não foi possível o cadastro!");
+							else
+							{
+								alert("Operação realizada com sucesso.");
+								window.location.href = "listagem.html";
+							}
+						},
+						error: function (e)
+						{
+                        console.log(e.message);
+                        alert("Erro interno - não foi possível o cadastro!");
+                    }
+                });
+			}
+			*/
+
+			function obterListagemSelecionada(opcao)
+			{
+				var tabelaEditavel;
+				switch (opcao)
+				{
+					case 1:  tabelaEditavel = listagemVersoes; break;
+					case 2:  tabelaEditavel = listagemPersonagens; break;
+					default: tabelaEditavel = null;
+				}
+				return tabelaEditavel;
+			}
+
+			function validarItemListagem(opcao)
+			{
+				if (opcao == 1)
+				{
+					// 3 campos de nova versão
+					var idDataLancamento = "#campoEdicao" + opcao + "-2";
+                    var valorCampoEdicaoValidoAutor = $("#campoEdicao" + opcao + "-1").val().length == 0;
+                    var valorCampoEdicaoValidoDataLancamento = $("#campoEdicao" + opcao + "-2").val().length == 0;
+                    var valorCampoEdicaoValidoQtdCapitulos = $("#campoEdicao" + opcao + "-3").val().length == 0;
+					if (valorCampoEdicaoValidoAutor || valorCampoEdicaoValidoDataLancamento || valorCampoEdicaoValidoQtdCapitulos)
+					{
+                        alert("Todos os campos da nova versão devem ser preenchidos.");
+                        $("#campoEdicao" + opcao + "-1").focus();
+						return false;
+					}
+                    if ($("#cboAutor").val() == "" || $("#txtDataLancamento").val() == "" || $("#txtQtdCapitulos").val().trim() == "" || parseInt($("#txtQtdCapitulos").val().trim()) == 0)
+					{
+                        alert("Todos os campos da versão original devem ser antes preenchidos.");
+                        $("#campoEdicao" + opcao + "-1").focus();
+                        return false;
+                    }
+                    if ($(idDataLancamento).val() <= $("#txtDataLancamento").val())
+                    {
+                        alert("A data de lançamento deve ser maior que a da versão original.");
+                        $(idDataLancamento).focus();
+                        return false;
+					}
+
+                    //debugger;
+					var edicao = false;
+					for (var i = 0; i < listagemVersoes.DadosDaLinhaEmEdicao.length; i++)
+					{
+                        if ($(idDataLancamento).val() == listagemVersoes.DadosDaLinhaEmEdicao[i])
+						{
+							edicao = true;
+							break;
+                        }
+					}
+					if (!edicao)
+					{
+						datasVersoesExistentes = [];
+						$("#tblVersoes td[id='CC1-2']").each(function (index)
+						{
+							if (index > 0)
+								datasVersoesExistentes.push(listagemVersoes.getDataFormatada($(this).text(), false));
+						});
+						//debugger;
+						if (listagemVersoes.PosicaoDaLinhaEmEdicao == -1)
+						{
+							for (var i = 0; i < datasVersoesExistentes.length; i++)
+							{
+								if ($(idDataLancamento).val() <= datasVersoesExistentes[i])
+								{
+									alert("A data de lançamento deve ser maior que todas as demais.");
+									$(idDataLancamento).focus();
+									return false;
+								}
+							}
+                        }
+					}
+                    // Em caso de edição, adicionar "0" ao array de versões existentes
+					if (dadosCadastro.Id != 0)
+						idsVersoesExistentes.push("0");
+				}
+				else
+				{
+					// 6 campos de novo personagem
+					for (var i = 0; i <= 5; i++)
+					{
+						if ($("#campoEdicao2-" + i).val().length == 0)
+						{
+							alert("Todos os campos do novo personagem devem ser preenchidos.");
+                            $("#campoEdicao" + opcao + "-" + i).focus();
+                            return false;
+                        }
+					}
+					// Em caso de edição, adicionar "0" ao array de personagens existentes
+                    if (dadosCadastro.Id != 0)
+						idsPersonagensExistentes.push("0");
+				}
+				return true;
+            }
+
+			function salvarLinha(opcao)
+			{
+				var tabelaEditavel = obterListagemSelecionada(opcao);
+                if (validarItemListagem(opcao))
+				{
+                    if (tabelaEditavel.PosicaoDaLinhaEmEdicao == -1)
+                        tabelaEditavel.incluirLinha(null);
+					else
+					{
+						tabelaEditavel.alterarLinha(tabelaEditavel.PosicaoDaLinhaEmEdicao);
+						console.log(dadosCadastro.dadosPersonagens);
+						//debugger;
+					}
+                    $("#btnSalvar").attr("disabled", false);
+                }
+			}
+
+			function editarLinha(opcao, rowIndex)
+			{
+				var tabelaEditavel = obterListagemSelecionada(opcao);
+				tabelaEditavel.editarLinha(rowIndex);
+                $("#btnSalvar").attr("disabled", true);
+			}
+
+			function cancelarEdicao(opcao, linha)
+			{
+				var tabelaEditavel = obterListagemSelecionada(opcao);
+				tabelaEditavel.cancelarEdicao(linha);
+                $("#btnSalvar").attr("disabled", false);
+			}
+
+            function excluirLinha(opcao, r)
+			{
+				if (confirm("Tem certeza que deseja excluir este registro?"))
+				{
+					//debugger;
+                    var tabelaEditavel = obterListagemSelecionada(opcao);
+					var pos = r - 2;
+					tabelaEditavel.excluirLinha(r);
+					if (dadosCadastro.Id == 0) return;
+					var id = "0";
+					if (opcao == 1)
+					{
+						if (dadosCadastro.DadosVersoes[pos] != null)
+						{
+                            var dadosItem = dadosCadastro.DadosVersoes[pos].split('|');
+                            id = dadosItem[dadosItem.length - 1];
+                        }
+					}
+					else
+					{
+                        if (dadosCadastro.DadosPersonagens[pos] != null)
+						{
+							var dadosItem = dadosCadastro.DadosPersonagens[pos].split('|');
+							var id = dadosItem[dadosItem.length - 1];
+						}
+					}
+					if (id != "0")
+					{
+						idsVersoesExistentes = [];
+						idsPersonagensExistentes = [];
+						getNovela($("#Id").val());
+                    }
+                }
+            }
+
+			function getAutores()
+			{
+				for (var i = 0; i < autores.length; i++)
+				{
+					var option   = document.createElement("option");
+					//option.value = autores[i].nomeArtistico.toUpperCase();
+					option.value = autores[i].id;
+					option.text  = autores[i].nomeArtistico.toUpperCase();
+					document.getElementById("cboAutor").add(option);
+				}
+            }
+
+			function getNovela(id)
+			{
+				let _novelas = novelas.filter((n) => n.id == id);
+				if (_novelas == null)
+				{
+					alert ("Erro na consulta.");
+					return;
+				}
+				let _novela = _novelas[0];
+				let _dados;
+				_novela.versoesNovelas = getVersoesNovelas("N", id);
+				_novela.personagens = getPersonagens("N", id);
+
+				$("#Id").val(_novela.id);
+				$("#txtTitulo").val(_novela.titulo);
+				$("#txtSinopse").val(_novela.sinopse);
+
+				dadosCadastro.Id = $("#Id").val();
+				dadosCadastro.Titulo = $("#txtTitulo").val();
+				dadosCadastro.Sinopse = $("#txtSinopse").val();
+				
+				listagemVersoes.Carga = [];
+				for (var i = 0; i < _novela.versoesNovelas.length; i++)
+				{
+					let _nomeAutor = autores[0].nomeArtistico.toUpperCase();
+					if (i == 0)
+					{
+						const _versaoAtual = _novela.versoesNovelas[0];
+						$("#cboAutor").val(_versaoAtual.autorId);
+						$("#txtDataLancamento").val(_versaoAtual.dataLancamento);
+						$("#txtQtdCapitulos").val(_versaoAtual.qtdCapitulos);
+					}
+					let item = _novela.versoesNovelas[i];
+					let posicao = (i+1) + "ª";
+					dadosCadastro.DadosVersoes.push({
+													  "posicao": posicao, 
+													  "nome": _nomeAutor, 
+													  "dataLancamento": item.dataLancamento,
+													  "qtdCapitulos": item.qtdCapitulos,
+													  "id": item.id
+													});
+					idsVersoesExistentes.push(item.id);
+					datasVersoesExistentes.push(item.dataLancamento);
+					listagemVersoes.Carga.push(posicao+"|"+_nomeAutor+"|"+listagemVersoes.getDataFormatada(item.dataLancamento, true)+"|"+item.qtdCapitulos+"|"+item.id);
+				}
+
+				listagemPersonagens.Carga = [];
+				for (var i = 0; i < _novela.personagens.length; i++)
+				{
+					let item = _novela.personagens[i];
+					let _genero = "", _etnia = "", _faixaEtaria = "", _faixaPeso = "", _faixaEstatura = "";
+					for (var j = 0; j < itensComboGeneros.length; j++)
+					{
+						_dados = itensComboGeneros[j].split('|');
+						if (_dados[0] == item.generoId)	{ _genero = _dados[1]; break; }
+					}
+					for (var j = 0; j < itensComboEtnias.length; j++)
+					{
+						_dados = itensComboEtnias[j].split('|');
+						if (_dados[0] == item.etniaId)	{ _etnia = _dados[1]; break; }
+					}
+					for (var j = 0; j < itensComboFaixasEtarias.length; j++)
+					{
+						_dados = itensComboFaixasEtarias[j].split('|');
+						if (_dados[0] == item.faixaEtariaId)	{ _faixaEtaria = _dados[1]; break; }
+					}
+					for (var j = 0; j < itensComboFaixasPeso.length; j++)
+					{
+						_dados = itensComboFaixasPeso[j].split('|');
+						if (_dados[0] == item.faixaPesoId)	{ _faixaPeso = _dados[1]; break; }
+					}
+					for (var j = 0; j < itensComboFaixasEstatura.length; j++)
+					{
+						_dados = itensComboFaixasEstatura[j].split('|');
+						if (_dados[0] == item.faixaEstaturaId)	{ _faixaEstatura = _dados[1]; break; }
+					}
+					dadosCadastro.DadosPersonagens.push({ "id": item.id,
+														  "nome": item.nome, 
+														  "genero": _genero, "etnia": _etnia, "faixaEtaria": _faixaEtaria, "faixaPeso": _faixaPeso, "faixaEstatura": _faixaEstatura
+														});
+					idsPersonagensExistentes.push(item.id);
+					listagemPersonagens.Carga.push(item.nome + "|"+_genero+"|"+_etnia+"|"+_faixaEtaria+"|"+_faixaPeso+"|"+_faixaEstatura+"|"+item.id);
+				}
+            }
+
+			function montarCombo(opcao)
+			{
+				let data, resultado = "";
+				switch (opcao)
+				{
+					case 1: nome = "Genero"; 	    data = itensComboGeneros; 		 break;
+					case 2: nome = "Etnia"; 		data = itensComboEtnias; 		 break;
+					case 3: nome = "FaixaEtaria";   data = itensComboFaixasEtarias;  break;
+					case 4: nome = "FaixaPeso";     data = itensComboFaixasPeso; 	 break;
+					case 5: nome = "FaixaEstatura"; data = itensComboFaixasEstatura; break;
+					case 6: nome = "VersaoAutor"; 	data = autores;					 break;
+				}
+				resultado += "<select>";
+				resultado += "<option value=''>-- Selecione --</option>";
+				if (opcao == 6)
+				{
+					for (var i = 0; i < data.length; i++)
+					{
+						var nomeAutor = data[i].nomeArtistico.toUpperCase();
+						resultado += "<option value='" + nomeAutor + "'>" + nomeAutor + "</option>";
+					}
+				}
+				else
+				{
+					for (var i = 0; i < data.length; i++)
+					{
+						var dadosItem = data[i].split('|');
+						resultado += "<option value='" + dadosItem[1] + "'>" + dadosItem[1] + "</option>";
+					}
+				}
+				resultado += "</select>";
+				return resultado;
+			}
+
+            function setNovela()
+			{
+                const ID = ($("#Id").val() != "") ? parseInt($("#Id").val()) : 0;
+				if ($("#txtTitulo").val().trim() == "")
+				{
+                    alert("É necessário preencher o título.");
+                    $("#txtTitulo").focus();
+                    return;
+                }
+                if ($("#txtSinopse").val().length > 4000)
+				{
+                    alert("Sinopse deve ter no máximo 4000 caracteres.\nDevem ser retirados pelo menos " + ($("#txtSinopse").val().length - 4000) + " caracter(es).");
+                    $("#txtSinopse").focus();
+                    return;
+                }
+				if ($("#cboAutor").val() == 0)
+				{
+                    alert("É necessário preencher o autor.");
+                    $("#cboAutor").focus();
+                    return;
+                }
+				if ($("#txtDataLancamento").val() == "")
+				{
+                    alert("É necessário preencher a data de lançamento.");
+                    $("#txtDataLancamento").focus();
+                    return;
+                }
+				if ($("#txtQtdCapitulos").val().trim() == "" || parseInt($("#txtQtdCapitulos").val().trim()) == 0)
+				{
+                    alert("É necessário preencher a quantidade de capítulos.");
+                    $("#txtQtdCapitulos").focus();
+                    return;
+                }
+				if (parseInt($("#txtQtdCapitulos").val().trim()) > 999)
+				{
+                    alert("A novela deve ter no máximo 999 capítulos.");
+                    $("#txtQtdCapitulos").focus();
+                    return;
+				}
+				let valoresDatasVersoes = $("#tblVersoes td[id='CC1-2'][class='celulaConteudo']");
+				if (valoresDatasVersoes.length > 0)
+				{
+                    datasVersoesExistentes = [];
+                    datasVersoesExistentes.push($("#txtDataLancamento").val());
+                    for (var i = 0; i < valoresDatasVersoes.length; i++)
+                        datasVersoesExistentes.push(listagemVersoes.getDataFormatada(valoresDatasVersoes[i].innerText, false));
+					for (var i = 0; i < datasVersoesExistentes.length; i++)
+					{
+                        if (datasVersoesExistentes[i + 1] !== undefined && datasVersoesExistentes[i] > datasVersoesExistentes[i + 1]) {
+                            alert("As datas das versões de novela se encontram desordenadas.");
+                            return;
+                        }
+                    }
+                }
+                if ($("#tblPersonagens tr").length <= 2)
+				{
+                    alert("É necessário incluir pelo menos um personagem.");
+                    return;
+                }
+
+                var linhas, dados = "";
+                dadosCadastro.ID = ID;
+				dadosCadastro.Titulo = $("#txtTitulo").val().trim();
+				dadosCadastro.Sinopse = $("#txtSinopse").val().trim();
+				dadosCadastro.DadosVersoes = [];
+				linhas = $("#tblVersoes tr");
+				for (let i = 2; i < linhas.length; i++)
+				{
+					let _id = idsVersoesExistentes[i-2]; //linhas[i].cells[4].innerText;
+					let _autorId = "0";
+					for (let j = 0; j < autores.length; j++)
+					{ if (autores[j].nomeArtistico.toUpperCase().indexOf(linhas[i].cells[1].innerText) != -1) { _autorId = autores[j].id; break; }}
+					let _dataLancamento = listagemVersoes.getDataFormatada(linhas[i].cells[2].innerText, false);
+					let _qtdCapitulos = linhas[i].cells[3].innerText;
+					dadosCadastro.DadosVersoes.push({
+														"id": _id,
+														"dataLancamento": _dataLancamento, "qtdCapitulos": _qtdCapitulos, "autorId": _autorId,
+														"versaoOriginalId": dadosCadastro.ID, "imagemLogotipo": null, "elencoCompleto": true
+													});
+				}
+				dadosCadastro.DadosPersonagens = [];
+				linhas = $("#tblPersonagens tr");
+				for (var i = 2; i < linhas.length; i++)
+				{
+					let _id = idsPersonagensExistentes[i-2]; //linhas[i].cells[linhas[i].cells.length-1].innerText;
+					let _nome = linhas[i].cells[0].innerText.toUpperCase();
+					let _generoId = "0", _etniaId = "0", _faixaEtariaId = "0", _faixaPesoId = "0", _faixaEstaturaId = "0";
+
+					for (let j = 0; j < itensComboGeneros.length; j++)
+					{ if (itensComboGeneros[j].toUpperCase().indexOf(linhas[i].cells[1].innerText.toUpperCase()) != -1) { let dados1 = itensComboGeneros[j].split('|'); _generoId = dados1[0]; break; }}
+					for (let j = 0; j < itensComboEtnias.length; j++)
+					{ if (itensComboEtnias[j].toUpperCase().indexOf(linhas[i].cells[2].innerText.toUpperCase()) != -1) { let dados2 = itensComboEtnias[j].split('|'); _etniaId = dados2[0]; break; }}
+					for (let j = 0; j < itensComboFaixasEtarias.length; j++)
+					{ if (itensComboFaixasEtarias[j].toUpperCase().indexOf(linhas[i].cells[3].innerText.toUpperCase()) != -1) { let dados3 = itensComboFaixasEtarias[j].split('|'); _faixaEtariaId = dados3[0]; break; }}
+					for (let j = 0; j < itensComboFaixasPeso.length; j++)
+					{ if (itensComboFaixasPeso[j].toUpperCase().indexOf(linhas[i].cells[4].innerText.toUpperCase()) != -1) { let dados4 = itensComboFaixasPeso[j].split('|'); _faixaPesoId = dados4[0]; break; }}
+					for (let j = 0; j < itensComboFaixasEstatura.length; j++)
+					{ if (itensComboFaixasEstatura[j].toUpperCase().indexOf(linhas[i].cells[5].innerText.toUpperCase()) != -1) { let dados5 = itensComboFaixasEstatura[j].split('|'); _faixaEstaturaId = dados5[0]; break; }}
+					dadosCadastro.DadosPersonagens.push({
+															"id": _id, "nome": _nome, "generoId": _generoId, "etniaId": _etniaId, "faixaEtariaId": _faixaEtariaId,
+															"faixaPesoId": _faixaPesoId, "faixaEstaturaId": _faixaEstaturaId, "generoObrig": false, "etniaObrig": false,
+															"faixaEtariaObrig": false, "faixaPesoObrig": false, "faixaEstaturaObrig": false, "novelaId": dadosCadastro.ID,
+															"novela": null, "atores": null
+														});
+				}
+				idsVersoesExistentes.splice(0, idsVersoesExistentes.length);
+				idsPersonagensExistentes.splice(0, idsPersonagensExistentes.length);
+				datasVersoesExistentes.splice(0, datasVersoesExistentes.length);
+				console.log(dadosCadastro);
+				debugger;
+				alert("Operação realizada com sucesso.");
+				window.location.href = "listagem.html";
+			}
+
+            $("#btnSalvar").click(function () { setNovela(); });
+
+			$("#btnCancelar").click(function () { window.location.href = "listagem.html"; });
+
+			$(document).ready(function ()
+			{
+				getAutores();
+                listagemVersoes.Tabela = document.getElementById("tblVersoes");
+                listagemVersoes.Rotulos = ["Versão", "Autor", "Lançamento", "Nº Capítulos", ""];
+                listagemVersoes.Larguras = [12, 57, 8, 15, 8];
+                listagemVersoes.Alinhamentos = ["center", "left", "center", "center", "center"];
+                listagemVersoes.Inputs =
+                    [
+                        "<input type='hidden' value=''>",
+                        montarCombo(6),
+                        "<input type='date'>",
+                        "<input type='number' maxlength='4'>",
+                    ];
+
+                listagemPersonagens.Tabela = document.getElementById("tblPersonagens");
+                listagemPersonagens.Rotulos = ["Nome", "Gênero", "Etnia", "Faixa Etária", "Peso", "Altura", ""];
+                listagemPersonagens.Larguras = [27, 12, 12, 12, 15, 12, 10];
+                listagemPersonagens.Alinhamentos = ["left", "center", "center", "center", "center", "center"];
+                listagemPersonagens.Inputs =
+                    [
+                        "<input type='text' maxlength='100'>",
+                        montarCombo(1),
+                        montarCombo(2),
+                        montarCombo(3),
+                        montarCombo(4),
+                        montarCombo(5)
+                    ];
+
+				if (window.location.href.indexOf('?') != -1)
+				{
+					var URL = window.location.href.split('?');
+					if (URL[1] !== undefined)
+						getNovela(URL[1].split('=')[1]);
+				}
+				listagemVersoes.montarTabela();
+				listagemPersonagens.montarTabela();
+			});
+		</script>
+	</body>
+</html>

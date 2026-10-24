@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="../js/jquery3-4-1.min.js"></script>
+    <script src="../js/tabela_editavel.js"></script>
+    <script type="text/javascript">
+    </script>
+    <style>
+        input, select {
+            width: 100%;
+            border: solid 1px black;
+            border-radius: 2px;
+        }
+
+        .tabela {
+            border-collapse: collapse;
+            font-family: arial;
+            font-size: 12px;
+            width: 100%;
+        }
+
+        .celulaTitulo {
+            font-weight: bold;
+            color: white;
+            background-color: black;
+            height: 20px;
+            vertical-align: middle;
+            border: 0px;
+        }
+
+        .celulaConteudo {
+            padding: 1px 0px 1px 0px;
+            vertical-align: middle;
+            color: black;
+        }
+
+        .celulaSelecionada {
+            padding: 1px 0px 1px 0px;
+            vertical-align: middle;
+            color: white;
+            background-color: black;
+        }
+
+        .coluna1 {
+            color: black;
+            border: 0px;
+        }
+
+        .colunaAcoes {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .linkListagem {
+            cursor: pointer;
+            border: solid 1px black;
+            height: 20px;
+            width: 20px;
+        }
+
+        .campoEdicaoInput {
+            width: 100%;
+            height: 17px;
+        }
+
+        .campoEdicaoSelect {
+            width: 100%;
+            height: 21px;
+        }
+
+        .campoEdicaoCheckbox {
+            border: solid 1px black;
+        }
+    </style>
+</head>
+<body>
+    <table class="tabela" style="border:solid 1px; width:1000px;" id="tblTeste"></table><br />
+    <table class="tabela" style="border:solid 1px; width:1000px;" id="tblTeste2"></table>
+    <script>
+        var carga, cargaFiltrada;
+
+        var tabelaEditavel1 = new TabelaEditavel(1);
+        tabelaEditavel1.Tabela = document.getElementById("tblTeste");
+        tabelaEditavel1.Rotulos = ["Título 1", "Título 2", "Título 3", "Título 4", "Título 5", ""];
+        tabelaEditavel1.Larguras = [25, 25, 10, 20, 10, 10];
+        tabelaEditavel1.Alinhamentos = ["left", "center", "center", "center", "center"];
+        tabelaEditavel1.Inputs =
+            [
+                "<input type='text' maxlength='100'>",
+                "<select><option value=''>-- Selecione --</option><option value='DADO 1'>DADO 1</option><option value='DADO 2'>DADO 2</option><option value='DADO 3'>DADO 3</option></select>",
+                "<input type='number' maxlength='4'>",
+                "<input type='date'>",
+                "<input type='checkbox'>"
+            ];
+        for (var i = 0; i < tabelaEditavel1.Inputs.length; i++)
+        {
+            if (tabelaEditavel1.Inputs[i].indexOf("type='checkbox'") == -1)
+                tabelaEditavel1.OpcoesCheckbox.push(null);
+            else
+            {
+                var opcoes = ["SIM", "NÃO"];
+                tabelaEditavel1.OpcoesCheckbox.push(opcoes);
+            }
+        }
+
+
+        var tabelaEditavel2 = new TabelaEditavel(2);
+        tabelaEditavel2.Tabela = document.getElementById("tblTeste2");
+        tabelaEditavel2.Rotulos = ["Título 6", "Título 7", "Título 8", "Título 9", ""];
+        tabelaEditavel2.Larguras = [25, 25, 15, 25, 10];
+        tabelaEditavel2.Alinhamentos = ["left", "center", "center", "center"];
+        tabelaEditavel2.Inputs =
+            [
+                "<input type='text' id='campoEdicao0' name='campoEdicao0' maxlength='100'>",
+                "<select id='campoEdicao1' name='campoEdicao1'><option value=''>-- Selecione --</option><option value='DADO 1'>DADO 1</option><option value='DADO 2'>DADO 2</option><option value='DADO 3'>DADO 3</option></select>",
+                "<input type='number' id='campoEdicao2' name='campoEdicao2' maxlength='4'>",
+                "<input type='date' id='campoEdicao3' name='campoEdicao3'>"
+            ];
+        for (var i = 0; i < tabelaEditavel2.Inputs.length; i++)
+        {
+            if (tabelaEditavel2.Inputs[i].indexOf("type='checkbox'") == -1)
+                tabelaEditavel2.OpcoesCheckbox.push(null);
+            else
+            {
+                var opcoes = ["SIM", "NÃO"];
+                tabelaEditavel2.OpcoesCheckbox.push(opcoes);
+            }
+        }
+
+        function salvarLinha(opcao)
+        {
+            var tabelaEditavel;
+            switch (opcao)
+            {
+                case 1: tabelaEditavel = tabelaEditavel1; break;
+                case 2: tabelaEditavel = tabelaEditavel2; break;
+                default: tabelaEditavel = null;
+            }
+            if (tabelaEditavel.PosicaoDaLinhaEmEdicao == -1)
+                tabelaEditavel.incluirLinha(null);
+            else
+                tabelaEditavel.alterarLinha(tabelaEditavel.PosicaoDaLinhaEmEdicao);
+        }
+
+        function editarLinha(opcao, linha)
+        {
+            var tabelaEditavel;
+            switch (opcao)
+            {
+                case 1: tabelaEditavel = tabelaEditavel1; break;
+                case 2: tabelaEditavel = tabelaEditavel2; break;
+                default: tabelaEditavel = null;
+            }
+            tabelaEditavel.editarLinha(linha);
+        }
+
+        function cancelarEdicao(linha) {
+            tabelaEditavel.cancelarEdicao(linha);
+        }
+
+        function excluirLinha(linkSelecionado) {
+            tabelaEditavel.excluirLinha(linkSelecionado);
+        }
+
+        function cargaDados(opcao)
+        {
+            if (opcao == 1)
+            {
+                carga.push("20|DADO 1|1|DADO 2|5|01/06/2021|1");
+                carga.push("31|DADO 1|1|DADO 1|5|02/06/2021|0");
+                carga.push("55|DADO 1|1|DADO 2|5|03/06/2021|1");
+                carga.push("44|DADO 1|1|DADO 2|5|04/06/2021|1");
+                carga.push("2|DADO 1|1|DADO 2|5|05/06/2021|0");
+                carga.push("50|DADO 1|1|DADO 2|5|06/06/2021|1");
+                carga.push("17|DADO 1|1|DADO 2|5|07/06/2021|1");
+                carga.push("12|DADO 1|1|DADO 1|5|08/06/2021|1");
+                carga.push("9|DADO 1|1|DADO 3|5|09/06/2021|0");
+                carga.push("22|DADO 1|1|DADO 2|5|10/06/2021|0");
+
+                cargaFiltrada.push("20|DADO 1|DADO 2|5|01/06/2021|1");
+                cargaFiltrada.push("31|DADO 1|DADO 2|5|02/06/2021|0");
+                cargaFiltrada.push("55|DADO 1|DADO 2|5|03/06/2021|1");
+                cargaFiltrada.push("44|DADO 1|DADO 2|5|04/06/2021|1");
+                cargaFiltrada.push("2|DADO 1|DADO 2|5|05/06/2021|0");
+                cargaFiltrada.push("50|DADO 1|DADO 2|5|06/06/2021|1");
+                cargaFiltrada.push("17|DADO 1|DADO 2|5|07/06/2021|1");
+                cargaFiltrada.push("12|DADO 1|DADO 1|5|08/06/2021|1");
+                cargaFiltrada.push("9|DADO 1|DADO 3|5|09/06/2021|0");
+                cargaFiltrada.push("22|DADO 1|DADO 2|5|10/06/2021|0");
+            }
+            else
+            {
+                carga.push("1|DADO 1|1|DADO 2|7|01/06/2021");
+                carga.push("2|DADO 1|1|DADO 1|4|02/06/2021");
+                carga.push("3|DADO 1|1|DADO 2|1|03/06/2021");
+                carga.push("4|DADO 1|1|DADO 2|6|04/06/2021");
+                carga.push("5|DADO 1|1|DADO 2|2|05/06/2021");
+
+                cargaFiltrada.push("1|DADO 1|DADO 2|7|01/06/2021");
+                cargaFiltrada.push("2|DADO 1|DADO 1|4|02/06/2021");
+                cargaFiltrada.push("3|DADO 1|DADO 2|1|03/06/2021");
+                cargaFiltrada.push("4|DADO 1|DADO 2|6|04/06/2021");
+                cargaFiltrada.push("5|DADO 1|DADO 2|2|05/06/2021");
+            }
+        }
+
+        $(document).ready(function ()
+        {
+            carga = [];
+            cargaFiltrada = [];
+            cargaDados(1);
+            tabelaEditavel1.montarTabela();
+            carga = [];
+            cargaFiltrada = [];
+            cargaDados(2);
+            tabelaEditavel2.montarTabela();
+        });
+    </script>
+</body>
+</html>

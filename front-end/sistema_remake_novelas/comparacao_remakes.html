@@ -1,0 +1,454 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Sistema de Remake de Novelas</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
+	<link rel="stylesheet" href="../css/site.css" />
+	<link rel="stylesheet" href="../css/site.min.css" />
+	<script src="../css/jquery_3_5_1.min.js"></script>
+	<script src="../css/bootstrap_3_4_1.min.js"></script>
+	<script src="../carga/novelas.js"></script>
+	<script src="../carga/versoesNovelas.js"></script>
+	<script src="../carga/personagens.js"></script>
+	<script src="../carga/atores.js"></script>
+	<script src="../carga/interpretacoes.js"></script>
+    <style>
+        #header { margin-left: 60px; }
+
+        #content 
+        {
+            padding-left: 100px;
+            padding-right: 100px;
+        }
+
+        .tabela 
+        {
+            border: solid 1px black;
+            border-collapse: collapse;
+            border-spacing: 0;
+            font-family: Arial;
+            font-size: 12px;
+            width: 570px;
+        }
+
+        tr:nth-child(even) { background-color: #F2F2F2; }
+
+        .celulaTitulo 
+        {
+            padding: 6px;
+            font-weight: bold;
+            color: white;
+            background-color: black;
+            vertical-align: middle;
+        }
+
+        .celulaConteudo 
+        {
+            padding: 4px 0px 4px 0px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+
+        .paginacao
+        {
+            background-color: black;
+            color: white;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .paginacao a 
+        {
+            text-decoration: none;
+            padding: 0px 10px 0px 10px;
+            color: white;
+            background-color: black;
+        }
+
+        .pagina_atual
+        {
+            text-decoration: none;
+            padding: 1px 7px 1px 7px;
+            color: black;
+            background-color: white;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+
+        img { vertical-align: middle; }
+
+        .img_tamanho_normal 
+        {
+            width: 237px;
+            height: 300px;
+            border: solid 1px black;
+        }
+
+        .slideshow-container 
+        {
+            position: relative;
+            margin: auto;
+        }
+
+        .prev, .next 
+        {
+            left: 0;
+            cursor: pointer;
+            top: 50%;
+            width: auto;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 5px 0px 0px 5px;
+            background-color: black;
+            color: white;
+        }
+
+        .next
+        {
+            right: 0;
+            border-radius: 0px 5px 5px 0px;
+        }
+
+        .prev:hover, .next:hover { background-color: rgba(0,0,0,0.8); }
+
+        .text
+        {
+            color: #f2f2f2;
+            font-size: 15px;
+            padding: 8px 12px;
+            position: absolute;
+            bottom: 8px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .fade
+        {
+            -webkit-animation-name: fade;
+            -webkit-animation-duration: 15s;
+            animation-name: fade;
+            animation-duration: 15s;
+        }
+
+        @-webkit-keyframes fade 
+        {
+            from { opacity: .4 }
+
+            to { opacity: 1 }
+        }
+
+        @keyframes fade
+        {
+            from { opacity: .4 }
+
+            to { opacity: 1 }
+        }        
+    </style>
+</head>
+<body>
+    <div id="divNav"></div>
+    <div class="container body-content" style="margin-top:0px;height:500px;">
+        <div style="height:100%;margin-top:-20px;">
+            <h3 class="titulo"></h3>
+            <form method="post">
+                <div class="row" style="padding:0px;height:370px;">
+                    <div class="col-sm-5" style="padding-left:0px;" id="content">
+                        <table id="tblListagem" class="tabela"></table>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-6" id="divSlides"></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-12" style="text-align:center;padding:0px 0px 0px 0px;">
+                        <button type="button" class="btn btn-primary" style="width:100px;" id="btnVoltar">Voltar</button>
+                    </div>
+                </div>
+                <div id="divSinopse" style="text-align:justify;visibility:hidden;"></div>
+            </form>
+        </div>
+        <div id="divRodape"></div>
+    </div>
+    <script src="../js/funcoes_gerais.js"></script>
+    <script>
+        var slideIndex = 1;
+        var qtdVersoes;
+		var dados;
+        var listaParametros = getParametros();
+        //var parametroNovelaId = listaParametros[0] == undefined ? null : listaParametros[0];
+        //var parametroNovelaId = "40";
+		const parametroNovelaId = localStorage.getItem("novelaId");
+
+        function montarTabela(p_pagina_atual)
+        {
+            $("#tblListagem tr").remove(); // reinicializar a tabela
+            var linha = tabela.insertRow(0);
+            // Definindo o título da cada coluna da tabela
+            for (var i = 0; i < rotulos.length; i++)
+            {
+                var celulaTitulo = linha.insertCell(i);
+                celulaTitulo.id = "T" + (i + 1);
+                celulaTitulo.className = "celulaTitulo";
+                celulaTitulo.innerHTML = rotulos[i];
+                celulaTitulo.style.width = larguras[i];
+                celulaTitulo.style.textAlign = aligns[i];
+                if (celulaTitulo.style.textAlign == "left")
+                    celulaTitulo.style.paddingLeft = "5px";
+                if (celulaTitulo.style.textAlign == "right")
+                    celulaTitulo.style.paddingRight = "5px";
+            }
+
+            // Definindo o corpo da tabela
+            var v_qt_paginas   = (dados.length / v_qt_registros_por_pagina).toFixed(0);
+            var pagina_inicio  = (p_pagina_atual - 1) * v_qt_registros_por_pagina;
+            var pagina_fim     = pagina_inicio + v_qt_registros_por_pagina;
+            var dadosPaginados = dados.slice(pagina_inicio, pagina_fim).reverse();
+            for (var i = 0; i < dadosPaginados.length; i++)
+            {
+                var celulas = [];
+                celulas.push(dadosPaginados[i].Personagem + "|left");
+                for (var j = 0; j < dadosPaginados[i].Atores.length; j++)
+                {
+                    var dadosAtor = dadosPaginados[i].Atores[j].split(';');
+                    celulas.push(dadosAtor[0] + "|left");
+                }
+                v_qt_linhas = 1;
+                var linha = tabela.insertRow(v_qt_linhas);
+                linha.onmouseover = function () { this.style.backgroundColor = "yellow"; };
+                linha.onmouseout  = function () { this.style.backgroundColor = (i % 2 == 0 ? "#F2F2F2" : ""); };
+                linha.onclick     = function () { indexSlide(p_pagina_atual, this.rowIndex); };
+
+                for (var j = 0; j < celulas.length; j++)
+                {
+                    var dadosConteudo = celulas[j].split('|');
+                    var celula = linha.insertCell(j);
+                    celula.id = "C" ;
+                    celula.className = "celulaConteudo";
+                    celula.innerHTML = dadosConteudo[0];
+                    celula.style.textAlign = dadosConteudo[1];
+                    if (celula.style.textAlign == "left")
+                        celula.style.paddingLeft = "5px";
+                    if (celula.style.textAlign == "right")
+                        celula.style.paddingRight = "5px";
+                }
+                v_qt_linhas++;
+            }
+
+            // Definindo a linha da paginação
+            var linha = tabela.insertRow(dadosPaginados.length + 1);
+            var celula = linha.insertCell(0);
+            celula.className = "paginacao";
+            $("td.paginacao").prop("colspan", rotulos.length);
+
+            var paginacao = "";
+            var v_qt_paginas = (dados.length / v_qt_registros_por_pagina).toFixed(0);
+            if (dados.length % v_qt_registros_por_pagina)
+                v_qt_paginas++;
+            if (v_qt_paginas <= 1)
+                paginacao += "<span style='padding:6px;'></span>";
+            else
+            {
+                for (var i = 1; i <= v_qt_paginas; i++)
+                {
+                    if (i == p_pagina_atual)
+                        paginacao += "<span class='pagina_atual'>" + p_pagina_atual + "</span>";
+                    else
+                    {
+                        v_qt_linhas = 1;
+                        paginacao += "<a href='#' onclick='montarTabela(" + i + ");'>" + i + "</a>";
+                    }
+                }
+            }
+            $("td.paginacao").html(paginacao);
+            v_pagina_atual = p_pagina_atual;
+        }
+
+        /*function getPersonagens_OLD(novelaId)
+        {
+            jQuery.ajax
+            ({
+                type: "GET",
+                dataType: "json",
+                url: URL + "novela/get_itens_carrossel/" + novelaId,
+                async: false,
+                success: function (data)
+                {
+					console.log(data);
+                    qtdVersoes = data.dados_versoes.length;
+
+                    var titulo_novela = data.titulo_novela;
+                    var sinopse_novela = "Lorem ipsum taciti potenti vestibulum arcu nostra netus posuere curae nisi, netus varius nostra ullamcorper dictum mollis arcu viverra at, mi rutrum laoreet ac neque proin donec suscipit cras. scelerisque inceptos gravida commodo praesent lectus eros diam, suspendisse tincidunt erat urna et non dapibus enim, orci turpis nostra sapien mattis netus. suspendisse ante lacinia tortor ultrices metus aenean vel nisi nunc accumsan potenti, felis nulla neque condimentum sapien phasellus odio lectus gravida. posuere tincidunt eros porta himenaeos curabitur a pretium odio suscipit vel potenti habitasse, fermentum etiam erat orci donec cursus sodales laoreet sodales nec pellentesque rhoncus, vitae bibendum laoreet ac curabitur purus aliquet ullamcorper ut primis non.<br>Suscipit est eros aenean posuere cursus at egestas curabitur pellentesque, mattis at mi netus mi habitant vitae tempus, sapien feugiat posuere neque praesent eros pellentesque adipiscing. malesuada mi ligula velit lacus sociosqu arcu quisque arcu dui luctus litora vehicula, nisl vehicula donec non est torquent rutrum at pulvinar interdum. ultrices sit morbi duis commodo laoreet eget tempor habitasse, commodo lacinia ipsum placerat platea integer condimentum neque, scelerisque vulputate tellus porta aliquam eget pharetra. vulputate enim quam venenatis tincidunt ultrices dapibus eleifend eget fermentum, pharetra quisque enim adipiscing gravida congue egestas nam quis, porta laoreet amet gravida dolor tempus suscipit laoreet.<br>Enim fermentum cras pellentesque nec curabitur eget metus, interdum venenatis vehicula curabitur est risus congue eleifend, accumsan diam convallis nunc rutrum auctor. sociosqu vivamus congue dolor lacinia litora porta dapibus ipsum faucibus cras non, iaculis justo integer proin diam elit aenean fringilla lacus aliquam libero nam, tempor fringilla integer velit tempor venenatis at nisl tempus eu. felis lacinia eu cursus mattis imperdiet per lobortis quisque curabitur magna, tincidunt pharetra inceptos leo a posuere dictum dui consectetur accumsan, eget tortor praesent molestie pretium ultrices commodo leo tellus. malesuada sit vestibulum condimentum sollicitudin non lacus sem torquent, nisl nunc semper libero quis suspendisse dictumst lobortis proin, sagittis phasellus maecenas facilisis amet nam sed.<br>Aptent lacus vulputate duis sagittis congue dolor etiam, primis volutpat molestie quisque proin ut pretium, leo suscipit malesuada senectus aliquet imperdiet. mattis tincidunt lobortis leo consectetur leo orci risus, auctor convallis commodo sit interdum iaculis fringilla, fusce metus urna pulvinar tellus nibh. porta etiam praesent viverra consequat per etiam nec, fermentum dictumst varius lectus fusce luctus eleifend bibendum, tempor sodales netus senectus enim aenean. nostra non sit quisque orci semper, nibh justo dictumst augue, non vulputate ac senectus. pulvinar litora ipsum per facilisis platea nunc nibh gravida, hendrerit condimentum nullam sollicitudin mauris aliquam pellentesque sodales dolor, suspendisse eu proin in lacinia est feugiat.<br>Sem et molestie maecenas ornare praesent nisi faucibus habitasse, nibh netus commodo etiam scelerisque amet sit senectus, id sem nam morbi vitae fames hendrerit. amet auctor sodales sagittis id lorem convallis, malesuada ullamcorper eleifend himenaeos cursus velit, nullam non ut vehicula aenean. non aliquam per quis interdum consequat tristique habitasse dictumst, varius metus scelerisque quisque massa a rutrum dapibus in, pulvinar orci hac dictumst non etiam imperdiet. sed quisque vulputate arcu ultricies congue dictumst, iaculis maecenas litora nisi.";
+
+                    $("h3.titulo").html(titulo_novela + ": Original e Remake(s)");
+                    $("#divSinopse").text(sinopse_novela);
+
+                    rotulos.push("Personagem");
+                    larguras.push("270px");
+                    aligns.push("left");
+
+                    // Definição dos valores do cabeçalho
+                    for (var i = 0; i < data.dados_versoes.length; i++)
+                    {
+                        var dadosItem = data.dados_versoes[i].split('|');
+                        for (var j = 0; j < dadosItem.length; j++)
+                        {
+                            if (j == 2)
+                            {
+                                rotulos.push((i+1) + "ª Versão (" + dadosItem[2].substring(0, 4) + ")");
+                                break;
+                            }
+                        }
+                        larguras.push("150px");
+                        aligns.push("left");
+                    }
+
+                    // Definição dos valores do conteúdo
+                    for (var i = 0; i < data.dados_personagens.length; i++)
+                    {
+                        var dadosItem = data.dados_personagens[i].split('|');
+                        var dadosAtores = [];
+                        for (var j = 0; j < data.dados_versoes.length; j++)
+                        {
+                            for (var k = 0; k < data.dados_atores.length; k++)
+                            {
+                                var item = data.dados_atores[k].split(';');
+                                if (item[0] == dadosItem[j + 2])
+                                {
+                                    dadosAtores.push(item[1] + ";" + item[2]);
+                                    break;
+                                }
+                            }
+                        }
+                        if (dadosAtores.length > 1)
+                            dados.push({ "Personagem": dadosItem[0], "Atores": dadosAtores });
+                    }
+                },
+                error: function (data) { },
+            });
+        }*/
+
+        function getPersonagens(novelaId)
+        {
+			let _novelas = novelas.filter((n) => n.id == novelaId);
+			if (_novelas != null)
+			{
+				let novela = _novelas[0];
+				let titulo_novela = novela.titulo;
+				let sinopse_novela = novela.sinopse; //"Lorem ipsum taciti potenti vestibulum arcu nostra netus posuere curae nisi, netus varius nostra ullamcorper dictum mollis arcu viverra at, mi rutrum laoreet ac neque proin donec suscipit cras. scelerisque inceptos gravida commodo praesent lectus eros diam, suspendisse tincidunt erat urna et non dapibus enim, orci turpis nostra sapien mattis netus. suspendisse ante lacinia tortor ultrices metus aenean vel nisi nunc accumsan potenti, felis nulla neque condimentum sapien phasellus odio lectus gravida. posuere tincidunt eros porta himenaeos curabitur a pretium odio suscipit vel potenti habitasse, fermentum etiam erat orci donec cursus sodales laoreet sodales nec pellentesque rhoncus, vitae bibendum laoreet ac curabitur purus aliquet ullamcorper ut primis non.<br>Suscipit est eros aenean posuere cursus at egestas curabitur pellentesque, mattis at mi netus mi habitant vitae tempus, sapien feugiat posuere neque praesent eros pellentesque adipiscing. malesuada mi ligula velit lacus sociosqu arcu quisque arcu dui luctus litora vehicula, nisl vehicula donec non est torquent rutrum at pulvinar interdum. ultrices sit morbi duis commodo laoreet eget tempor habitasse, commodo lacinia ipsum placerat platea integer condimentum neque, scelerisque vulputate tellus porta aliquam eget pharetra. vulputate enim quam venenatis tincidunt ultrices dapibus eleifend eget fermentum, pharetra quisque enim adipiscing gravida congue egestas nam quis, porta laoreet amet gravida dolor tempus suscipit laoreet.<br>Enim fermentum cras pellentesque nec curabitur eget metus, interdum venenatis vehicula curabitur est risus congue eleifend, accumsan diam convallis nunc rutrum auctor. sociosqu vivamus congue dolor lacinia litora porta dapibus ipsum faucibus cras non, iaculis justo integer proin diam elit aenean fringilla lacus aliquam libero nam, tempor fringilla integer velit tempor venenatis at nisl tempus eu. felis lacinia eu cursus mattis imperdiet per lobortis quisque curabitur magna, tincidunt pharetra inceptos leo a posuere dictum dui consectetur accumsan, eget tortor praesent molestie pretium ultrices commodo leo tellus. malesuada sit vestibulum condimentum sollicitudin non lacus sem torquent, nisl nunc semper libero quis suspendisse dictumst lobortis proin, sagittis phasellus maecenas facilisis amet nam sed.<br>Aptent lacus vulputate duis sagittis congue dolor etiam, primis volutpat molestie quisque proin ut pretium, leo suscipit malesuada senectus aliquet imperdiet. mattis tincidunt lobortis leo consectetur leo orci risus, auctor convallis commodo sit interdum iaculis fringilla, fusce metus urna pulvinar tellus nibh. porta etiam praesent viverra consequat per etiam nec, fermentum dictumst varius lectus fusce luctus eleifend bibendum, tempor sodales netus senectus enim aenean. nostra non sit quisque orci semper, nibh justo dictumst augue, non vulputate ac senectus. pulvinar litora ipsum per facilisis platea nunc nibh gravida, hendrerit condimentum nullam sollicitudin mauris aliquam pellentesque sodales dolor, suspendisse eu proin in lacinia est feugiat.<br>Sem et molestie maecenas ornare praesent nisi faucibus habitasse, nibh netus commodo etiam scelerisque amet sit senectus, id sem nam morbi vitae fames hendrerit. amet auctor sodales sagittis id lorem convallis, malesuada ullamcorper eleifend himenaeos cursus velit, nullam non ut vehicula aenean. non aliquam per quis interdum consequat tristique habitasse dictumst, varius metus scelerisque quisque massa a rutrum dapibus in, pulvinar orci hac dictumst non etiam imperdiet. sed quisque vulputate arcu ultricies congue dictumst, iaculis maecenas litora nisi.";
+				let _versoesNovelas = versoesNovelas.filter((v) => v.versaoOriginalId == novelaId);
+				let _personagens = personagens.filter((p) => p.novelaId == novelaId).sort((a, b) => { if (a.nome <= b.nome) { return 1; }});
+
+				$("h3.titulo").html(titulo_novela + ": Original e Remake(s)");
+				$("#divSinopse").text(sinopse_novela);
+
+				rotulos.push("Personagem");
+				larguras.push("270px");
+				aligns.push("left");
+
+				// Definição dos valores do cabeçalho
+				qtdVersoes = _versoesNovelas.length;
+				for (var i = 0; i < qtdVersoes; i++)
+				{
+					rotulos.push((i+1) + "ª Versão (" + _versoesNovelas[i].dataLancamento.substring(0, 4) + ")");
+					larguras.push("150px");
+					aligns.push("left");
+				}
+
+				// Definição dos valores do conteúdo
+				dados = [];
+				for (var i = 0; i < _personagens.length; i++)
+				{
+					let _interpretacoes = interpretacoes.filter((x) => (x.versaoNovelaId == "11" || x.versaoNovelaId == "12") && x.personagemId == _personagens[i].id).sort((a, b) => { if (a.versaoNovelaId <= b.versaoNovelaId) { return 1; }});
+					let dadosAtores = [];
+					if (_interpretacoes != null)
+					{
+						let atorOriginal = atores.filter((x) => x.id == _interpretacoes[0].atorId);
+						dadosAtores.push(atorOriginal[0].nomeArtistico + ";" + (atorOriginal[0].imagemFoto == null ? "SEM_FOTO.jpg" : "atores/" + atorOriginal[0].imagemFoto));
+						if (_interpretacoes.length == 1)
+							dadosAtores.push("-" + ";SEM_FOTO.jpg");
+						else
+						{
+							let atorAtual = atores.filter((x) => x.id == _interpretacoes[1].atorId);
+							if (atorAtual.length == 0)
+								dadosAtores.push("-" + ";SEM_FOTO.jpg");
+							else
+								dadosAtores.push(atorAtual[0].nomeArtistico + ";" + (atorAtual[0].imagemFoto == null ? "SEM_FOTO.jpg" : "atores/" + atorAtual[0].imagemFoto));
+						}
+					}
+					dados.push({ "Personagem": _personagens[i].nome, "Atores": dadosAtores });
+				}
+			}
+        }
+
+        function createSlide() 
+        {
+            var conteudo = "";
+            conteudo += "<div class='slideshow-container'>";
+            for (var i = 0; i < dados.length; i++)
+            {
+                var nome_personagem = dados[i].Personagem;
+                conteudo += "<div class='mySlides'>";
+                conteudo += "<div class='row'>";
+                conteudo += "<div class='col-12' style='border:font-family:Arial;font-weight:bold;background-color:black;color:white;font-size:11px;padding:5px;width:100%;text-align:center;float:left;border-radius:3px 3px 0px 0px;'>" + nome_personagem + "</div>";
+                conteudo += "</div>";
+                if (qtdVersoes == 2)
+                {
+                    var dados_ator1 = dados[i].Atores[0].split(';');
+                    var dados_ator2 = dados[i].Atores[1].split(';');
+                    conteudo += "<div class='row'>";
+                    conteudo += "<div class='col-6' style='font-family:Arial;font-weight:bold;background-color:gray;color:white;font-size:11px;padding:5px;width:50%;text-align:center;border-radius:0px 0px 0px 3px;float:left;'>" + dados_ator1[0] + "</div>";
+                    conteudo += "<div class='col-6' style='font-family:Arial;font-weight:bold;background-color:gray;color:white;font-size:11px;padding:5px;width:50%;text-align:center;border-radius:0px 0px 3px 0px;float:right;'>" + dados_ator2[0] + "</div>";
+                    conteudo += "</div>";
+                    conteudo += "<div class='row'>";
+                    conteudo += "<div class='col-2' style='float:left;padding-top:25px;width:5%;'><a class='prev' onclick='plusSlides(-1);'>&#10094;</a></div>";
+                    conteudo += "<div class='col-4' style='float:left;border:solid 1px;width:45%;text-align:center;'><img src='../imagens/" + dados_ator1[1] + "' title='" + dados_ator1[0] + "' class='img_tamanho_normal'></div>";
+                    conteudo += "<div class='col-4' style='float:left;border:solid 1px;width:45%;text-align:center;'><img src='../imagens/" + dados_ator2[1] + "' title='" + dados_ator2[0] + "' class='img_tamanho_normal'></div>";
+                    conteudo += "<div class='col-2' style='float:right;padding-top:25px;width:5%;'><a class='next' onclick='plusSlides(1);'>&#10095;</a></div>";
+                    conteudo += "</div>";
+                }
+                conteudo += "</div>";
+            }
+            conteudo += "</div>";
+            document.getElementById("divSlides").innerHTML = conteudo;
+        }
+
+        function showSlides(n) 
+        {
+            var i;
+            var slides = document.getElementsByClassName("mySlides");
+            if (n > slides.length) { slideIndex = 1 }
+            if (n < 1) { slideIndex = slides.length }
+            for (i = 0; i < slides.length; i++)
+                slides[i].style.display = "none";
+            slides[slideIndex - 1].style.display = "block";
+        }
+
+        function plusSlides(n) { showSlides(slideIndex += n); }
+
+        function currentSlide(n) { showSlides(slideIndex = n); }
+
+        function indexSlide(pagina_atual, n) { showSlides(slideIndex = (((pagina_atual - 1) * 10) + n)); }
+
+        function voltar()
+        {
+            //window.location.href = "elenco_remakes.html?novelaId=" + parametroNovelaId;
+            window.location.href = "elenco_remakes.html";
+        }
+
+        $("#btnVoltar").click(function () { voltar(); });
+
+        $(document).ready(function ()
+        {
+            getPersonagens(parametroNovelaId);
+            if (dados.length > 0)
+            {
+                tabela = document.getElementById($("#content table").prop("id"));
+                montarTabela(1);
+                createSlide();
+                showSlides(slideIndex);
+            }
+        });
+    </script>
+</body>
+</html>

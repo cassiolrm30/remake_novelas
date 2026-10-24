@@ -1,0 +1,371 @@
+### Listar pessoas
+GET http://localhost:1234/pessoa
+Accept: application/json
+
+### Listar usuários
+GET http://localhost:1234/usuario
+Accept: application/json
+
+### Listar autores
+GET http://localhost:1234/autor
+Accept: application/json
+
+### Listar atores
+GET http://localhost:1234/ator
+Accept: application/json
+
+### Listar novelas
+GET http://localhost:1234/novela
+Accept: application/json
+
+### Listar emissoras
+GET http://localhost:1234/emissora
+Accept: application/json
+
+### Listar personagens
+GET http://localhost:1234/personagem
+Accept: application/json
+
+### Listar versões de novelas
+GET http://localhost:1234/versaoNovela
+Accept: application/json
+
+### Listar versões de personagens
+GET http://localhost:1234/versaoPersonagem
+Accept: application/json
+
+### Cadastrar autor
+POST http://localhost:1234/autor
+Content-Type: application/json
+Accept: application/json
+
+{
+  "nomeArtistico": "Autor de Teste",
+  "versoesNovelas": [],
+  "pessoa":
+  {
+    "CPF": "641.122.470-60",
+    "nomeCompleto": "Pessoa de Teste",
+    "dataNascimento": "1990-05-15",
+    "cidadeNatal": "Rio de Janeiro",
+    "UF": "RJ",
+    "genero": "AMBOS",
+    "etnia": "INDÍGENA",
+    "faixaEtaria": "De 31 a 40 anos",
+    "faixaPeso": "De 50,01 kg a 100 kg",
+    "faixaEstatura": "1,51 m a 2,00 m"
+  }
+}
+
+### Cadastrar ator
+POST http://localhost:1234/ator
+Content-Type: application/json
+Accept: application/json
+{
+  "nomeArtistico": "Ator de Teste",
+  "versoesNovelas": [],
+  "DRT": "12345678901234567890",
+  "pessoa":
+  {
+    "CPF": "641.122.470-60",
+    "nomeCompleto": "Pessoa de Teste",
+    "dataNascimento": "1990-05-15",
+    "cidadeNatal": "Rio de Janeiro",
+    "UF": "RJ",
+    "genero": "AMBOS",
+    "etnia": "INDÍGENA",
+    "faixaEtaria": "De 31 a 40 anos",
+    "faixaPeso": "De 50,01 kg a 100 kg",
+    "faixaEstatura": "1,51 m a 2,00 m"
+  }
+}
+
+### Cadastrar emissora
+POST http://localhost:1234/emissora
+Content-Type: application/json
+Accept: application/json
+{
+  "nome": "",
+  "sigla": "",
+  "pais": "",
+  "anoFundacao": 0,
+  "anoEncerramento": 0
+}
+
+### Cadastrar novela
+POST http://localhost:1234/novela
+Content-Type: application/json
+Accept: application/json
+{
+  "tituloOriginal": "Novela I",
+  "sinopseConceitual": "lsdfsldçfdsçfs sdfsdkkçlkçfsdd sfsdfsdc vxc sds dvc x.",
+  "personagens":
+  [
+    "Personagem I|Características do personagem",
+    "Personagem II|Características do personagem"
+  ],
+  "titulosProvisorios": ["Título Provisório I", "Título Provisório II"]
+}
+
+### Cadastrar personagem
+POST http://localhost:1234/personagem
+Content-Type: application/json
+Accept: application/json
+{
+  "nomeOriginal": "",
+  "descricaoOriginal": "",
+  "novelaOriginal":
+  {
+    "_id": "COLE_AQUI_O_ID_DA_NOVELA",
+    "tituloOriginal": "Novela I",
+    "sinopseConceitual": "lsdfsldçfdsçfs sdfsdkkçlkçfsdd sfsdfsdc vxc sds dvc x.",
+    "personagens":
+    [
+      "Personagem I|Características do personagem",
+      "Personagem II|Características do personagem"
+    ],
+    "titulosProvisorios": ["Título Provisório I", "Título Provisório II"]
+  },
+  "versoes":
+  [
+    "COLE_AQUI_O_ID_DO_PERSONAGEM1",
+    "COLE_AQUI_O_ID_DO_PERSONAGEM2",
+    "COLE_AQUI_O_ID_DO_PERSONAGEM3"
+  ]
+}
+
+### Cadastrar versão de novela
+POST http://localhost:1234/versaonovela
+Content-Type: application/json
+Accept: application/json
+{
+  "dataLancamento": "1988-05-16",
+  "qtdCapitulos": 204,
+  "sinopse": "A trama tem como plano de fundo a corrupção e a falta de ética no final dos anos 1980 no Brasil. Narra a história de Raquel Accioli (Regina Duarte), que foi casada com Rubinho (Daniel Filho), de quem se separou há cerca de dez anos. Depois de uma discussão, ela decidiu abandoná-lo e ir morar em Foz do Iguaçu, na casa de seu pai, Salvador (Sebastião Vasconcelos), com a ambiciosa filha Maria de Fátima (Glória Pires). O único bem da família é uma modesta casa que Salvador passou para o nome da neta. Raquel vive como guia de turismo e depois que Salvador morre, Fátima vende a casa sem comunicar à mãe e parte para o Rio de Janeiro para tentar uma vida melhor. Fátima é o oposto da mãe: é inescrupulosa, tem horror à pobreza e fará de tudo para enriquecer. No Rio, ela se envolve com César Ribeiro (Carlos Alberto Ricceli), ex-modelo que teve o mundo das passarelas aos seus pés, e que agora é garoto de programa. Raquel parte para o Rio à procura da filha e conhece o administrador de empresas Ivan (Antônio Fagundes): os dois se apaixonam e constroem uma relação. Para ganhar a vida, ela começa a vender sanduíches na praia.<br>Enquanto a mãe trabalha honestamente, Fátima é apresentada por César a Solange Duprat (Lídia Brondi), produtora de moda da revista Tomorrow. Passa a atuar como modelo e vai morar com César, que a incentiva a seduzir o milionário Afonso Roitman (Cássio Gabus Mendes), namorado de Solange, para se casar com ele. Afonso é filho da poderosa empresária Odete Roitman (Beatriz Segall), diretora de uma companhia aérea, a TCA, onde Ivan trabalha como operador de telex. Ela adora manipular a vida dos filhos, além de tratar mal os empregados, se achar superior a todos e odiar o Brasil. Com o objetivo de se casar com Afonso, Fátima se une a Odete depois da mulher prometer ajudar com que o casamento ocorra, em troca de separar sua mãe de Ivan, para que assim ele se case com Heleninha (Renata Sorrah), filha de Odete, uma mulher insegura que sofre com os problemas de alcoolismo e que mora com a tia, a bondosa Celina (Nathalia Timberg). Assim, Fátima se casa com Afonso e desfruta da riqueza que sempre sonhou.<br>Ainda há Marco Aurélio (Reginaldo Faria), braço direito de Odete nos negócios, que foi casado com Heleninha no passado. Os dois tiveram um filho: Thiago (Fábio Villa Verde), que começa a sofrer com as desconfianças de seu pai de que ele seja homossexual. Mau-caráter e sem fundamentos morais, ele desvia o dinheiro da empresa para sua própria conta, surrupiando todo o dinheiro de Odete por debaixo do pano. A secretária de Marco Aurélio, Aldeíde (Lília Cabral), é uma mulher divertida e simpática que quer tirar vantagem de tudo, mas faz isso de forma cômica. Ela se casa com um português rico e acaba herdando várias quintas. Com o desejo de ser famosa, ela usa o dinheiro de suas propriedades e grava um comercial onde não vende nada, mas que promete \"incendiar essa cidade\". Marco Aurélio tem uma irmã, Cecília (Lala Deheinzelin), que mantém um romance com Laís (Cristina Prochaska), uma moça bonita e simpática. Entretanto, Cecília acaba morrendo em um acidente de carro e deixa seus bens para Laís, o que acaba gerando revolta em Marco Aurélio. Disposto a tomar sua herança, ele faz de tudo para que ela não receba a fortuna. Ainda há Leila (Cássia Kis), ex-mulher de Ivan com quem teve o garoto Bruno (Danton Mello). Inicialmente, vai trabalhar como secretária de Renato Filipelli (Adriano Reys), amigo de Rubinho e primo de Marco Aurélio, com quem mora, e começa a namorar o patrão. Marco Aurélio então \"rouba\" a namorada do primo e se casa com Leila, que vê no empresário uma maior estabilidade financeira.<br>A trama passa então a mostrar a dualidade: Maria de Fátima, rica com o casamento arranjado e enganando todos ao seu redor, enquanto Raquel, vendendo sanduíches na praia, acaba subindo na vida e, de maneira honesta, vira dona de uma rede de restaurantes industriais e se torna uma mulher rica, mas sem esquecer dos seus princípios.",
+  "versaoOriginal": "6a8b9c07cb9be3e604a3ae62",
+  "autor": "6a7517276517af8eb1c4be1d",
+  "emissora": "6a4072a45f65c20175ace022",
+  "personagens":
+  [
+    {
+      "genero": "AMBOS", "generoObrig": false,
+      "etnia": "INDÍGENA", "etniaObrig": true,
+      "faixaEtaria": "ENTRE41_50", "faixaEtariaObrig": false,
+      "faixaPeso": "ENTRE50_100", "faixaPesoObrig": false,
+      "faixaEstatura": "ENTRE15001_200", "faixaEstaturaObrig": true,
+      "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+    }
+  ]
+}
+
+### Cadastrar versão de personagem
+POST http://localhost:1234/versaopersonagem
+Content-Type: application/json
+Accept: application/json
+{
+  "genero": "FEMININO", "generoObrig": true,
+  "etnia": "NEGRO(A)", "etniaObrig": false,
+  "faixaEtaria": "De 41 a 50 anos", "faixaEtariaObrig": false,
+  "faixaPeso": "De 50,01 kg a 100 kg", "faixaPesoObrig": false,
+  "faixaEstatura": "1,51 m a 2,00 m", "faixaEstaturaObrig": false,
+  "versaoNovelaOriginal": "COLE_AQUI_O_ID_DA_NOVELA_ORIGINAL",
+  "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+}
+
+
+### Atualizar autor
+PATCH http://localhost:1234/autor/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "nomeArtistico": "Autor de Teste Atualizado",
+  "versoesNovelas": [],
+  "pessoa":
+  {
+    "_id": "COLE_AQUI_O_ID_DA_PESSOA",
+    "CPF": "CPF_JA_CADASTRADO_PARA_ESTA_PESSOA",
+    "nomeCompleto": "Pessoa de Teste",
+    "dataNascimento": "1990-05-15",
+    "cidadeNatal": "Rio de Janeiro",
+    "UF": "RJ",
+    "genero": "AMBOS",
+    "etnia": "INDÍGENA",
+    "faixaEtaria": "De 31 a 40 anos",
+    "faixaPeso": "De 50,01 kg a 100 kg",
+    "faixaEstatura": "1,51 m a 2,00 m"
+  }
+}
+
+### Atualizar ator
+PATCH http://localhost:1234/ator/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "nomeArtistico": "Ator de Teste Atualizado",
+  "versoesNovelas": [],
+  "pessoa": 
+  {
+    "_id": "COLE_AQUI_O_ID_DA_PESSOA",
+    "CPF": "641.122.470-60",
+    "nomeCompleto": "Pessoa de Teste",
+    "dataNascimento": "1990-05-15",
+    "cidadeNatal": "Rio de Janeiro",
+    "UF": "RJ",
+    "genero": "AMBOS",
+    "etnia": "INDÍGENA",
+    "faixaEtaria": "De 31 a 40 anos",
+    "faixaPeso": "De 50,01 kg a 100 kg",
+    "faixaEstatura": "1,51 m a 2,00 m"
+  }
+}
+
+### Atualizar emissora
+PATCH http://localhost:1234/emissora/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "nome": "",
+  "sigla": "",
+  "pais": "",
+  "anoFundacao": 0,
+  "anoEncerramento": 0
+}
+
+### Atualizar novela
+PATCH http://localhost:1234/novela/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "tituloOriginal": "Novela II",
+  "sinopseConceitual": "Adfçlskdçflsd çsdlf ksdlçf sdk fçlsdkf çlsdf.",
+  "personagens":
+  [
+    "COLE_AQUI_O_ID_DO_PERSONAGEM1|Personagem III|Aaaaaaaaaaaaaaa aa aaaaaaaaaa",
+    "COLE_AQUI_O_ID_DO_PERSONAGEM2|Personagem IV|Bbbbbbbbbbbbbbb bb bbbbbbbbbb"
+  ],
+  "titulosProvisorios": ["Título Provisório I", "Título Provisório II"]
+}
+
+### Atualizar personagem
+PATCH http://localhost:1234/personagem/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "nomeOriginal": "",
+  "descricaoOriginal": "",
+  "novelaOriginal":
+  {
+    "_id": "COLE_AQUI_O_ID_DA_NOVELA",
+    "tituloOriginal": "Novela I",
+    "sinopseConceitual": "lsdfsldçfdsçfs sdfsdkkçlkçfsdd sfsdfsdc vxc sds dvc x.",
+    "personagens":
+    [
+      "COLE_AQUI_O_ID_DO_PERSONAGEM1|Personagem III|Aaaaaaaaaaaaaaa aa aaaaaaaaaa",
+      "COLE_AQUI_O_ID_DO_PERSONAGEM2|Personagem IV|Bbbbbbbbbbbbbbb bb bbbbbbbbbb"
+    ],
+    "titulosProvisorios": ["Título Provisório I", "Título Provisório II"]
+  },
+  "versoes":
+  [
+    {
+      "genero": "AMBOS", "generoObrig": false,
+      "etnia": "INDÍGENA", "etniaObrig": true,
+      "faixaEtaria": "ENTRE41_50", "faixaEtariaObrig": false,
+      "faixaPeso": "ENTRE50_100", "faixaPesoObrig": false,
+      "faixaEstatura": "ENTRE15001_200", "faixaEstaturaObrig": true,
+      "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+    },
+    {
+      "_id": "COLE_AQUI_O_ID_DESSE_PERSONAGEM",
+      "genero": "AMBOS", "generoObrig": false,
+      "etnia": "INDÍGENA", "etniaObrig": true,
+      "faixaEtaria": "ENTRE41_50", "faixaEtariaObrig": false,
+      "faixaPeso": "ENTRE50_100", "faixaPesoObrig": false,
+      "faixaEstatura": "ENTRE15001_200", "faixaEstaturaObrig": true,
+      "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+    }
+  ]
+}
+
+### Atualizar versão de novela
+PATCH http://localhost:1234/versaonovela/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "dataLancamento": "1988-05-16",
+  "qtdCapitulos": 204,
+  "sinopse": "A trama tem como plano de fundo a corrupção e a falta de ética no final dos anos 1980 no Brasil. Narra a história de Raquel Accioli (Regina Duarte), que foi casada com Rubinho (Daniel Filho), de quem se separou há cerca de dez anos. Depois de uma discussão, ela decidiu abandoná-lo e ir morar em Foz do Iguaçu, na casa de seu pai, Salvador (Sebastião Vasconcelos), com a ambiciosa filha Maria de Fátima (Glória Pires). O único bem da família é uma modesta casa que Salvador passou para o nome da neta. Raquel vive como guia de turismo e depois que Salvador morre, Fátima vende a casa sem comunicar à mãe e parte para o Rio de Janeiro para tentar uma vida melhor. Fátima é o oposto da mãe: é inescrupulosa, tem horror à pobreza e fará de tudo para enriquecer. No Rio, ela se envolve com César Ribeiro (Carlos Alberto Ricceli), ex-modelo que teve o mundo das passarelas aos seus pés, e que agora é garoto de programa. Raquel parte para o Rio à procura da filha e conhece o administrador de empresas Ivan (Antônio Fagundes): os dois se apaixonam e constroem uma relação. Para ganhar a vida, ela começa a vender sanduíches na praia.<br>Enquanto a mãe trabalha honestamente, Fátima é apresentada por César a Solange Duprat (Lídia Brondi), produtora de moda da revista Tomorrow. Passa a atuar como modelo e vai morar com César, que a incentiva a seduzir o milionário Afonso Roitman (Cássio Gabus Mendes), namorado de Solange, para se casar com ele. Afonso é filho da poderosa empresária Odete Roitman (Beatriz Segall), diretora de uma companhia aérea, a TCA, onde Ivan trabalha como operador de telex. Ela adora manipular a vida dos filhos, além de tratar mal os empregados, se achar superior a todos e odiar o Brasil. Com o objetivo de se casar com Afonso, Fátima se une a Odete depois da mulher prometer ajudar com que o casamento ocorra, em troca de separar sua mãe de Ivan, para que assim ele se case com Heleninha (Renata Sorrah), filha de Odete, uma mulher insegura que sofre com os problemas de alcoolismo e que mora com a tia, a bondosa Celina (Nathalia Timberg). Assim, Fátima se casa com Afonso e desfruta da riqueza que sempre sonhou.<br>Ainda há Marco Aurélio (Reginaldo Faria), braço direito de Odete nos negócios, que foi casado com Heleninha no passado. Os dois tiveram um filho: Thiago (Fábio Villa Verde), que começa a sofrer com as desconfianças de seu pai de que ele seja homossexual. Mau-caráter e sem fundamentos morais, ele desvia o dinheiro da empresa para sua própria conta, surrupiando todo o dinheiro de Odete por debaixo do pano. A secretária de Marco Aurélio, Aldeíde (Lília Cabral), é uma mulher divertida e simpática que quer tirar vantagem de tudo, mas faz isso de forma cômica. Ela se casa com um português rico e acaba herdando várias quintas. Com o desejo de ser famosa, ela usa o dinheiro de suas propriedades e grava um comercial onde não vende nada, mas que promete \"incendiar essa cidade\". Marco Aurélio tem uma irmã, Cecília (Lala Deheinzelin), que mantém um romance com Laís (Cristina Prochaska), uma moça bonita e simpática. Entretanto, Cecília acaba morrendo em um acidente de carro e deixa seus bens para Laís, o que acaba gerando revolta em Marco Aurélio. Disposto a tomar sua herança, ele faz de tudo para que ela não receba a fortuna. Ainda há Leila (Cássia Kis), ex-mulher de Ivan com quem teve o garoto Bruno (Danton Mello). Inicialmente, vai trabalhar como secretária de Renato Filipelli (Adriano Reys), amigo de Rubinho e primo de Marco Aurélio, com quem mora, e começa a namorar o patrão. Marco Aurélio então \"rouba\" a namorada do primo e se casa com Leila, que vê no empresário uma maior estabilidade financeira.<br>A trama passa então a mostrar a dualidade: Maria de Fátima, rica com o casamento arranjado e enganando todos ao seu redor, enquanto Raquel, vendendo sanduíches na praia, acaba subindo na vida e, de maneira honesta, vira dona de uma rede de restaurantes industriais e se torna uma mulher rica, mas sem esquecer dos seus princípios.",
+  "versaoOriginal": "6a8b9c07cb9be3e604a3ae62",
+  "autor": "6a7517276517af8eb1c4be1d",
+  "emissora": "6a4072a45f65c20175ace022",
+  "personagens":
+  [
+    {
+      "genero": "AMBOS", "generoObrig": false,
+      "etnia": "INDÍGENA", "etniaObrig": true,
+      "faixaEtaria": "ENTRE41_50", "faixaEtariaObrig": false,
+      "faixaPeso": "ENTRE50_100", "faixaPesoObrig": false,
+      "faixaEstatura": "ENTRE15001_200", "faixaEstaturaObrig": true,
+      "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+    },
+    {
+      "_id": "COLE_AQUI_O_ID_DESSE_PERSONAGEM",
+      "genero": "AMBOS", "generoObrig": false,
+      "etnia": "INDÍGENA", "etniaObrig": true,
+      "faixaEtaria": "ENTRE41_50", "faixaEtariaObrig": false,
+      "faixaPeso": "ENTRE50_100", "faixaPesoObrig": false,
+      "faixaEstatura": "ENTRE15001_200", "faixaEstaturaObrig": true,
+      "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+    }
+  ]
+}
+
+### Atualizar versão de personagem
+PATCH http://localhost:1234/versaopersonagem/COLE_AQUI_O_ID
+Content-Type: application/json
+Accept: application/json
+{
+  "_id": "COLE_AQUI_O_ID",
+  "genero": "FEMININO", "generoObrig": true,
+  "etnia": "NEGRO(A)", "etniaObrig": false,
+  "faixaEtaria": "De 41 a 50 anos", "faixaEtariaObrig": false,
+  "faixaPeso": "De 50,01 kg a 100 kg", "faixaPesoObrig": false,
+  "faixaEstatura": "1,51 m a 2,00 m", "faixaEstaturaObrig": false,
+  "versaoNovelaOriginal": "COLE_AQUI_O_ID_DA_NOVELA_ORIGINAL",
+  "personagemOriginal": "COLE_AQUI_O_ID_DO_PERSONAGEM_ORIGINAL"
+}
+
+
+### Excluir autor
+DELETE http://localhost:1234/autor/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir ator
+DELETE http://localhost:1234/ator/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir emissora
+DELETE http://localhost:1234/emissora/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir novela
+DELETE http://localhost:1234/novela/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir personagem
+DELETE http://localhost:1234/personagem/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir versão de novela
+DELETE http://localhost:1234/versaonovela/COLE_AQUI_O_ID
+Accept: application/json
+
+### Excluir versão de personagem
+DELETE http://localhost:1234/versaopersonagem/COLE_AQUI_O_ID
+Accept: application/json
