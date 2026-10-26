@@ -15,6 +15,20 @@ async function get(_id)
     return registro;
 }
 
+function getEnums()
+{
+    // no caso de objeto literal, manter a chave de abertura "{" na mesma linha de "return"
+    return {
+        ESTADO_UF:      ENUMS.ESTADO_UF,
+        ETNIA:          ENUMS.ETNIA,
+        FAIXA_ESTATURA: ENUMS.FAIXA_ESTATURA,
+        FAIXA_ETARIA:   ENUMS.FAIXA_ETARIA,
+        FAIXA_PESO:     ENUMS.FAIXA_PESO,
+        GENERO:         ENUMS.GENERO,
+        PAIS:           ENUMS.PAIS
+    };
+}
+
 async function save(dados, session = null)
 {
     let resultado, registro;
@@ -133,4 +147,4 @@ async function validateFaixaEtaria(faixaEtaria, dataNascimento, dataFalecimento 
     return (faixaEtaria == faixaEtariaAtual.descricao);
 }
 
-module.exports = { getAll, get, save, remove };
+module.exports = { getAll, get, save, remove, getEnums };

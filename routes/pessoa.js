@@ -3,6 +3,19 @@ const Pessoa        = require("../models/Pessoa");
 const pessoaService = require("../services/pessoaService");
 const router        = express.Router();
 
+// GET/enums
+router.get("/enums", (req, res) => 
+{
+    try
+    {
+        res.json(pessoaService.getEnums());
+    }
+    catch (err)
+    {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // GET
 router.get("/", async (req, res) =>
 {

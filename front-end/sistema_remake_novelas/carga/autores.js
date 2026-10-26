@@ -1,5 +1,6 @@
 var autores = [];
 
+/*
 autores.push( {"id":  "1", "nomeCompleto": "Cassiano Gabus Mendes", 				  "nomeArtistico": "Cassiano Gabus Mendes", "genero": "2", "dataNascimento": "1927-07-29", "cidadeNatal": "SÃO PAULO", 				 "uf": "SP", 		"versoesNovelas": [], "imagemFoto": "CASSIANO_GABUS_MENDES.jpg", "imagemUpload": null} );
 autores.push( {"id":  "2", "nomeCompleto": "Maria Adelaide Almeida Santos do Amaral", "nomeArtistico": "Maria Adelaide Amaral", "genero": "1", "dataNascimento": "1942-07-21", "cidadeNatal": "VALONGO", 				 "uf": "EXTERIOR", 	"versoesNovelas": [], "imagemFoto": "MARIA_ADELAIDE_AMARAL.jpg", "imagemUpload": null} );
 autores.push( {"id":  "3", "nomeCompleto": "Glória Maria Rebelo Ferrante", 			  "nomeArtistico": "Glória Perez", 			"genero": "1", "dataNascimento": "1948-09-25", "cidadeNatal": "RIO DE JANEIRO", 		 "uf": "RJ", 		"versoesNovelas": [], "imagemFoto": "GLÓRIA_PEREZ.jpg", 		 "imagemUpload": null} );
@@ -13,3 +14,79 @@ autores.push( {"id": "10", "nomeCompleto": "Manoel Carlos Gonçalves de Almeida"
 autores.push( {"id": "12", "nomeCompleto": "Autor Desconhecido", 					  "nomeArtistico": "Autor Desconhecido", 	"genero": "3", "dataNascimento": "1947-02-05", "cidadeNatal": "AMPARO DO SÃO FRANCISCO", "uf": "SE", 		"versoesNovelas": [], "imagemFoto": null, 						 "imagemUpload": null} );
 autores.push( {"id": "14", "nomeCompleto": "Autor Vindo da Importação", 			  "nomeArtistico": "Autor da Importação", 	"genero": "2", "dataNascimento": "1957-05-18", "cidadeNatal": "RIO DE JANEIRO", 		 "uf": "RJ", 		"versoesNovelas": [], "imagemFoto": null, 						 "imagemUpload": null} );
 autores.push( {"id": "15", "nomeCompleto": "Walcyr Rodrigues Carrasco", 			  "nomeArtistico": "Walcyr Carrasco", 		"genero": "2", "dataNascimento": "1951-12-01", "cidadeNatal": "BERNARDINO DE CAMPOS", 	 "uf": "SP", 		"versoesNovelas": [], "imagemFoto": null, 						 "imagemUpload": null} );
+*/
+
+function GETALL()
+{
+	let resultado = { "dados": [], "mensagem": null };
+	jQuery.ajax
+	({
+		type: "GET",
+		dataType: "json",
+		url: URL + "autor",
+		async: false,
+		success: function (data)
+		{
+			data = data.sort((a, b) => { if (a.nomeArtistico <= b.nomeArtistico) { return -1; }});
+			for (let i = 0; i < data.length; i++)
+				resultado.dados.push({ "Id": data[i]._id, "Nome": data[i].nomeArtistico.toUpperCase(), "ImagemFoto": data[i].imagemFoto });
+			resultado.mensagem = data.message;
+		},
+		error: function (e)
+		{
+			console.log(e);
+			debugger;
+			resultado = { "dados": e, "mensagem": "ERRO INTERNO:\n" + e.message };
+		}
+	});
+	return resultado;
+}
+
+function GET(ID)
+{
+	let resultado = { "dados": null, "mensagem": null };
+	jQuery.ajax
+	({
+		type: "GET",
+		dataType: "json",
+		url: URL + "autor/" + ID,
+		async: false,
+		success: function (data)
+		{
+			resultado.dados = data;
+		},
+		error: function (e)
+		{
+			console.log(e);
+			debugger;
+			resultado = { "dados": e, "mensagem": "ERRO INTERNO:\n" + e.message };
+		}
+	});
+	debugger;
+	return resultado;
+}
+
+function SAVE(typeAJAX, request)	// Parei aqui
+{
+	let response = { "dados": null, "mensagem": null };
+	debugger;
+	$.ajax
+	({
+		type: typeAJAX,
+		contentType: "application/json",
+		url: URL + "autor/" + (typeAJAX == "PUT" ? request._id : ""),
+		data: JSON.stringify(request),
+		async: false,
+		success: function (data)
+		{
+			response.dados = data;
+		},
+		error: function (e)
+		{
+			console.log(e);
+			debugger;
+			response = { "dados": e, "mensagem": "ERRO INTERNO:\n" + e.responseText };
+		}
+	});
+	return response;
+}

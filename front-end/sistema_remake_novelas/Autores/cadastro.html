@@ -4,14 +4,14 @@
     <title>Sistema de Remake de Novelas</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
-    <script src="../css/jquery_3_5_1.min.js"></script>
-    <script src="../css/bootstrap_3_4_1.min.js"></script>
+    <script src="../js/funcoes_gerais.js"></script>
+	<script src="../js/jquery3-4-1.min.js"></script>
 	<script src="../carga/autores.js"></script>
 	<script src="../carga/novelas.js"></script>
 	<script src="../carga/versoesNovelas.js"></script>
-	<script src="../carga/itens_combo.js"></script>
     <style>
-        .campo_texto {
+        .campo_texto
+		{
             border: solid 1px #000;
             border-radius: 5px;
             font-size: 12px;
@@ -21,7 +21,8 @@
 			margin: -4px 0px 0px 0px;
         }
 
-        .campo_texto_desabilitado {
+        .campo_texto_desabilitado
+		{
             border: solid 1px #000;
             border-radius: 5px;
             font-size: 12px;
@@ -75,6 +76,7 @@
 		<div style="font-size:12px;height:359px;width:100%;">
 			<form enctype="multipart/form-data" method="post">
 				<input type="hidden" id="Id" value="">
+				<input type="hidden" id="PessoaId" value="">
 				<input type="hidden" id="hidFaixaEtaria">
 				<input type="hidden" id="hidConteudoArquivo">
 				<div class="form-group" style="padding-top:10px;">
@@ -178,8 +180,6 @@
 			</form>
 		</div>
     </div>
-
-    <script src="../js/funcoes_gerais.js"></script>
 	<script>
         /*function getAutor(id)
         {
@@ -296,37 +296,25 @@
 			}
 			else
 			{
+				const enums = GETENUMS();
 				let itens;
 				switch (opcao)
 				{
-					case 1: idCombo = "Genero"; 	   itens = itensComboGeneros; 		 break;
-					case 2: idCombo = "Etnia"; 		   itens = itensComboEtnias; 		 break;
-					case 3: idCombo = "FaixaEtaria";   itens = itensComboFaixasEtarias;	 break;
-					case 4: idCombo = "FaixaPeso"; 	   itens = itensComboFaixasPeso; 	 break;
-					case 5: idCombo = "FaixaEstatura"; itens = itensComboFaixasEstatura; break;
+					case 1: idCombo = "Genero"; 	   itens = enums.dados.GENERO; 		   break;
+					case 2: idCombo = "Etnia"; 		   itens = enums.dados.ETNIA; 		   break;
+					case 3: idCombo = "FaixaEtaria";   itens = enums.dados.FAIXA_ETARIA;   break;
+					case 4: idCombo = "FaixaPeso"; 	   itens = enums.dados.FAIXA_PESO; 	   break;
+					case 5: idCombo = "FaixaEstatura"; itens = enums.dados.FAIXA_ESTATURA; break;
 				}
-				//let combo = document.createElement("SELECT");
-				//combo.id = "#cbo" + idCombo;
-				//combo.className = "combo";
-				//combo.append(v_option);
-				//for (var i = 0; i < itens.length; i++)
-				//{
-				//	var dadosItem = itens[i].split('|');
-				//	v_option = new Option(dadosItem[1], dadosItem[0]);
-				//	combo.append(v_option);
-				//}
-				//$("#div" + idCombo).append(combo);
-
                 $("#div" + idCombo).html("<select id='cbo"+idCombo+"' class='combo'></select>");
 				$("#cbo" + idCombo + " option").remove();
                 $("#cbo" + idCombo).prop("disabled", (itens.length == 0));
 				let v_option = new Option("-- Selecione --", "");
                 $("#cbo" + idCombo).append(v_option);
-				for (let i = 0; i < itens.length; i++)
+				for (const [chave, valor] of Object.entries(itens))
 				{
-					const dadosItem = itens[i].split('|');
-					v_option = new Option(dadosItem[1], dadosItem[0]);
-					$("#cbo" + idCombo).append(v_option);
+					const _valor = (opcao == 1 || opcao == 2 ? valor : valor.descricao);
+					$("#cbo" + idCombo).append(new Option(_valor, _valor));
 				}
 			}
         }
@@ -398,34 +386,41 @@
 
         function getAutor(id)
         {
-			for (var i = 0; i < autores.length; i++)
+			const registro = GET(id);
+			if (registro.mensagem != null)
+				alert(registro.mensagem);
+			else
 			{
-				if (autores[i].id == id)
-				{
-					$("#Id").val(autores[i].id);
-					$("#txtNomeCompleto").val(autores[i].nomeCompleto);
-					$("#txtNomeArtistico").val(autores[i].nomeArtistico);
-					$("#txtDataNascimento").val(autores[i].dataNascimento);
-					$("#cboGenero").val(autores[i].genero);
-					$("#cboUF").val(autores[i].uf);
-					getCidades($("#cboUF").val());
-					$("#cboCidadeNatal").val(autores[i].cidadeNatal);
-					$("#imgAutor").attr("src", "../imagens/" + (autores[i].imagemFoto == null ? "SEM_FOTO.jpg" : "Autores/" + autores[i].imagemFoto));
+				const _dados = registro.dados;
+				$("#Id").val(_dados._id);
+				$("#txtNomeArtistico").val(_dados.nomeArtistico);
+				$("#txtCPF").val(_dados.pessoa.CPF);
+				$("#PessoaId").val(_dados.pessoa._id);
+				$("#txtNomeCompleto").val(_dados.pessoa.nomeCompleto);
+				$("#txtDataNascimento").val(_dados.pessoa.dataNascimento.substring(0, 10));
+				if (_dados.pessoa.dataFalecimento != null)
+					$("#txtDataFalecimento").val(_dados.pessoa.dataFalecimento.substring(0, 10));
+				$("#cboGenero").val(_dados.pessoa.genero);
+				$("#cboEtnia").val(_dados.pessoa.etnia);
+				$("#cboFaixaEtaria").val(_dados.pessoa.faixaEtaria);
+				$("#cboFaixaPeso").val(_dados.pessoa.faixaPeso);
+				$("#cboFaixaEstatura").val(_dados.pessoa.faixaEstatura);
+				$("#cboUF").val(_dados.pessoa.UF);
+				getCidades($("#cboUF").val());
+				$("#cboCidadeNatal").val(_dados.pessoa.cidadeNatal);
+				$("#imgAutor").attr("src", "../imagens/" + (_dados.pessoa.imagemFoto == null ? "SEM_FOTO.jpg" : "Autores/" + _dados.pessoa.imagemFoto));
 
-					let versoesNovelasDoAutor = getVersoesNovelas("A", id);
-					debugger;
-					let listaNovelas = "";
-					listaNovelas += "<ul style='padding-left:20px;'>";
-					for (var j = 0; j < versoesNovelasDoAutor.length; j++)
-					{
-						listaNovelas += "<li>";
-						listaNovelas += "<a href='#' style='font-weight:bold;color:#000;'>" + versoesNovelasDoAutor[j].tituloNovela + " (" + versoesNovelasDoAutor[j].anoLancamento + ")</a>";
-						listaNovelas += "</li>";
-					}
-					listaNovelas += "</ul>";
-					$("#divNovelas").html(listaNovelas);
-					break;
+				//let versoesNovelasDoAutor = getVersoesNovelas("A", id);
+				let listaNovelas = "";
+				listaNovelas += "<ul style='padding-left:20px;'>";
+				for (let i = 0; i < _dados.versoesNovelas.length; i++)
+				{
+					listaNovelas += "<li>";
+					listaNovelas += "<a href='#' style='font-weight:bold;color:#000;'>" + _dados.versoesNovelas[i].titulo + " (" + _dados.versoesNovelas[i].dataLancamento + ")</a>";
+					listaNovelas += "</li>";
 				}
+				listaNovelas += "</ul>";
+				$("#divNovelas").html(listaNovelas);
 			}
         }
 
@@ -450,16 +445,40 @@
                 $("#txtNomeCompleto").focus();
                 return;
             }
-            if ($("#cboGenero").val() == 0)
+            if ($("#txtDataNascimento").val() == "")
+            {
+                alert("É necessário preencher a data de nascimento.");
+                $("#txtDataNascimento").focus();
+                return;
+            }
+            if ($("#cboGenero").val() == "")
             {
                 alert("É necessário preencher o gênero.");
                 $("#cboGenero").focus();
                 return;
             }
-            if ($("#txtDataNascimento").val() == "")
+            if ($("#cboEtnia").val() == "")
             {
-                alert("É necessário preencher a data de nascimento.");
-                $("#txtDataNascimento").focus();
+                alert("É necessário preencher a etnia.");
+                $("#cboEtnia").focus();
+                return;
+            }
+            if ($("#cboFaixaEtaria").val() == "")
+            {
+                alert("É necessário preencher a faixa etária.");
+                $("#cboFaixaEtaria").focus();
+                return;
+            }
+            if ($("#cboFaixaPeso").val() == "")
+            {
+                alert("É necessário preencher a faixa de peso.");
+                $("#cboFaixaPeso").focus();
+                return;
+            }
+            if ($("#cboFaixaEstatura").val() == "")
+            {
+                alert("É necessário preencher a faixa de estatura.");
+                $("#cboFaixaEstatura").focus();
                 return;
             }
             if ($("#cboUF").val() == "")
@@ -477,7 +496,7 @@
 
             const _pessoa =
             {
-				"_id": $("#Id").val(),
+				"_id": $("#PessoaId").val(),
 				"CPF": $("#txtCPF").val().trim(),
 				"nomeCompleto": $("#txtNomeCompleto").val().trim(),
 				"dataNascimento": $("#txtDataNascimento").val(),
@@ -496,58 +515,41 @@
 			let _versoesNovelas = [];
 			const dados =
 			{
-				"id": _pessoa._id,
+				"_id": $("#Id").val(),
 				"nomeArtistico": $("#txtNomeArtistico").val().trim(),
-				"pessoa": _pessoa,
-				"versoesNovelas": _versoesNovelas
+				"versoesNovelas": _versoesNovelas,
+				"pessoa": _pessoa
 			};
-			
-			/*const dados2 =
+
+			/*const xyz = "II";
+			const dados2 =
 			{
-				"id": "",
-				"nomeArtistico": "Cássio Matos",
-				"pessoa": {
+				"_id": "",
+				"nomeArtistico": "Autor " + xyz,
+				"versoesNovelas": [],
+				"pessoa":
+				{
 					"_id": "",
-					"CPF": "079.969.037-60",
-					"nomeCompleto": "Cássio Matos",
+					"CPF": "111.111.111-12",
+					"nomeCompleto": "Pessoa de Teste " + xyz,
 					"dataNascimento": "1977-09-22",
 					"dataFalecimento": "",
 					"cidadeNatal": "RIO DE JANEIRO",
 					"UF": "RJ",
-					"genero": "MASCULINO",
-					"etnia": "NEGRO(A)",
-					"faixaEtaria": "41 a 50 ANOS",
-					"faixaPeso": "50,01 kg a 100,00 kg",
+					"genero": "AMBOS",
+					"etnia": "INDÍGENA",
+					"faixaEtaria": "De 41 a 50 anos",
+					"faixaPeso": "De 50,01 kg a 100 kg",
 					"faixaEstatura": "1,51 m a 2,00 m",
 					"imagemFoto": null,
 					"imagemUpload": null
-				},
-				"versoesNovelas": []
+				}
 			};*/
 
-            $.ajax({
-                type: typeAJAX,
-                contentType: "application/json",
-                url: URL + "autor/" + (typeAJAX == "PUT" ? $("#Id").val() : ""),
-                data: JSON.stringify(dados),
-                async: false,
-                success: function (data)
-                {
-                    if (data.id <= 0)
-                        alert("Erro interno - não foi possível o cadastro!");
-                    else
-                    {
-                        alert("Operação realizada com sucesso.");
-                        window.location.href = "listagem.html";
-                    }
-                },
-                error: function (e)
-                {
-                    console.log(e.message);
-					debugger;
-                    alert("Erro interno - não foi possível o cadastro!");
-                }
-            });
+			const resultado = SAVE(typeAJAX, dados);
+			alert(resultado.mensagem);
+			if (resultado.dados != null)
+				window.location.href = "listagem.html";
         }
 
         $("#cboUF").change(function () { getCidades(this.value); });
@@ -569,11 +571,11 @@
             preencherCombo(4);
             preencherCombo(5);
             $("#imgAutor").attr("src", "../imagens/SEM_FOTO.jpg");
-            if (window.location.href.indexOf('?') != -1)
+            if (window.location.href.indexOf('?Id=') != -1)
             {
-                var URL = window.location.href.split('?');
+                const URL = window.location.href.split('?Id=');
                 if (URL[1] !== undefined)
-                    getAutor(URL[1].split('=')[1]);
+                    getAutor(URL[1]);
             }
         });
     </script>

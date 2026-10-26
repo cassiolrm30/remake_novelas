@@ -2,12 +2,16 @@
 GET http://localhost:1234/pessoa
 Accept: application/json
 
+### Consultar listas de constantes
+GET http://localhost:1234/pessoa/enums
+Accept: application/json
+
 ### Listar usuários
 GET http://localhost:1234/usuario
 Accept: application/json
 
 ### Listar autores
-GET http://localhost:1234/autor
+GET http://localhost:1234/autor/
 Accept: application/json
 
 ### Listar atores
@@ -174,21 +178,22 @@ Accept: application/json
 
 
 ### Atualizar autor
-PATCH http://localhost:1234/autor/COLE_AQUI_O_ID
+PATCH http://localhost:1234/autor/6adeab0c67339464800abd39
 Content-Type: application/json
 Accept: application/json
+
 {
-  "_id": "COLE_AQUI_O_ID",
-  "nomeArtistico": "Autor de Teste Atualizado",
+  "_id": "6adeab0c67339464800abd39",
+  "nomeArtistico": "AUTOR MMXXVI",
   "versoesNovelas": [],
   "pessoa":
   {
-    "_id": "COLE_AQUI_O_ID_DA_PESSOA",
-    "CPF": "CPF_JA_CADASTRADO_PARA_ESTA_PESSOA",
-    "nomeCompleto": "Pessoa de Teste",
+    "_id": "6adeab0c67339464800abd3a",
+    "CPF": "111.111.111.14",
+    "nomeCompleto": "Pessoa de Teste 2026",
     "dataNascimento": "1990-05-15",
-    "cidadeNatal": "Rio de Janeiro",
-    "UF": "RJ",
+    "cidadeNatal": "BELÉM",
+    "UF": "PA",
     "genero": "AMBOS",
     "etnia": "INDÍGENA",
     "faixaEtaria": "De 31 a 40 anos",

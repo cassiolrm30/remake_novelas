@@ -4,7 +4,8 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../css/bootstrap_3_4_1.min.css">
-	<script src="../css/jquery_3_5_1.min.js"></script>
+    <script src="../js/funcoes_gerais.js"></script>
+	<script src="../js/jquery3-4-1.min.js"></script>
 	<script src="../carga/autores.js"></script>
 	<style>
 	.abas     { background-color:#FFFFFF; }
@@ -43,11 +44,10 @@
 			</center>
 		</div>
     </div>
-    <script src="../js/funcoes_gerais.js"></script>
 	<script>
 		var v_ascii_inicio  = 65;
 		var v_ascii_fim     = 90;
-		var dados    		= [];
+		var listagem   		= [];
 		var tabela, rotulos = [], larguras = [], aligns = [];
 		var v_qt_linhas 	= 1;
 		var	sentidosAscendente = [];
@@ -59,26 +59,28 @@
 			rotulos  = ["", "Nome", "A&ccedil;&otilde;es"];
             larguras = ["100px", "800px", "100px"];
             aligns   = ["center", "left", "center"];
-			for (var i = 0; i < rotulos.length; i++)
+			for (let i = 0; i < rotulos.length; i++)
 				sentidosAscendente.push(true);
 
-			dados = getAutores();
-			if (dados.length > 0)
+			listagem = GETALL();
+			if (listagem.dados.length == 0)
+				alert(listagem.mensagem);
+			else
 			{
                 montarAbasPorLetraInicial();
 				$(".abas li:first div").addClass("selected");
-				$(".aba").click(
+				$(".aba").click
+				(
 					function()
 					{
 						$(".aba").removeClass("selected");
 						$(this).addClass("selected");
-						var filtro = parseInt($(this).attr("id").replace("aba",""));
 						v_qt_linhas = 1;
-						montarTabela(1, filtro);
+						montarTabela(1, parseInt($(this).attr("id").replace("aba","")));
 					}
 				);
 				tabela = document.getElementById($("#content table").prop("id"));
-				v_ascii_inicio = dados[0].Nome.charCodeAt(0);
+				v_ascii_inicio = listagem.dados[0].Nome.charCodeAt(0);
 				montarTabela(1, v_ascii_inicio);
 			}
 		});

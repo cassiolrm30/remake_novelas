@@ -1,8 +1,8 @@
-var URL = "https://localhost:5001/api/";
+var URL = "http://localhost:1234/";
 var v_qt_registros_por_pagina = 5;
 var v_ascii_inicio = 65;
 var v_ascii_fim = 218;
-var dados = [];
+var listagem = [];
 var tabela, rotulos = [], larguras = [], aligns = [];
 var v_qt_linhas = 1;
 var sentidosAscendente = [];
@@ -46,28 +46,6 @@ function MontarRodape()
 }
 
 /*
-function getAutores()
-{
-	var resultado = [];
-	jQuery.ajax
-	({
-		type: "GET",
-		dataType: "json",
-		url: URL + "autor",
-		async: false,
-		success: function(data)
-		{
-			for (var i = 0; i < data.length; i++)
-				resultado.push({ "Id": data[i].id, "Nome": data[i].nomeArtistico.toUpperCase(), "ImagemFoto": data[i].imagemFoto });
-		},
-		error: function(data) {	},
-	});
-	autores = autores.sort((a, b) => { if (a.nomeArtistico <= b.nomeArtistico) { return -1; }});
-	for (let i = 0; i < autores.length; i++)
-		resultado.push({ "Id": autores[i].id, "Nome": autores[i].nomeArtistico.toUpperCase(), "ImagemFoto": autores[i].imagemFoto });
-	return resultado;
-}
-
 function getNovelas()
 {
 	var resultado = [];
@@ -192,15 +170,6 @@ function excluir(id, opcaoTela)
 }
 */
 
-function getAutores()
-{
-	var resultado = [];
-	autores = autores.sort((a, b) => { if (a.nomeArtistico <= b.nomeArtistico) { return -1; }});
-	for (let i = 0; i < autores.length; i++)
-		resultado.push({ "Id": autores[i].id, "Nome": autores[i].nomeArtistico.toUpperCase(), "ImagemFoto": autores[i].imagemFoto });
-	return resultado;
-}
-
 function getNovelas()
 {
 	var resultado = [];
@@ -287,7 +256,7 @@ function montarAbasPorLetraInicial()
 	resultado += "<ul class='abas' type='none'>";
 	for (var i = v_ascii_inicio; i <= v_ascii_fim; i++)
 	{
-		if (dados.filter(function (item)
+		if (listagem.dados.filter(function (item)
 						 {
 							let unicodeDaLetraInicial = (item.Nome == null ? item.Titulo : item.Nome).charCodeAt(0);
 							switch (unicodeDaLetraInicial)	// vogais com acentos
@@ -336,7 +305,7 @@ function montarTabela(p_opcao_tela, p_unicode)
 	$(".celulaTitulo").click(function () { sortTable(this.cellIndex); });
 
 	// Definindo o corpo da tabela
-	var dados_filtrados = dados.filter(function (item)
+	var dados_filtrados = listagem.dados.filter(function (item)
 									   {
 											var filtro = (item.Nome == null ? item.Titulo.charCodeAt(0) : item.Nome.charCodeAt(0))
 											switch (p_unicode)	// vogais com acentos
@@ -358,7 +327,7 @@ function montarTabela(p_opcao_tela, p_unicode)
 												default: return p_unicode == filtro;
 											}
 									   });
-	var v_qt_paginas    = (dados.length / v_qt_registros_por_pagina).toFixed(0);
+	var v_qt_paginas    = (listagem.dados.length / v_qt_registros_por_pagina).toFixed(0);
 	debugger;
 	if (v_unicode_anterior != v_unicode_atual)
 	{
@@ -371,8 +340,8 @@ function montarTabela(p_opcao_tela, p_unicode)
 	for (var i = 0; i < dadosPaginados.length; i++)
 	{
 		var celulas = [];
-		var linkEditar = "<a href='#' onclick='editar(" + dadosPaginados[i].Id + ");'><img src='../imagens/editar.jpg' /></a>";
-		var linkExcluir = "<a href='#' onclick='excluir(" + dadosPaginados[i].Id + ", " + p_opcao_tela + ");'><img src='../imagens/excluir.jpg' /></a>";
+		var linkEditar = "<a href='#' onclick=editar('" + dadosPaginados[i].Id + "');><img src='../imagens/editar.jpg' /></a>";
+		var linkExcluir = "<a href='#' onclick=excluir('" + dadosPaginados[i].Id + "', " + p_opcao_tela + ");><img src='../imagens/excluir.jpg' /></a>";
 		switch (p_opcao_tela)
 		{
 			// Tela de autores
@@ -470,7 +439,7 @@ function montarAbasListagemNovelas()
 	{
 		if (i <= 90 || i == 192 || i == 193 || i == 194 || i == 201 || i == 202 || i == 205 || i == 211 || i == 212 || i == 218)
 		{
-			if (dados.filter(function (item) { return item.Titulo.substring(0, 1) == String.fromCharCode(i); }).length > 0)
+			if (listagem.dados.filter(function (item) { return item.Titulo.substring(0, 1) == String.fromCharCode(i); }).length > 0)
 				resultado += "<li><div class='aba' id='aba" + i + "'><span>" + String.fromCharCode(i) + "</span></div></li>";
 		}
 	}
@@ -559,15 +528,15 @@ function excluir(id, opcaoTela)
 		var resultado = "";
 		if (true) // se a exclusão foi sucessiva
 		{
-			for (var i = 0; i < dados.length; i++)
+			for (var i = 0; i < listagem.dados.length; i++)
 			{
-				if (dados[i].Id == id)
+				if (listagem.dados[i].Id == id)
 				{
-					dados.splice(i, 1);		
+					listagem.dados.splice(i, 1);		
 					break;
 				}
 			}
-			if (dados.length > 0)
+			if (listagem.dados.length > 0)
 			{
 				var v_unicode = document.getElementsByClassName("aba selected")[0].id.replace("aba", "");
 				var v_unicodes_acentos = [];
@@ -590,7 +559,7 @@ function excluir(id, opcaoTela)
 					default:  v_unicodes_acentos = [parseInt(v_unicode)]; 	 	 	 break;
 				}
 				// no caso de não haver mais registros com a inicial selecionada, remove-se a aba corrente e seleciona-se a primeira aba à esquerda
-				if (dados.filter(function (item) 
+				if (listagem.dados.filter(function (item) 
 								 {
 									return v_unicodes_acentos.includes(parseInt(item.Nome == null ? item.Titulo.charCodeAt(0) : item.Nome.charCodeAt(0)));
 								 }).length == 0)
@@ -618,6 +587,29 @@ function replaceAll(palavraOuFrase, antes, depois)
 	while (palavraOuFrase.indexOf(antes) != -1)
 		palavraOuFrase = palavraOuFrase.replace(antes, depois);
 	return palavraOuFrase;
+}
+
+function GETENUMS()
+{
+	let resultado = { "dados": null, "mensagem": null };
+	jQuery.ajax
+	({
+		type: "GET",
+		dataType: "json",
+		url: URL + "pessoa/enums",
+		async: false,
+		success: function (data)
+		{
+			resultado = { "dados": data, "mensagem": data.message };
+		},
+		error: function (e)
+		{
+			console.log(e);
+			debugger;
+			resultado = { "dados": e, "mensagem": "ERRO INTERNO:\n" + e.message };
+		}
+	});
+	return resultado;
 }
 
 $(document).ready(function ()
